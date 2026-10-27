@@ -348,6 +348,17 @@ export function initKingdom(){
     }
   }
 
+  // 高级旗帜细节：折叠面板（默认收起，只展示核心元素）
+  const advToggle = document.getElementById('flag-adv-toggle');
+  const advBox = document.getElementById('flag-adv');
+  if (advToggle && advBox){
+    advToggle.onclick = ()=>{
+      const open = advBox.hasAttribute('hidden');
+      if (open){ advBox.removeAttribute('hidden'); advToggle.classList.add('open'); }
+      else { advBox.setAttribute('hidden',''); advToggle.classList.remove('open'); }
+    };
+  }
+
   // 初始渲染
   document.getElementById('star-count-row').style.display = 'flex';
   applyFlag();

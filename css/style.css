@@ -7,9 +7,14 @@
   --violet:#8a6bff;
   --cyan:#5fe0ff;
   --rose:#ff7eb6;
-  --glass:rgba(255,255,255,.045);
-  --glass-strong:rgba(255,255,255,.07);
+  --glass:rgba(255,255,255,.035);
+  --glass-strong:rgba(255,255,255,.06);
   --line:rgba(255,255,255,.10);
+  /* 细金线：卡片 / 弹窗 / 信息卡 / 星图瓦片统一品牌线 */
+  --gold-line:rgba(207,168,106,.30);
+  --gold-line-2:rgba(245,201,123,.55);
+  --navy-1:#0a1330;
+  --navy-2:#070b1c;
   --shadow:0 24px 70px rgba(0,0,0,.55);
   --r:18px;
 }
@@ -136,10 +141,15 @@ body{
   background:linear-gradient(120deg,#fff,#9fb4ff);-webkit-background-clip:text;
   background-clip:text;color:transparent}
 .uni-sub{color:var(--muted);margin-bottom:26px;font-weight:300}
-.star-params{display:grid;grid-template-columns:1fr 1fr;gap:10px 26px;margin-bottom:30px;
+/* 分组参数：基础信息 / 物理参数 / 天体坐标，清爽两列 */
+.star-params{display:flex;flex-direction:column;gap:18px;margin-bottom:30px;
   max-height:46vh;overflow:auto;padding-right:6px}
-.sp{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:9px 0;
-  border-bottom:1px dashed rgba(255,255,255,.08);font-size:13px}
+.sp-group-title{font-family:"Space Grotesk";font-size:10px;letter-spacing:3px;color:var(--gold);
+  text-transform:uppercase;margin-bottom:9px;padding-bottom:7px;
+  border-bottom:1px solid var(--gold-line);display:flex;align-items:center;gap:8px}
+.sp-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 26px}
+.sp{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:8px 0;
+  border-bottom:1px dashed rgba(207,168,106,.14);font-size:13px}
 .sp b{color:var(--cyan);font-family:"Space Grotesk";font-weight:500;text-align:right;
   white-space:normal;overflow-wrap:anywhere;word-break:break-word;min-width:0}
 .sp span{color:var(--muted);text-align:left;flex:none}
@@ -204,7 +214,7 @@ body{
 .star-count{align-items:center}
 .sc-btn{width:34px;height:30px;border-radius:9px;border:1px solid var(--line);background:var(--glass-strong);
   color:var(--ink);cursor:pointer;font-size:13px;transition:.2s}
-.sc-btn.on{border-color:var(--cyan);background:rgba(95,224,255,.16);color:var(--cyan);font-weight:600}
+.sc-btn.on{border-color:var(--gold-line-2);background:rgba(245,201,123,.14);color:var(--gold);font-weight:600}
 .flag-presets{display:flex;gap:8px;flex-wrap:wrap;margin-top:2px}
 .preset-btn{display:flex;align-items:center;gap:7px;padding:6px 11px;border-radius:10px;border:1px solid var(--line);
   background:var(--glass-strong);color:var(--ink);cursor:pointer;font-size:12.5px;transition:.2s}
@@ -212,6 +222,19 @@ body{
 .preset-chip{width:18px;height:12px;border-radius:3px;display:inline-block;position:relative;overflow:hidden;
   border:1px solid rgba(255,255,255,.2)}
 .preset-chip i{position:absolute;right:1px;top:1px;width:5px;height:5px;border-radius:50%}
+/* 建国页：左表单 / 右旗帜预览 用细金线分割，分区清晰 */
+.claim-layout .claim-col:last-child{border-left:1px solid rgba(207,168,106,.45);padding-left:40px}
+/* 高级旗帜细节：折叠，默认只展示核心元素 */
+.flag-adv-toggle{margin-top:4px;align-self:flex-start;display:flex;align-items:center;gap:7px;
+  padding:8px 14px;border-radius:10px;border:1px solid rgba(207,168,106,.30);
+  background:var(--glass-strong);color:var(--gold);cursor:pointer;font-size:13px;transition:.2s;letter-spacing:.5px}
+.flag-adv-toggle:hover{border-color:rgba(245,201,123,.6)}
+.flag-adv-toggle .fa-caret{transition:.25s;display:inline-block}
+.flag-adv-toggle.open .fa-caret{transform:rotate(180deg)}
+.flag-adv{display:flex;flex-direction:column;gap:12px;margin-top:6px;
+  padding-top:14px;border-top:1px solid var(--gold-line)}
+.flag-adv[hidden]{display:none}
+
 /* 星图墙上的星球寄语：让认领者写的话在星图墙上直接可见 */
 .wt-msg{margin-top:5px;font-size:11.5px;line-height:1.5;font-style:italic;color:#cfe4ff;
   padding:5px 8px;border-radius:7px;border:1px solid rgba(95,224,255,.18);
@@ -410,9 +433,37 @@ body{
 .si-grid b{font-family:"Space Grotesk";font-size:15px;font-weight:600}
 .explore-foot{position:absolute;bottom:20px;left:0;right:0;z-index:5;display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap}
 
+/* ===== 设计语言统一：细金线 + 深蓝衬底 ===== */
+/* 全屏星空衬底统一深海军蓝调，弱化密集白点与艳紫红，让主背景沉下来 */
+.cosmos-tint{position:fixed;inset:0;z-index:2;pointer-events:none;
+  background:
+    radial-gradient(125% 95% at 50% 0%, rgba(13,27,58,.30), transparent 58%),
+    radial-gradient(120% 100% at 50% 100%, rgba(7,10,26,.50), transparent 55%),
+    linear-gradient(180deg, rgba(10,16,40,.10), rgba(6,9,24,.24))}
+
+/* 卡片 / 弹窗 / 信息卡 / 星图瓦片：统一细金线边框，品牌一致 */
+.q-card,.sky-info,.sky-search,.sky-tools,.sky-layers,.note-item,.law-box,
+.flag-stage,.shared-banner,.wall-tile,.premium-block,.si-msg{
+  border-color:var(--gold-line);
+}
+/* 问答选项：极细金线 + 细微圆角，与证书金线统一 */
+.opt{border-color:rgba(207,168,106,.32)}
+.opt:hover{border-color:rgba(245,201,123,.55);background:rgba(245,201,123,.06)}
+.opt.sel{border-color:var(--gold-line-2);background:rgba(245,201,123,.10);
+  box-shadow:0 0 22px rgba(245,201,123,.18)}
+/* 星图信息卡：细金边框 */
+.sky-info{border:1px solid var(--gold-line-2);box-shadow:0 10px 40px rgba(0,0,0,.5), inset 0 0 0 1px rgba(245,201,123,.08)}
+.si-msg{border:1px solid rgba(245,201,123,.32)}
+/* 星图工具条：金线描边（替代原冷蓝） */
+.sky-search,.sky-tools,.sky-layers{border-color:var(--gold-line)}
+/* 分组参数标题的金线小圆点 */
+.sp-group-title::before{content:"";flex:none;width:5px;height:5px;border-radius:50%;
+  background:var(--gold);box-shadow:0 0 8px rgba(245,201,123,.8)}
+
 /* ---------- 响应式 ---------- */
 @media (max-width:900px){
   .uni-layout,.claim-layout,.share-layout{grid-template-columns:1fr;gap:28px}
+  .claim-layout .claim-col:last-child{border-left:none;padding-left:0}
   .uni-right{height:46vh;order:-1}
   .star-params{max-height:none}
   .topnav{display:none}
@@ -422,6 +473,7 @@ body{
   .zodiac-grid{grid-template-columns:repeat(3,1fr)}
   .q-options.cols3{grid-template-columns:repeat(2,1fr)}
   .star-params{grid-template-columns:1fr}
+  .sp-grid{grid-template-columns:1fr}
   .cert-title{font-size:24px;letter-spacing:5px}
   .cert-orb-area{width:190px;height:190px}
   .cert-parchment{padding:18px 16px 26px}
@@ -509,8 +561,8 @@ body{
 .cinema-text{position:absolute;top:38vh;left:0;right:0;text-align:center;z-index:25;padding:14px 24px;pointer-events:none;
   background:linear-gradient(90deg, transparent, rgba(6,10,26,.52) 14%, rgba(6,10,26,.52) 86%, transparent);
   border-radius:12px}
-.ct-line{font-family:"Noto Serif SC",serif;font-size:clamp(15px,2.5vw,23px);line-height:1.7;
-  color:#eef3ff;opacity:0;transform:translateY(16px);margin:9px 0;
+.ct-line{font-family:"Noto Serif SC",serif;font-size:clamp(15px,2.5vw,23px);line-height:2.35;
+  color:#eef3ff;opacity:0;transform:translateY(16px);margin:15px 0;letter-spacing:1px;
   text-shadow:0 2px 16px rgba(0,0,0,.9)}
 .ct-line.show{opacity:1;transform:none;transition:opacity 1.2s ease, transform 1.2s ease}
 .ct-line b{color:var(--gold);font-weight:700;text-shadow:0 0 18px rgba(245,201,123,.5)}
@@ -520,6 +572,9 @@ body{
   align-items:center;gap:14px;z-index:25;opacity:0;transition:opacity 1s ease}
 .cinema-cta.show{opacity:1}
 .cinema-sub{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+/* 弱化序章的三个次要按钮，把视觉重心交给主按钮 */
+.cinema-sub .btn{opacity:.55;transition:opacity .35s ease, transform .25s ease, border-color .25s}
+.cinema-sub .btn:hover{opacity:1}
 .btn-sm{padding:9px 16px;font-size:13px}
 .btn-arrow{display:inline-block;margin-left:6px;transition:.25s}
 .btn-primary:hover .btn-arrow{transform:translateX(5px)}

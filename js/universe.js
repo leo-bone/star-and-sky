@@ -452,13 +452,13 @@ export function initUniverse(canvas){
     vertexShader: PT_VERT, fragmentShader: PT_FRAG,
     transparent:true, blending:THREE.AdditiveBlending, depthWrite:false
   });
-  starGroup.add(buildStars(14000, 60, 320, 2.2));
-  starGroup.add(buildStars(5000, 500, 1300, 1.6));  // 远景层，增强纵深
+  starGroup.add(buildStars(6500, 60, 320, 2.0));
+  starGroup.add(buildStars(2000, 500, 1300, 1.5));  // 远景层，增强纵深
 
   // ---- 亮星 + 星芒层（ astrophotography 质感） ----
   const flareTex = makeFlareTexture();
   const flareColors = ['#ffffff','#bcd0ff','#ffe6c0','#c9a8ff'];
-  for(let i=0;i<46;i++){
+  for(let i=0;i<28;i++){
     const m = new THREE.SpriteMaterial({ map:flareTex, color:new THREE.Color(flareColors[i%flareColors.length]),
       transparent:true, blending:THREE.AdditiveBlending, depthWrite:false, opacity:0.85, fog:false });
     const s = new THREE.Sprite(m);
@@ -471,11 +471,11 @@ export function initUniverse(canvas){
 
   // ---- 彩色星云（不规则云团，沿银河带分布，低强度） ----
   const nebTex = makeNebulaTexture();
-  const nebColors = ['#b34a6e','#3b6fae','#7a2f6e','#138a7e','#5a3b9e','#c0533f'];
+  const nebColors = ['#5a4f86','#3a5a86','#5a4a82','#2f6a72','#4a5a8a','#7a5a5a'];
   const nebula = new THREE.Group(); scene.add(nebula);
   for (let i=0;i<9;i++){
     const m = new THREE.SpriteMaterial({ map:nebTex, color:new THREE.Color(nebColors[i%nebColors.length]),
-      transparent:true, blending:THREE.AdditiveBlending, opacity:0.30, depthWrite:false, fog:false });
+      transparent:true, blending:THREE.AdditiveBlending, opacity:0.16, depthWrite:false, fog:false });
     const s = new THREE.Sprite(m);
     const r = 260 + Math.random()*480;
     const th = Math.random()*Math.PI*2, ph = Math.acos(2*Math.random()-1);
@@ -517,7 +517,7 @@ export function initUniverse(canvas){
   const glowMesh = new THREE.Mesh(glowGeo, glowMat); hero.add(glowMesh);
 
   const corona = new THREE.Sprite(new THREE.SpriteMaterial({ map:makeCoronaTexture(), color:new THREE.Color('#ffb358'),
-    transparent:true, blending:THREE.AdditiveBlending, opacity:0.18, depthWrite:false }));
+    transparent:true, blending:THREE.AdditiveBlending, opacity:0.12, depthWrite:false }));
   corona.scale.set(RAD*2.9, RAD*2.9, 1); hero.add(corona);
 
   // ---- 英雄：行星 ----
@@ -564,7 +564,7 @@ export function initUniverse(canvas){
   // Bloom 阈值提高、强度降低：只让最亮的日冕/临边微微发光，恒星盘面保留星色与颗粒细节，不再被烧成白块
   const composer = new EffectComposer(renderer);
   composer.addPass(new RenderPass(scene, camera));
-  const bloom = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.22, 0.55, 0.82);
+  const bloom = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.16, 0.55, 0.82);
   composer.addPass(bloom);
   composer.addPass(new OutputPass());
 

@@ -71,9 +71,9 @@ export function initPlanet3D(canvas){
   controls.zoomSpeed = 0.9; controls.zoomToCursor = true;
   controls.autoRotate = false;   // 交由用户手动拖拽，星体自身缓慢自转
 
-  // 视口内星场背景：增强空间纵深，旋转 / 缩放时明显感知 3D 构图
+  // 视口内星场背景：增强空间纵深，旋转 / 缩放时明显感知 3D 构图（克制密度，少即是多）
   const starGeo = new THREE.BufferGeometry();
-  const STAR_N = 1400;
+  const STAR_N = 600;
   const sp = new Float32Array(STAR_N * 3);
   for (let i = 0; i < STAR_N; i++){
     const r = 40 + Math.random() * 40;
@@ -83,7 +83,7 @@ export function initPlanet3D(canvas){
   }
   starGeo.setAttribute('position', new THREE.BufferAttribute(sp, 3));
   const starField = new THREE.Points(starGeo, new THREE.PointsMaterial({
-    color: 0xffffff, size: 0.18, sizeAttenuation: true, transparent: true, opacity: 0.8, depthWrite: false
+    color: 0xffffff, size: 0.14, sizeAttenuation: true, transparent: true, opacity: 0.5, depthWrite: false
   }));
   scene.add(starField);
 
@@ -225,7 +225,7 @@ export function initPlanet3D(canvas){
     // 日冕 / 大气：颜色取该星的大气色，大小与强度随星而异
     const atmoCol = new THREE.Color(p.atmo[0]/255, p.atmo[1]/255, p.atmo[2]/255);
     coronaMat.color.copy(atmoCol);
-    coronaMat.opacity = 0.55 + p.glowI * 0.5;
+    coronaMat.opacity = 0.32 + p.glowI * 0.30;
     corona.scale.setScalar(p.glowScale);
     corona.visible = true;
 
@@ -272,7 +272,7 @@ export function initPlanet3D(canvas){
     }
     bodyMat.map = placeholder; bodyMat.bumpMap = null; bodyMat.needsUpdate = true;
     const tmp = new THREE.Color(star.color1 || '#ffd66b');
-    coronaMat.color.copy(tmp); coronaMat.opacity = 0.7; corona.scale.setScalar(2.9); corona.visible = true;
+    coronaMat.color.copy(tmp); coronaMat.opacity = 0.4; corona.scale.setScalar(2.9); corona.visible = true;
     atmMat.uniforms.uColor.value.copy(tmp);
     atmMat.uniforms.uIntensity.value = 0.7; atmMat.uniforms.uPower.value = 3.0;
     atm.scale.setScalar(1.1); atm.visible = true;

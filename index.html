@@ -28,6 +28,7 @@
   <!-- 宇宙背景画布（全屏常驻） -->
   <canvas id="cosmos"></canvas>
   <div class="vignette"></div>
+  <div class="cosmos-tint"></div>
 
   <!-- 顶部品牌条 -->
   <header class="topbar">
@@ -230,27 +231,6 @@
               <span data-i18n="点缀">点缀</span>
               <input type="color" id="fc-accent" value="#f5c97b" />
             </div>
-            <div class="palette" id="palette-bg"></div>
-            <div class="palette" id="palette-accent"></div>
-            <!-- 渐变底：更有宇宙感 -->
-            <div class="flag-row grad-row">
-              <span data-i18n="渐变">渐变</span>
-              <div class="palette grad-palette" id="palette-grad"></div>
-            </div>
-            <div class="flag-row toggles" id="flag-elements">
-              <button class="flag-toggle on" data-el="star" data-i18n="星徽">星徽</button>
-              <button class="flag-toggle" data-el="moon" data-i18n="月牙">月牙</button>
-              <button class="flag-toggle" data-el="ring" data-i18n="星环">星环</button>
-              <button class="flag-toggle" data-el="rays" data-i18n="光芒">光芒</button>
-              <button class="flag-toggle" data-el="band" data-i18n="横幅">横幅</button>
-              <button class="flag-toggle" data-el="vband" data-i18n="竖纹">竖纹</button>
-              <button class="flag-toggle" data-el="diag" data-i18n="斜分">斜分</button>
-              <button class="flag-toggle" data-el="mountain" data-i18n="山峦">山峦</button>
-              <button class="flag-toggle" data-el="border" data-i18n="边框">边框</button>
-              <button class="flag-toggle" data-el="text" data-i18n="铭文">铭文</button>
-              <button class="flag-toggle" data-el="glow" data-i18n="辉光">辉光</button>
-              <button class="flag-toggle" data-el="nebula" data-i18n="星云">星云</button>
-            </div>
             <div class="flag-row star-count" id="star-count-row">
               <span data-i18n="星数">星数</span>
               <button class="sc-btn" data-n="1">1</button>
@@ -258,7 +238,33 @@
               <button class="sc-btn on" data-n="5">5</button>
             </div>
             <input id="fc-text" type="text" maxlength="10" data-i18n-ph="旗帜铭文（如：光·秩序）" placeholder="旗帜铭文（如：光·秩序）" />
-            <div class="flag-presets" id="flag-presets"></div>
+            <button class="flag-adv-toggle" id="flag-adv-toggle" type="button">
+              <span data-i18n="高级旗帜细节">高级旗帜细节</span> <span class="fa-caret">▾</span>
+            </button>
+            <div class="flag-adv" id="flag-adv" hidden>
+              <div class="palette" id="palette-bg"></div>
+              <div class="palette" id="palette-accent"></div>
+              <!-- 渐变底：更有宇宙感 -->
+              <div class="flag-row grad-row">
+                <span data-i18n="渐变">渐变</span>
+                <div class="palette grad-palette" id="palette-grad"></div>
+              </div>
+              <div class="flag-row toggles" id="flag-elements">
+                <button class="flag-toggle on" data-el="star" data-i18n="星徽">星徽</button>
+                <button class="flag-toggle" data-el="moon" data-i18n="月牙">月牙</button>
+                <button class="flag-toggle" data-el="ring" data-i18n="星环">星环</button>
+                <button class="flag-toggle" data-el="rays" data-i18n="光芒">光芒</button>
+                <button class="flag-toggle" data-el="band" data-i18n="横幅">横幅</button>
+                <button class="flag-toggle" data-el="vband" data-i18n="竖纹">竖纹</button>
+                <button class="flag-toggle" data-el="diag" data-i18n="斜分">斜分</button>
+                <button class="flag-toggle" data-el="mountain" data-i18n="山峦">山峦</button>
+                <button class="flag-toggle" data-el="border" data-i18n="边框">边框</button>
+                <button class="flag-toggle" data-el="text" data-i18n="铭文">铭文</button>
+                <button class="flag-toggle" data-el="glow" data-i18n="辉光">辉光</button>
+                <button class="flag-toggle" data-el="nebula" data-i18n="星云">星云</button>
+              </div>
+              <div class="flag-presets" id="flag-presets"></div>
+            </div>
           </div>
 
           <button class="btn btn-primary btn-lg" id="btn-generate" data-i18n="命名并生成星图">命名并生成星图 ↝</button>

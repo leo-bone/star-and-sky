@@ -198,8 +198,19 @@ quizCtl = initQuiz({
 function populateUniverse(star){
   document.getElementById('uni-flavor').textContent = star.flavor;
   const box = document.getElementById('star-params');
-  box.innerHTML = starParamList(star).map(([k,v])=>
-    `<div class="sp"><span>${k}</span><b>${v}</b></div>`).join('');
+  const map = new Map(starParamList(star));
+  // 三组呈现，清爽不挤：基础信息 / 物理参数 / 天体坐标
+  const GROUPS = [
+    { title:t('基础信息'), keys:['恒星编号','国际命名','星表编号','行星类型','所在星座','所属星系','行星数量','卫星数量'] },
+    { title:t('物理参数'), keys:['光谱类型','表面温度','直径','质量','光度','表面重力','自转周期','星龄'] },
+    { title:t('天体坐标'), keys:['天球坐标','距地球','物质构成','大气构成','含氧量'] },
+  ];
+  box.innerHTML = GROUPS.map(g=>{
+    const rows = g.keys.filter(k=>map.has(k)).map(k=>
+      `<div class="sp"><span>${k}</span><b>${map.get(k)}</b></div>`).join('');
+    if (!rows) return '';
+    return `<div class="sp-group"><div class="sp-group-title">${g.title}</div><div class="sp-grid">${rows}</div></div>`;
+  }).join('');
   universe.setStar(star);
   planet3d.setStar(star);
 }

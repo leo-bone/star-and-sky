@@ -178,10 +178,13 @@ export function initSkyMap(container, opts = {}){
       }
     }
 
-    // 星座名
+    // 星座名：随缩放自适应字号与透明度；缩小时变淡、字号收窄，避免文字堆砌杂乱
     if (layers.names && constellations){
-      bctx.fillStyle='rgba(170,190,240,0.55)';
-      bctx.font='11px "Noto Sans SC", sans-serif'; bctx.textAlign='center';
+      const z = cam.zoom;
+      const nameSize = Math.max(8, Math.min(15, 8.5 * Math.min(z, 1.7)));
+      const nameAlpha = Math.max(0.12, Math.min(0.6, 0.16 + (z - 1) * 0.55));
+      bctx.fillStyle = `rgba(176,194,238,${nameAlpha.toFixed(3)})`;
+      bctx.font = `${nameSize}px "Noto Sans SC", sans-serif`; bctx.textAlign='center';
       for (const feat of constellations.features){
         const ab = feat.id; const nm = CON_NAMES[ab]; if(!nm) continue;
         let sx=0, sy=0, n=0;
@@ -248,10 +251,10 @@ export function initSkyMap(container, opts = {}){
           : (selected.label || selected.name || '我的星');
         ctx.font='bold 13px "Noto Sans SC", sans-serif';
         const w = ctx.measureText(label).width + 16;
-        ctx.fillStyle='rgba(8,14,30,0.82)';
+        ctx.fillStyle='rgba(10,16,34,0.86)';
         ctx.fillRect(p.x+16, p.y-30, w, 22);
-        ctx.strokeStyle='rgba(95,224,255,0.6)'; ctx.strokeRect(p.x+16, p.y-30, w, 22);
-        ctx.fillStyle='#cdeaff'; ctx.fillText(label, p.x+24, p.y-14);
+        ctx.strokeStyle='rgba(245,201,123,0.7)'; ctx.strokeRect(p.x+16, p.y-30, w, 22);
+        ctx.fillStyle='#f3d79a'; ctx.fillText(label, p.x+24, p.y-14);
       }
     }
     pulse += 0.05;

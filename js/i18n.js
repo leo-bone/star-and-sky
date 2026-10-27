@@ -58,6 +58,10 @@ const EN = {
   '含氧量': 'Oxygen', '表面重力': 'Gravity', '自转周期': 'Rotation',
   '行星数量': 'Planets', '卫星数量': 'Moons', '星龄': 'Age',
   '天体编号': 'Object No.', '行星类型': 'Planet type',
+  // ---- 宇宙页分组参数标题 ----
+  '基础信息': 'Basic Info', '物理参数': 'Physical', '天体坐标': 'Coordinates',
+  // ---- 建国页 ----
+  '高级旗帜细节': 'Advanced flag details',
   // ---- 新版认领证书 ----
   '星球认领证书': 'Planet Claim Certificate',
   '星球名称': 'Planet Name', '注册人': 'Registrant', '星际公民': 'Star Citizen',
