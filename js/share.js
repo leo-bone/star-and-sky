@@ -49,7 +49,8 @@ export function decodeStar(code){
 }
 
 export function shareLink(code){
-  const base = location.origin + location.pathname;
+  // 保留当前查询串（含部署网关的 ?sharecode=…），否则分享出去的链接在需要网关的部署上会 403 打不开
+  const base = location.origin + location.pathname + (location.search || '');
   return base + '#star=' + code;
 }
 

@@ -257,9 +257,7 @@ document.getElementById('btn-generate').addEventListener('click', async ()=>{
     });
   } catch(e){
     if (e && e.code === '23505_name'){
-      toast('「' + name + '」刚刚被认领，换个名字再点生成 ✦');
-    } else if (e && e.code === '23505_name'){
-      toast(t('「') + name + t('」刚刚被认领，换个名字再点生成 ✦'));
+      toast(t('「') + name + t('」') + ' ' + t('刚刚被认领，换个名字再点生成') + ' ✦');
     } else {
       console.warn('[cloud] 星上云失败', e);
     }

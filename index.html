@@ -13,8 +13,7 @@
   <!-- 字体样式表异步加载：先渲染页面，字体就绪后自动生效 -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" /></noscript>
-  <!-- html2canvas 仅在导出证书时需要，改为延迟加载（不阻塞首屏） -->
-  <script src="js/vendor/qrcode.js" defer></script>
+  <!-- 证书已改为纯 canvas 绘制，qrcode.js 不再使用，已移除该死依赖（节省 56KB 请求） -->
   <script type="importmap">
   {
     "imports": {

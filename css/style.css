@@ -396,8 +396,7 @@ body{
 .sky-host{position:absolute;inset:0}
 .sky-hud{position:absolute;top:78px;left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:10px;pointer-events:none;z-index:5}
 .sky-search{pointer-events:auto;display:flex;gap:8px;background:rgba(8,12,28,.66);padding:8px;border-radius:14px;
-  border:1px solid rgba(120,150,210,.18);backdrop-filter:blur(8px)
-  border:1px solid var(--line);backdrop-filter:blur(10px);box-shadow:var(--shadow)}
+  border:1px solid var(--line);box-shadow:var(--shadow);backdrop-filter:blur(10px)}
 .sky-search input{width:min(440px,60vw);background:transparent;border:none;outline:none;color:var(--ink);
   font-family:"Space Grotesk","Noto Sans SC";font-size:13px;padding:6px 8px}
 .sky-search input::placeholder{color:var(--muted)}
