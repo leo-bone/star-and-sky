@@ -275,68 +275,87 @@
       <div class="share-layout">
         <div class="share-card-wrap">
           <div id="star-card" class="star-card certificate">
-            <div class="cert-border"></div>
-            <div class="card-seal" id="card-seal">✦</div>
-            <div class="cert-head">
-              <div class="cert-brand">✦ 星与星空 · STAR &amp; SKY</div>
-              <div class="cert-no" id="card-no">No. —</div>
-            </div>
-            <div class="cert-title" data-i18n="认 星 证 书">认 星 证 书</div>
-            <div class="cert-title-en">CERTIFICATE OF STAR CITIZENSHIP</div>
-            <div class="cert-deed" id="card-deed"></div>
-            <div class="cert-body">
-              <div class="cert-left">
-                <div class="cert-starname" id="card-starname">—</div>
-                <div class="cert-kingdom" id="card-kingdom">—</div>
-                <div class="cert-coord" id="card-coord">—</div>
-                <div class="cert-message" id="card-message" style="display:none"></div>
-                <div class="cert-flag" id="card-flag"></div>
-                <div class="cert-council-block" id="card-council-block" style="display:none">
-                  <div class="ccap" data-i18n="议会 · COUNCIL">议会 · COUNCIL</div>
-                  <ul class="cc-list" id="card-council-list"></ul>
+            <div class="cert-frame">
+              <!-- 顶部深蓝星空区 -->
+              <div class="cert-top">
+                <div class="cert-head">
+                  <span class="cert-brand">✦ 星与星空 · STAR &amp; SKY</span>
+                  <span class="cert-no" id="card-no">No. —</span>
                 </div>
-                <div class="cert-seal-line" id="card-seal-line" data-i18n="✦ 星际公民 · 永载名册">✦ 星际公民 · 永载名册</div>
-              </div>
-              <div class="cert-right">
-                <div class="cert-plate">
-                  <div class="plate-block">
-                    <div class="plate-cap" data-i18n="天 体 写 真 · PORTRAIT">天 体 写 真 · PORTRAIT</div>
-                    <canvas id="card-orb-canvas" class="cert-orb" width="380" height="380"></canvas>
-                  </div>
-                  <div class="plate-divider"><span>观 测 视 场 · FIELD OF VIEW</span></div>
-                  <div class="plate-block">
-                    <div class="plate-cap" data-i18n="所 在 星 图 · STAR CHART">所 在 星 图 · STAR CHART</div>
-                    <canvas id="card-sky-canvas" class="cert-skychart" width="520" height="320"></canvas>
-                  </div>
+                <h1 class="cert-title" data-i18n="星球认领证书">星球认领证书</h1>
+                <div class="cert-title-en">PLANET CLAIM CERTIFICATE</div>
+                <div class="cert-orb-area">
+                  <canvas id="card-orb-canvas" class="cert-orb" width="560" height="560"></canvas>
+                  <svg class="cert-orb-deco" viewBox="0 0 230 230" aria-hidden="true">
+                    <circle cx="115" cy="115" r="112" fill="none" stroke="rgba(245,201,123,.30)" stroke-width="1" stroke-dasharray="2 6"/>
+                    <g transform="rotate(-20 115 115)">
+                      <ellipse cx="115" cy="115" rx="110" ry="33" fill="none" stroke="rgba(245,201,123,.78)" stroke-width="2.4"/>
+                      <ellipse cx="115" cy="115" rx="100" ry="29" fill="none" stroke="rgba(245,201,123,.35)" stroke-width="1"/>
+                    </g>
+                    <!-- 星座连线（左） -->
+                    <polyline points="20,58 40,44 34,72 54,62 44,86" fill="none" stroke="rgba(245,201,123,.5)" stroke-width="1"/>
+                    <circle cx="20" cy="58" r="2" fill="#ffe9b0"/><circle cx="40" cy="44" r="1.5" fill="#ffe9b0"/>
+                    <circle cx="34" cy="72" r="1.5" fill="#ffe9b0"/><circle cx="54" cy="62" r="2" fill="#ffe9b0"/>
+                    <circle cx="44" cy="86" r="1.3" fill="#ffe9b0"/>
+                    <!-- 星座连线（右） -->
+                    <polyline points="210,150 192,140 200,166 178,160" fill="none" stroke="rgba(245,201,123,.5)" stroke-width="1"/>
+                    <circle cx="210" cy="150" r="2" fill="#ffe9b0"/><circle cx="192" cy="140" r="1.5" fill="#ffe9b0"/>
+                    <circle cx="200" cy="166" r="1.5" fill="#ffe9b0"/><circle cx="178" cy="160" r="2" fill="#ffe9b0"/>
+                  </svg>
                 </div>
               </div>
-            </div>
 
-            <div class="cert-data">
-              <div class="data-cap" data-i18n="观 测 数 据 · OBSERVATION DATA">观 测 数 据 · OBSERVATION DATA</div>
-              <div class="cert-params" id="card-params"></div>
-            </div>
-
-            <div class="cert-quote" id="cert-quote"></div>
-
-            <div class="cert-share">
-              <div class="share-left">
-                <div class="share-site">星与星空 · STAR &amp; SKY</div>
-                <div class="share-url" id="cert-url">star-and-sky.app.workbuddy.host</div>
-                <div class="share-tip" data-i18n="扫码，认领属于你的那颗星 ✦">扫码，认领属于你的那颗星 ✦</div>
+              <!-- 羊皮纸卡片 -->
+              <div class="cert-parchment">
+                <div class="cp-crest" id="card-crest" style="display:none"><div class="cert-flag" id="card-flag"></div></div>
+                <div class="cp-name-label" data-i18n="星球名称">星球名称</div>
+                <div class="cp-name" id="card-starname">—</div>
+                <div class="cp-rule"></div>
+                <div class="cp-reg-label" data-i18n="注册人">注册人</div>
+                <div class="cp-reg" id="card-registrant">—</div>
+                <div class="cp-params">
+                  <div class="cp-col" id="card-params-left"></div>
+                  <div class="cp-col" id="card-params-right"></div>
+                </div>
+                <div class="cp-msg" id="card-message" style="display:none"></div>
+                <div class="cp-ribbon" id="card-ribbon">—</div>
               </div>
-              <div class="share-right">
-                <canvas id="cert-qr" class="cert-qr" width="150" height="150"></canvas>
-                <div class="qr-cap">扫码访问</div>
+
+              <!-- 底部深蓝基座 -->
+              <div class="cert-base">
+                <div class="base-badge">
+                  <svg viewBox="0 0 100 100" aria-hidden="true">
+                    <defs>
+                      <path id="arcTop" d="M 16 50 A 34 34 0 0 1 84 50"/>
+                      <path id="arcBot" d="M 18 66 A 32 32 0 0 0 82 66"/>
+                      <radialGradient id="badgeGrad" cx="38%" cy="32%">
+                        <stop offset="0%" stop-color="#bcd8ff"/><stop offset="100%" stop-color="#3a6bb0"/>
+                      </radialGradient>
+                    </defs>
+                    <circle cx="50" cy="50" r="47" fill="none" stroke="rgba(245,201,123,.85)" stroke-width="1.5"/>
+                    <circle cx="50" cy="50" r="41" fill="none" stroke="rgba(245,201,123,.4)" stroke-width="1"/>
+                    <text font-family="'Space Grotesk',sans-serif" font-size="7" letter-spacing="1.4" fill="#f3d79a">
+                      <textPath href="#arcTop" startOffset="50%" text-anchor="middle">PLANET REGISTRY</textPath>
+                    </text>
+                    <text font-family="'Noto Serif SC',serif" font-size="7.5" letter-spacing=".5" fill="#f3d79a">
+                      <textPath href="#arcBot" startOffset="50%" text-anchor="middle">星球注册档案馆</textPath>
+                    </text>
+                    <g transform="translate(50 50)">
+                      <circle r="11" fill="url(#badgeGrad)"/>
+                      <ellipse rx="20" ry="6" fill="none" stroke="rgba(245,201,123,.9)" stroke-width="2" transform="rotate(-20)"/>
+                    </g>
+                  </svg>
+                </div>
+                <div class="base-motto">
+                  <p data-i18n="仰望星辰，不是为了拥有，">仰望星辰，不是为了拥有，</p>
+                  <p data-i18n="而是为了让记忆在宇宙中有坐标。">而是为了让记忆在宇宙中有坐标。</p>
+                </div>
+                <div class="base-qr">
+                  <canvas id="cert-qr" class="cert-qr" width="160" height="160"></canvas>
+                  <div class="qr-cap" data-i18n="扫码分享这颗星球记录">扫码分享这颗星球记录</div>
+                </div>
               </div>
             </div>
-
-            <div class="cert-foot">
-              <div class="cert-council" id="card-council">议会：—</div>
-              <div class="cert-date" id="card-date">—</div>
-            </div>
-            <div class="cert-registry">星际公民注册局 · INTERSTELLAR CITIZEN REGISTRY</div>
-            <div class="cert-verify" id="card-verify"></div>
           </div>
         </div>
         <div class="share-actions">

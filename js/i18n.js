@@ -58,6 +58,12 @@ const EN = {
   '含氧量': 'Oxygen', '表面重力': 'Gravity', '自转周期': 'Rotation',
   '行星数量': 'Planets', '卫星数量': 'Moons', '星龄': 'Age',
   '天体编号': 'Object No.', '行星类型': 'Planet type',
+  // ---- 新版认领证书 ----
+  '星球认领证书': 'Planet Claim Certificate',
+  '星球名称': 'Planet Name', '注册人': 'Registrant', '星际公民': 'Star Citizen',
+  '注册时间': 'Registered', '注册号 ': 'Reg. No. ',
+  '仰望星辰，不是为了拥有，': 'We look up not to possess the stars,',
+  '而是为了让记忆在宇宙中有坐标。': 'but to give our memories a coordinate in the cosmos.',
   // ---- 分享页 ----
   '你正在浏览一颗被分享的星辰 —— 它属于全世界，也属于此刻仰望它的你。': 'You are viewing a shared star — it belongs to the whole world, and to you, gazing at it now.',
   '你的星图已诞生': 'Your star chart is born',

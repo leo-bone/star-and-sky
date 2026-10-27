@@ -10,75 +10,61 @@ export function initCard(){
   const card = document.getElementById('star-card');
   const no = document.getElementById('card-no');
   const starname = document.getElementById('card-starname');
-  const kingdom = document.getElementById('card-kingdom');
+  const registrant = document.getElementById('card-registrant');
   const flagBox = document.getElementById('card-flag');
-  const params = document.getElementById('card-params');
-  const seal = document.getElementById('card-seal');
-  const coordEl = document.getElementById('card-coord');
-  const deed = document.getElementById('card-deed');
-  const council = document.getElementById('card-council');
-  const date = document.getElementById('card-date');
+  const crestWrap = document.getElementById('card-crest');
+  const paramsLeft = document.getElementById('card-params-left');
+  const paramsRight = document.getElementById('card-params-right');
+  const ribbon = document.getElementById('card-ribbon');
   const orbCanvas = document.getElementById('card-orb-canvas');
-  const skyCanvas = document.getElementById('card-sky-canvas');
 
   function build(star, kd){
     if (!star) return;
-    no.textContent = '注册号 ' + (star.registry || star.catalogNo.replace('SSS-',''));
+    kd = kd || {};
+    const reg = star.registry || (star.catalogNo || '').replace('SSS-', '');
+    no.textContent = 'No. ' + reg;
     starname.textContent = star.name;
-    seal.textContent = (star.name.charAt(0) || '✦').toUpperCase();
+    registrant.textContent = kd.ruler || t('星际公民');
+    ribbon.textContent = reg;
 
-    const kname = kd.name || star.name + ' 王国';
-    const ruler = kd.ruler || '首任统治者';
-    kingdom.textContent = kname + ' · ' + ruler;
-    coordEl.innerHTML = `<div class="cd-desig">${escapeHtml(star.designation || '')}</div>`
-      + `<div class="cd-coord">${escapeHtml(t('天球坐标 · '))}<b>${escapeHtml(star.coord)}</b></div>`;
-
-    deed.textContent = t('兹证明，宇宙深处一颗') + t(star.form === 'planet' ? '行星' : '恒星') + t('自此冠以「') + star.name + t('」之名，归属其认领者，永载星际公民名册。');
-
-    // 旗帜：优先用已渲染的 SVG，否则由紧凑旗帜状态重绘（分享链接里只存状态以缩小体积）
+    // 旗帜（建国页生成，随星保存在云端）—— 有则作为羊皮纸顶部纹章
     const svg = kd.flagSVG || (kd.flag ? flagLayers(kd.flag) : '') || '';
-    // 内联 SVG（部分浏览器/无头环境下 data-URI <img> 不渲染，会留下空白边框框）
     flagBox.innerHTML = svg ? svg.replace('<svg ', '<svg class="flag-img" ') : '';
+    if (crestWrap) crestWrap.style.display = svg ? '' : 'none';
 
+    // 星球主视觉（程序化 3D 质感球面重投影）
     drawCelestial(orbCanvas, star);
-    drawSkyChart(skyCanvas, star);
 
-    // 证书参数：标签在上、数值在下，干净双列，数值不折行
-    const showKeys = star.form === 'planet'
-      ? ['天体编号','国际命名','星表编号','行星类型','表面温度','直径','质量','距地球','所属星系','所在星座','含氧量','表面重力']
-      : ['恒星编号','国际命名','星表编号','光谱类型','表面温度','直径','质量','光度','距地球','所属星系','所在星座','含氧量','表面重力'];
-    const list = starParamList(star).filter(([k])=>showKeys.includes(k));
-    params.innerHTML = list.map(([k,v])=>`<div class="cp"><span class="cp-k">${escapeHtml(t(k))}</span><span class="cp-v" title="${escapeHtml(v)}">${escapeHtml(v)}</span></div>`).join('');
-
-    const cs = (kd.council||[]).map(c=> c.includes('·') ? c.split('·')[0].trim() : c);
-    if (cs.length){
-      council.textContent = t('议会：') + cs.slice(0,3).join('、') + (cs.length>3 ? ' 等' : '');
-      council.style.opacity = 1;
-    } else {
-      council.textContent = t('议会：依星律自治');
-      council.style.opacity = .55;
-    }
-
-    // 左侧“议会 / 组织架构”面板：填充留白、呼应王国建制
-    const cblock = document.getElementById('card-council-block');
-    const clist = document.getElementById('card-council-list');
-    if (cblock && clist){
-      const cs = (kd.council || []).filter(c => c && c.trim());
-      if (cs.length){
-        clist.innerHTML = cs.slice(0, 6).map(c => {
-          const parts = c.split('·');
-          const nm = (parts[0] || '').trim();
-          const role = parts.slice(1).join('·').trim();
-          return `<li><b>${escapeHtml(nm)}</b>${role ? `<span>${escapeHtml(role)}</span>` : ''}</li>`;
-        }).join('');
-        cblock.style.display = '';
-      } else {
-        cblock.style.display = 'none';
-      }
-    }
-
+    // 双列参数 —— 每人认领的星球各不相同，全部动态生成
+    const specLabel = star.form === 'planet' ? t('行星类型') : t('光谱类型');
+    const specVal = star.form === 'planet'
+      ? (star.planetTypeName || '—')
+      : (((star.spec || '') + ' 型 · ' + (star.specName || '')).trim() || '—');
+    const temp = star.form === 'planet' ? (star.pTemp != null ? star.pTemp : star.temp) : star.temp;
+    const diam = star.form === 'planet' ? star.pDiameterKm : star.diameterKm;
+    const mass = star.form === 'planet'
+      ? ((star.pMassEarth != null ? star.pMassEarth : '—') + ' M⊕')
+      : ((star.massSolar != null ? star.massSolar : '—') + ' M☉');
     const d = new Date();
-    date.textContent = d.getFullYear() + '.' + String(d.getMonth()+1).padStart(2,'0') + '.' + String(d.getDate()).padStart(2,'0');
+    const p2 = n => String(n).padStart(2, '0');
+    const regTime = d.getFullYear() + '.' + p2(d.getMonth()+1) + '.' + p2(d.getDate())
+      + ' ' + p2(d.getHours()) + ':' + p2(d.getMinutes()) + ' UTC';
+    const rows = [
+      [t('天球坐标'), star.coord || '—'],
+      [specLabel, specVal],
+      [t('表面温度'), (temp != null ? Number(temp).toLocaleString() + ' K' : '—')],
+      [t('距地球'), star.distance || '—'],
+      [t('所在星座'), star.constellation || '—'],
+      [t('直径'), ((diam || 0).toLocaleString() + ' km')],
+      [t('质量'), mass],
+      [t('注册时间'), regTime]
+    ];
+    const mid = Math.ceil(rows.length / 2);
+    const renderCol = arr => arr.map(([k, v]) =>
+      `<div class="cp-row"><span class="cp-k">${escapeHtml(k)}</span>`
+      + `<span class="cp-v" title="${escapeHtml(v)}">${escapeHtml(v)}</span></div>`).join('');
+    paramsLeft.innerHTML = renderCol(rows.slice(0, mid));
+    paramsRight.innerHTML = renderCol(rows.slice(mid));
 
     // 星球寄语（建国页填写，随星保存在云端）
     const msgEl = document.getElementById('card-message');
@@ -91,48 +77,23 @@ export function initCard(){
       }
     }
 
-    // 真实星表背书（科学可信，对标 ISR 的"版权目录"——我们用的是真实天文星表）
-    const verify = document.getElementById('card-verify');
-    if (verify){
-      verify.textContent = t('本星名与坐标引自真实天文星表（Yale 亮星表 / Hipparcos）。注册号 ') + (star.registry || '—') + t(' 与星表编号 ') + (star.hd || '—') + t(' 永久存档，可在「真实星空」页定位核验。');
-    }
-
-    // 哲思金句（按星种确定性轮换，填充留白）
-    const QUOTES = [
-      ['我们都是星尘所铸，却又仰望星空。', '—— 卡尔·萨根'],
-      ['在群星之间你并不渺小，你本就是宇宙认识自己的方式。', '—— 星与星空'],
-      ['每一颗星，都是一封写给未来的信。', '—— 星与星空'],
-      ['我们仰望同一片天空，却各自认领了不同的光。', '—— 星与星空'],
-      ['宇宙从不喧哗，它只是恒久地亮着，等你被看见。', '—— 星与星空'],
-      ['你认领的不是一颗星，而是一段属于自己的永恒坐标。', '—— 星与星空']
-    ];
-    const qEl = document.getElementById('cert-quote');
-    if (qEl){
-      const qi = Math.abs(hashString(star.catalogNo)) % QUOTES.length;
-      qEl.innerHTML = `<span class="qmark">“</span>${t(QUOTES[qi][0])}<span class="qmark">”</span>`
-        + `<span class="qby">${t(QUOTES[qi][1])}</span>`;
-    }
-
-    // 二维码（本地生成，便于传播；库缺失则静默跳过）
-    // 关键修复：编码“这颗星专属的分享链接”，而非网站首页 —— 扫证书二维码直达该星
+    // 二维码：编码这颗星专属分享链接，扫码直达该星
     const qrCanvas = document.getElementById('cert-qr');
     if (qrCanvas && typeof window.qrcode === 'function'){
       try {
-        const code = encodeStar(star, kd || {});
+        const code = encodeStar(star, kd);
         const qr = window.qrcode(0, 'L');
         qr.addData(shareLink(code));
         qr.make();
         const dim = qr.getModuleCount();
-        // 自适应高分辨率渲染：每模块固定像素，导出/缩印都清晰可扫。
-        // 旧逻辑用固定 140px 画布硬塞，模块数>124 时 cell=0 → 二维码整片空白，无法扫描。
-        const cell = 4, pad = 12;
-        const size = dim*cell + pad*2;
+        const cell = 4, pad = 10;
+        const size = dim * cell + pad * 2;
         qrCanvas.width = size; qrCanvas.height = size;
         const ctx = qrCanvas.getContext('2d');
-        ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,size,size);
+        ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, size, size);
         ctx.fillStyle = '#0a0e24';
-        for (let r=0;r<dim;r++) for (let c=0;c<dim;c++){
-          if (qr.isDark(r,c)) ctx.fillRect(pad + c*cell, pad + r*cell, cell, cell);
+        for (let r = 0; r < dim; r++) for (let c = 0; c < dim; c++){
+          if (qr.isDark(r, c)) ctx.fillRect(pad + c * cell, pad + r * cell, cell, cell);
         }
       } catch(e){ /* 二维码不可用时保持空白即可 */ }
     }

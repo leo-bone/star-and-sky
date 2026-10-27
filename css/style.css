@@ -223,19 +223,16 @@ body{
   grid-template-columns:1.2fr .8fr;gap:46px;align-items:center}
 .share-card-wrap{display:flex;justify-content:center}
 
-/* 古典羊皮纸认星证书 */
+/* 竖版星球认领证书：深蓝星空 + 米黄羊皮纸 + 金线环星球 */
 .star-card.certificate{
-  width:min(720px,100%);position:relative;border-radius:14px;overflow:hidden;
-  padding:30px 34px 26px;color:#e7ecff;
-  background:
-    radial-gradient(120% 90% at 18% 8%, rgba(95,224,255,.12), transparent 42%),
-    radial-gradient(120% 90% at 86% 90%, rgba(138,107,255,.16), transparent 46%),
-    linear-gradient(160deg,#0a1230 0%, #070a1c 55%, #05060f 100%);
-  border:1px solid rgba(207,168,106,.45);font-family:"Noto Serif SC",serif;
-  box-shadow:0 40px 110px rgba(0,0,0,.7), inset 0 0 0 1px rgba(95,224,255,.10), inset 0 0 80px rgba(20,40,90,.5)}
-/* 细微星点底纹（科技星空感） */
+  width:min(560px,100%);position:relative;border-radius:18px;overflow:hidden;
+  padding:0;color:#0d1b3a;
+  background:linear-gradient(180deg,#0a1330 0%, #0c1840 44%, #081030 100%);
+  border:1px solid rgba(207,168,106,.5);font-family:"Noto Serif SC",serif;
+  box-shadow:0 40px 110px rgba(0,0,0,.7), 0 0 0 1px rgba(207,168,106,.18), inset 0 0 90px rgba(10,30,80,.6)}
+/* 细微星点底纹 */
 .star-card.certificate::before{
-  content:"";position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.55;
+  content:"";position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.6;
   background-image:
     radial-gradient(1.4px 1.4px at 12% 22%, rgba(255,255,255,.9), transparent),
     radial-gradient(1.2px 1.2px at 78% 14%, rgba(200,220,255,.8), transparent),
@@ -245,108 +242,75 @@ body{
     radial-gradient(1.1px 1.1px at 24% 40%, rgba(220,230,255,.6), transparent),
     radial-gradient(1.2px 1.2px at 50% 88%, rgba(255,255,255,.55), transparent);
 }
-.cert-border{position:absolute;inset:10px;border:1px solid rgba(207,168,106,.55);border-radius:9px;pointer-events:none;z-index:1}
-.cert-border::after{content:"";position:absolute;inset:4px;border:1px solid rgba(95,224,255,.28);border-radius:6px}
-.card-seal{position:absolute;top:13px;left:50%;transform:translateX(-50%);width:50px;height:50px;border-radius:50%;z-index:6;
-  border:2px solid rgba(207,168,106,.85);display:flex;align-items:center;justify-content:center;
-  color:#ffe9b0;font-family:"Noto Serif SC",serif;font-size:24px;font-weight:700;
-  background:radial-gradient(circle at 36% 30%, rgba(245,201,123,.35), rgba(120,90,40,.55));
-  box-shadow:0 0 0 1px rgba(95,224,255,.25), inset 0 0 12px rgba(207,168,106,.5), 0 0 22px rgba(207,168,106,.4)}
-.cert-head{position:relative;z-index:2;display:flex;justify-content:space-between;align-items:center;
-  font-family:"Space Grotesk";font-size:10px;letter-spacing:2px;color:#9fb0e0;text-transform:uppercase;padding-top:44px}
-.cert-no{color:#f5c97b}
-.cert-title{position:relative;z-index:2;text-align:center;font-weight:700;font-size:32px;
-  letter-spacing:10px;margin-top:14px;color:#fff;text-shadow:0 0 26px rgba(95,224,255,.45)}
-.cert-title-en{text-align:center;font-family:"Space Grotesk";font-size:9px;letter-spacing:3px;
-  color:#8fa0d8;margin-top:6px}
-.cert-deed{position:relative;z-index:2;text-align:center;font-size:12.5px;line-height:1.95;
-  color:#c7d2f4;margin:15px 8px 18px;font-weight:300}
-.cert-body{position:relative;z-index:2;display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:stretch;margin-top:4px}
-.cert-left{display:flex;flex-direction:column;gap:8px;justify-content:center}
-.cert-starname{font-family:"Noto Serif SC",serif;font-weight:700;font-size:27px;color:#fff;line-height:1.12;
-  text-shadow:0 0 18px rgba(95,224,255,.4)}
-.cert-kingdom{font-family:"Noto Serif SC",serif;font-size:13px;color:#b79a63;letter-spacing:1px}
-.cert-coord{font-family:"Space Grotesk";font-size:10.5px;color:#9fb0e0;letter-spacing:.4px;line-height:1.5;margin-top:2px}
-.cert-coord .cd-desig{font-size:12.5px;color:#f5c97b;letter-spacing:1px;font-weight:600;margin-bottom:3px}
-.cert-coord .cd-coord{font-size:10px;color:#aebbde}
-.cert-coord .cd-coord b{color:#f5c97b;font-weight:500}
-.cert-flag{margin-top:10px;border-radius:7px;overflow:hidden;border:1px solid rgba(207,168,106,.4);
-  aspect-ratio:3/2;box-shadow:0 5px 16px rgba(0,0,0,.4);background:rgba(0,0,0,.2)}
-.flag-img{width:100%;height:100%;display:block}
-.cert-seal-line{margin-top:6px;font-family:"Noto Serif SC",serif;font-size:12px;letter-spacing:2px;
-  color:#c9a96a;text-align:center;padding-top:8px;border-top:1px solid rgba(207,168,106,.28)}
-/* 左侧议会 / 组织架构：填充留白，呼应王国建制，平衡上半部不对称 */
-.cert-council-block{margin-top:10px;padding:12px 14px;border-radius:10px;flex:1 1 auto;
-  background:linear-gradient(160deg, rgba(12,21,48,.7), rgba(6,9,18,.7));
-  border:1px solid rgba(207,168,106,.3);box-shadow:inset 0 0 24px rgba(20,40,90,.5)}
-.ccap{font-family:"Space Grotesk";font-size:8.5px;letter-spacing:3px;color:#c9a96a;text-align:center;margin-bottom:9px}
-.cc-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:6px 12px}
-.cc-list li{display:flex;flex-direction:column;gap:1px;padding:6px 8px;border-radius:6px;
-  background:rgba(95,224,255,.06);border:1px solid rgba(95,224,255,.14)}
-.cc-list li b{font-size:12.5px;color:#eaf0ff;font-weight:600;font-family:"Noto Sans SC",sans-serif}
-.cc-list li span{font-size:9.5px;color:#9fb0e0;letter-spacing:.3px}
+.cert-frame{position:relative;z-index:2;padding:24px 24px 20px}
 
-/* 右侧观测面板：天体写真在上、星图在下，整块拉伸填满，消除下方空白 */
-.cert-right{display:flex}
-.cert-plate{position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;gap:12px;width:100%;
-  background:linear-gradient(160deg,#0c1530,#060912);border:1px solid rgba(95,224,255,.32);
-  border-radius:11px;padding:16px;box-shadow:0 14px 40px rgba(0,0,0,.5), inset 0 0 30px rgba(20,40,90,.6)}
-.cert-plate::after{content:"";position:absolute;inset:0;border-radius:11px;pointer-events:none;
-  box-shadow:inset 0 0 60px rgba(95,224,255,.12)}
-.plate-block{display:flex;flex-direction:column;gap:8px;align-items:center}
-.plate-cap{font-family:"Space Grotesk";font-size:8.5px;letter-spacing:3px;color:#c9a96a;text-align:center}
-.plate-divider{display:flex;align-items:center;justify-content:center;gap:10px;color:#5a6da0;
-  font-family:"Space Grotesk";font-size:8px;letter-spacing:2px}
-.plate-divider::before,.plate-divider::after{content:"";height:1px;flex:1;
-  background:linear-gradient(90deg,transparent,rgba(95,224,255,.35),transparent)}
-.cert-orb{width:100%;max-width:196px;height:auto;aspect-ratio:1/1;border-radius:9px;display:block;
+/* 顶部深蓝星空区 */
+.cert-top{position:relative;text-align:center}
+.cert-head{display:flex;justify-content:space-between;align-items:center;
+  font-family:"Space Grotesk";font-size:9px;letter-spacing:2px;color:#9fb0e0;text-transform:uppercase}
+.cert-brand{color:#c9b06a}
+.cert-no{color:#f5c97b;font-weight:600}
+.cert-title{font-weight:700;font-size:30px;letter-spacing:8px;margin-top:12px;color:#f3d79a;
+  text-shadow:0 0 22px rgba(245,201,123,.4)}
+.cert-title-en{font-family:"Space Grotesk";font-size:9px;letter-spacing:3px;color:#c8b06a;margin-top:6px}
+
+/* 星球主视觉：金线环 + 轨道 + 星座连线 */
+.cert-orb-area{position:relative;width:230px;height:230px;margin:16px auto 4px}
+.cert-orb{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;z-index:2;
   background:radial-gradient(circle at 50% 45%, #0a1124, #03050c);
-  box-shadow:0 8px 30px rgba(0,0,0,.6), 0 0 42px rgba(95,224,255,.18)}
-.cert-skychart{width:100%;height:auto;border-radius:8px;display:block;
-  background:linear-gradient(160deg,#0d1a3c,#070b1c);box-shadow:0 6px 18px rgba(0,0,0,.5), inset 0 0 0 1px rgba(207,168,106,.28)}
+  box-shadow:0 10px 36px rgba(0,0,0,.7), 0 0 50px rgba(95,224,255,.18)}
+.cert-orb-deco{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-events:none;overflow:visible}
 
-/* 观测数据：整宽分栏，消除左侧文字过密与不对称 */
-.cert-data{position:relative;z-index:2;margin-top:18px;padding:16px 18px;border-radius:11px;
-  background:linear-gradient(160deg, rgba(12,21,48,.6), rgba(6,9,18,.6));
-  border:1px solid rgba(95,224,255,.18)}
-.data-cap{font-family:"Space Grotesk";font-size:8.5px;letter-spacing:4px;color:#c9a96a;text-align:center;margin-bottom:12px}
-.cert-params{position:relative;z-index:2;display:grid;grid-template-columns:repeat(4,1fr);gap:9px 12px}
-.cert-params .cp{display:flex;flex-direction:column;gap:2px;padding:7px 10px;border-radius:7px;
-  background:rgba(95,224,255,.06);border:1px solid rgba(95,224,255,.16);font-family:"Noto Sans SC",sans-serif}
-.cert-params .cp-k{font-size:8.5px;color:#8fa0d8;letter-spacing:1px}
-.cert-params .cp-v{font-size:12px;color:#eaf0ff;font-family:"Space Grotesk","Noto Sans SC",sans-serif;
-  font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cert-creed{position:relative;z-index:2;text-align:center;font-family:"Noto Serif SC",serif;
-  font-size:12px;color:#c7d2f4;line-height:1.85;margin:18px 4px 14px;
-  border-top:1px solid rgba(207,168,106,.3);border-bottom:1px solid rgba(207,168,106,.3);padding:11px 0}
-.cert-foot{position:relative;z-index:2;display:flex;justify-content:space-between;gap:10px;
-  font-size:10px;color:#9fb0e0;font-family:"Space Grotesk",sans-serif;letter-spacing:.5px}
-.cert-council{font-family:"Noto Sans SC",sans-serif}
-.cert-registry{position:relative;z-index:2;text-align:center;font-family:"Space Grotesk";font-size:8.5px;
-  letter-spacing:2px;color:#b79a63;margin-top:12px}
-.cert-verify{position:relative;z-index:2;margin:10px 6px 2px;text-align:center;
-  font-family:"Noto Sans SC",sans-serif;font-size:9.5px;line-height:1.7;color:#9fd0e8;
-  border-top:1px dashed rgba(95,224,255,.35);padding-top:8px}
+/* 羊皮纸卡片 */
+.cert-parchment{position:relative;margin:8px auto 0;max-width:440px;
+  background:radial-gradient(120% 80% at 50% 0%, #fbf3dd, #f3e6c4 58%, #ecdcb2 100%);
+  border-radius:16px 16px 24px 24px;
+  border:1px solid rgba(180,140,70,.55);
+  box-shadow:0 16px 40px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.4), inset 0 0 44px rgba(190,150,90,.18);
+  padding:22px 24px 30px;color:#3a2c12}
+.cert-parchment::after{content:"";position:absolute;left:50%;bottom:-15px;transform:translateX(-50%);
+  width:76%;height:30px;background:inherit;border-radius:0 0 50% 50%/0 0 100% 100%;
+  border:1px solid rgba(180,140,70,.55);border-top:none;box-shadow:0 12px 22px rgba(0,0,0,.35)}
+.cp-crest{margin:0 auto 12px;width:150px;border-radius:6px;overflow:hidden;
+  border:1px solid rgba(180,140,70,.5);box-shadow:0 4px 12px rgba(0,0,0,.3)}
+.cp-name-label{text-align:center;font-family:"Space Grotesk";font-size:9px;letter-spacing:4px;color:#9a7b3e}
+.cp-name{text-align:center;font-weight:700;font-size:26px;color:#2a2110;letter-spacing:1px;margin-top:4px;line-height:1.15}
+.cp-rule{height:1px;background:linear-gradient(90deg,transparent,rgba(150,110,50,.5),transparent);margin:13px auto;width:68%}
+.cp-reg-label{text-align:center;font-family:"Space Grotesk";font-size:9px;letter-spacing:4px;color:#9a7b3e}
+.cp-reg{text-align:center;font-weight:700;font-size:21px;color:#5a3a14;letter-spacing:1px;margin-top:4px}
+.cp-params{display:grid;grid-template-columns:1fr 1fr;gap:11px 20px;margin-top:16px;position:relative}
+.cp-params::before{content:"";position:absolute;top:2px;bottom:2px;left:50%;width:1px;
+  background:linear-gradient(180deg,transparent,rgba(150,110,50,.45),transparent);transform:translateX(-50%)}
+.cp-col{display:flex;flex-direction:column;gap:10px}
+.cp-row{display:flex;flex-direction:column;gap:1px}
+.cp-k{font-family:"Space Grotesk";font-size:8.5px;letter-spacing:1.5px;color:#9a7b3e;text-transform:uppercase}
+.cp-v{font-family:"Noto Sans SC",sans-serif;font-size:12.5px;color:#2a2110;font-weight:600;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cp-msg{margin:14px auto 0;max-width:92%;font-style:italic;font-size:12.5px;color:#5a3a14;
+  text-align:center;line-height:1.6;padding-top:11px;border-top:1px dashed rgba(150,110,50,.4)}
+.cp-msg .cm-cap{display:block;font-style:normal;font-size:9px;letter-spacing:3px;color:#9a7b3e;margin-bottom:6px;
+  font-family:"Space Grotesk",sans-serif}
+/* 金色丝带编号 */
+.cp-ribbon{position:relative;margin:18px auto 0;width:max-content;max-width:90%;
+  background:linear-gradient(180deg,#f5d27e,#e0ad4e);color:#3a2407;
+  font-family:"Space Grotesk";font-weight:700;letter-spacing:2px;font-size:12px;
+  padding:7px 26px;box-shadow:0 4px 12px rgba(0,0,0,.35)}
+.cp-ribbon::before,.cp-ribbon::after{content:"";position:absolute;top:0;width:14px;height:100%;
+  background:linear-gradient(180deg,#caa23f,#a9802f)}
+.cp-ribbon::before{left:-13px;clip-path:polygon(0 0,100% 0,100% 100%,0 100%,32% 50%)}
+.cp-ribbon::after{right:-13px;clip-path:polygon(0 0,100% 0,68% 50%,100% 100%,0 100%)}
 
-/* 哲思金句（轮换） */
-.cert-quote{position:relative;z-index:2;margin:16px 4px 4px;padding:14px 18px;text-align:center;
-  font-family:"Noto Serif SC",serif;font-size:13.5px;line-height:1.85;color:#e8eefc;
-  background:linear-gradient(90deg, rgba(95,224,255,.05), rgba(245,201,123,.07), rgba(95,224,255,.05));
-  border-left:2px solid rgba(245,201,123,.4);border-right:2px solid rgba(245,201,123,.4);border-radius:4px}
-.cert-quote .qmark{color:#f5c97b;font-size:18px;font-family:"Noto Serif SC",serif;opacity:.8}
-.cert-quote .qby{display:block;margin-top:7px;font-size:10px;letter-spacing:2px;color:#9fb0e0;font-family:"Space Grotesk"}
-
-/* 传播区块：网址 + 二维码（填充底部，便于分享传播） */
-.cert-share{position:relative;z-index:2;margin-top:16px;display:flex;align-items:center;justify-content:space-between;gap:16px;
-  padding:14px 16px;border-radius:12px;border:1px solid rgba(207,168,106,.28);
-  background:linear-gradient(160deg, rgba(12,21,48,.72), rgba(6,9,18,.72))}
-.share-left{display:flex;flex-direction:column;gap:4px;min-width:0}
-.share-site{font-family:"Noto Serif SC",serif;font-size:15px;color:#fff;letter-spacing:1px}
-.share-url{font-family:"Space Grotesk";font-size:12px;color:#5fe0ff;letter-spacing:.5px;word-break:break-all}
-.share-tip{font-size:11px;color:#b79a63;margin-top:2px}
-.share-right{display:flex;flex-direction:column;align-items:center;gap:5px;flex:none}
-.cert-qr{width:150px;height:150px;border-radius:8px;background:#fff;padding:6px;box-shadow:0 6px 18px rgba(0,0,0,.5)}
-.qr-cap{font-size:9px;color:#9fb0e0;font-family:"Space Grotesk";letter-spacing:1px}
+/* 底部深蓝基座：徽章 + 格言 + 二维码 */
+.cert-base{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:14px;
+  margin-top:30px;padding-top:18px;position:relative;z-index:2}
+.cert-base::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(207,168,106,.5),transparent)}
+.base-badge{width:74px;height:74px;flex:none}
+.base-badge svg{width:100%;height:100%;display:block;filter:drop-shadow(0 0 8px rgba(245,201,123,.35))}
+.base-motto{text-align:center;font-family:"Noto Serif SC",serif;color:#e9d3a0;font-size:13px;line-height:1.9;letter-spacing:1px}
+.base-qr{display:flex;flex-direction:column;align-items:center;gap:5px;flex:none}
+.cert-qr{width:96px;height:96px;border-radius:7px;background:#fff;padding:5px;box-shadow:0 5px 14px rgba(0,0,0,.5)}
+.qr-cap{font-size:8.5px;color:#9fb0e0;font-family:"Space Grotesk";letter-spacing:1px;text-align:center}
 
 .share-actions .btn{width:100%;margin-top:12px}
 .share-note{color:var(--muted);font-size:12px;margin-top:14px;line-height:1.7}
@@ -458,10 +422,13 @@ body{
   .zodiac-grid{grid-template-columns:repeat(3,1fr)}
   .q-options.cols3{grid-template-columns:repeat(2,1fr)}
   .star-params{grid-template-columns:1fr}
-  .cert-body{grid-template-columns:1fr}
-  .cert-plate{flex-direction:column;align-items:stretch}
-  .cert-params{grid-template-columns:repeat(2,1fr)}
-  .cert-title{font-size:26px;letter-spacing:6px}
+  .cert-title{font-size:24px;letter-spacing:5px}
+  .cert-orb-area{width:190px;height:190px}
+  .cert-parchment{padding:18px 16px 26px}
+  .cp-name{font-size:22px}
+  .cp-reg{font-size:18px}
+  .cert-base{grid-template-columns:1fr;gap:14px;justify-items:center;text-align:center}
+  .base-motto{order:3}
 }
 
 /* ================= 电影开场 · 楚门的世界 · 一扇门 ================= */
