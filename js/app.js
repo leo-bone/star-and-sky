@@ -3,7 +3,7 @@
 import { initQuiz } from './quiz.js';
 import { generateStar, starParamList } from './starData.js';
 import { initKingdom } from './kingdom.js';
-import { initCard } from './card.js';
+import { initCertificate } from './certificate.js';
 import { encodeStar, shareLink, copyText, parseCodeFromURL, decodeStar } from './share.js';
 import { starKey, pushStar, listStars, addMessage, listMessages, nameTaken } from './cloud.js';
 import { initSkyMap } from './skymap.js';
@@ -20,7 +20,7 @@ import('./universe.js').then(m => {
   catch (e) { console.warn('3D 宇宙背景初始化失败，已降级为静态背景', e); }
 }).catch(e => console.warn('3D 宇宙背景模块加载失败（CDN/WebGL），已降级为空操作', e));
 const kingdom = initKingdom();
-const card = initCard();
+const card = initCertificate();
 // 3D 星球视口依赖 three.js（CDN）；若不可用则降级为空操作桩，绝不拖垮整站
 const NULL_PLANET3D = { setStar(){}, show(){}, hide(){}, resize(){} };
 let planet3d = NULL_PLANET3D;

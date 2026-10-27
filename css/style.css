@@ -246,26 +246,13 @@ body{
   grid-template-columns:1.2fr .8fr;gap:46px;align-items:center}
 .share-card-wrap{display:flex;justify-content:center}
 
-/* 竖版星球认领证书：深蓝星空 + 米黄羊皮纸 + 金线环星球 */
+/* 竖版星球认领证书：整张由 canvas 绘制（深空档案 / 庄重纪念风） */
 .star-card.certificate{
-  width:min(560px,100%);position:relative;border-radius:18px;overflow:hidden;
-  padding:0;color:#0d1b3a;
-  background:linear-gradient(180deg,#0a1330 0%, #0c1840 44%, #081030 100%);
-  border:1px solid rgba(207,168,106,.5);font-family:"Noto Serif SC",serif;
-  box-shadow:0 40px 110px rgba(0,0,0,.7), 0 0 0 1px rgba(207,168,106,.18), inset 0 0 90px rgba(10,30,80,.6)}
-/* 细微星点底纹 */
-.star-card.certificate::before{
-  content:"";position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.6;
-  background-image:
-    radial-gradient(1.4px 1.4px at 12% 22%, rgba(255,255,255,.9), transparent),
-    radial-gradient(1.2px 1.2px at 78% 14%, rgba(200,220,255,.8), transparent),
-    radial-gradient(1.5px 1.5px at 35% 72%, rgba(255,255,255,.7), transparent),
-    radial-gradient(1.1px 1.1px at 62% 60%, rgba(180,210,255,.7), transparent),
-    radial-gradient(1.3px 1.3px at 88% 44%, rgba(255,255,255,.6), transparent),
-    radial-gradient(1.1px 1.1px at 24% 40%, rgba(220,230,255,.6), transparent),
-    radial-gradient(1.2px 1.2px at 50% 88%, rgba(255,255,255,.55), transparent);
-}
-.cert-frame{position:relative;z-index:2;padding:24px 24px 20px}
+  width:min(640px,100%);position:relative;border-radius:14px;overflow:hidden;
+  padding:0;background:#05080f;
+  border:1px solid rgba(207,168,106,.35);
+  box-shadow:0 40px 110px rgba(0,0,0,.7), 0 0 0 1px rgba(207,168,106,.16), inset 0 0 90px rgba(10,30,80,.5)}
+#cert-canvas{display:block;width:100%;height:auto}
 
 /* 顶部深蓝星空区 */
 .cert-top{position:relative;text-align:center}
