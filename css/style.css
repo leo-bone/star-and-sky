@@ -111,8 +111,8 @@ body{
 .quiz-progress-bar i{display:block;height:100%;width:25%;
   background:linear-gradient(90deg,var(--gold),var(--cyan));transition:width .5s}
 #quiz-count{font-family:"Space Grotesk";font-size:12px;color:var(--muted);letter-spacing:2px}
-.q-card{background:var(--glass);border:1px solid var(--line);border-radius:var(--r);
-  padding:clamp(24px,4vw,44px);box-shadow:var(--shadow);backdrop-filter:blur(14px);
+.q-card{background:var(--glass);border:1px solid var(--gold-line);border-radius:var(--r);
+  padding:clamp(20px,3.4vw,34px);box-shadow:0 16px 44px rgba(0,0,0,.42);backdrop-filter:blur(10px);
   animation:fade .5s ease}
 .q-title{font-family:"Noto Serif SC",serif;font-size:clamp(24px,4vw,34px);margin-bottom:8px}
 .q-desc{color:#aeb6d8;font-size:14.5px;margin-bottom:26px;font-weight:300;
@@ -158,7 +158,7 @@ body{
 #planet-canvas{width:min(420px,82vw);height:min(420px,82vw);max-height:58vh;display:block;
   border-radius:50%;cursor:grab;touch-action:none;
   background:radial-gradient(circle at 50% 45%, #0a1124, #03050c);
-  box-shadow:0 0 0 1px rgba(95,224,255,.18), 0 0 70px rgba(95,224,255,.12), 0 30px 60px rgba(0,0,0,.5)}
+  box-shadow:0 0 0 1px rgba(207,168,106,.30), 0 0 66px rgba(150,130,255,.16), 0 30px 60px rgba(0,0,0,.55)}
 #planet-canvas:active{cursor:grabbing}
 .orbit-hint{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);z-index:5;color:#bcd0f0;
   font-size:12px;letter-spacing:1px;background:rgba(8,12,28,.55);padding:7px 16px;border-radius:999px;
@@ -174,7 +174,7 @@ body{
 .field input[type=text]{width:100%;padding:13px 16px;border-radius:12px;
   background:var(--glass-strong);border:1px solid var(--line);color:var(--ink);font-family:inherit;
   font-size:15px;transition:.2s}
-.field input:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(95,224,255,.12)}
+.field input:focus{outline:none;border-color:var(--gold-line-2);box-shadow:0 0 0 3px rgba(245,201,123,.12)}
 .law-box{background:var(--glass-strong);border:1px solid var(--line);border-radius:12px;padding:10px}
 .law-box ul{list-style:none;display:flex;flex-direction:column;gap:6px;max-height:140px;overflow:auto}
 .law-box li{display:flex;justify-content:space-between;align-items:center;gap:10px;
@@ -183,11 +183,12 @@ body{
 .law-input-row{display:flex;gap:8px;margin-top:8px}
 .law-input-row input{flex:1;padding:10px 12px;border-radius:10px;background:rgba(0,0,0,.25);
   border:1px solid var(--line);color:var(--ink);font-family:inherit;font-size:14px}
-.law-input-row input:focus{outline:none;border-color:var(--cyan)}
+.law-input-row input:focus{outline:none;border-color:var(--gold-line-2)}
 
 .flag-label{display:block;font-size:13px;color:var(--muted);margin-bottom:9px}
-.flag-stage{border-radius:14px;overflow:hidden;border:1px solid var(--line);
-  box-shadow:var(--shadow);aspect-ratio:3/2;background:#000}
+.flag-stage{border-radius:14px;overflow:hidden;border:1px solid var(--gold-line);
+  box-shadow:0 16px 44px rgba(0,0,0,.42);aspect-ratio:3/2;background:#06080f;
+  max-width:340px;margin:0 auto;filter:saturate(.85) brightness(.99)}
 .flag-stage svg{width:100%;height:100%;display:block}
 .flag-controls{margin-top:14px;display:flex;flex-direction:column;gap:12px}
 .flag-row{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);flex-wrap:wrap}
@@ -198,7 +199,7 @@ body{
 .flag-toggle.on{border-color:var(--cyan);background:rgba(95,224,255,.14);color:var(--cyan)}
 #fc-text{width:100%;padding:11px 14px;border-radius:10px;background:rgba(0,0,0,.25);
   border:1px solid var(--line);color:var(--ink);font-family:inherit;font-size:14px}
-#fc-text:focus{outline:none;border-color:var(--cyan)}
+#fc-text:focus{outline:none;border-color:var(--gold-line-2)}
 .flag-col .btn{margin-top:18px;width:100%}
 /* 旗帜新控件：调色板 / 星数 / 预设 */
 .palette{display:flex;gap:6px;flex-wrap:wrap}
@@ -326,25 +327,25 @@ body{
 .share-note{color:var(--muted);font-size:12px;margin-top:14px;line-height:1.7}
 
 /* 高级版 · 星之周边（即将上线，数据层已预留 premium 字段） */
-.premium-block{margin-top:30px;padding:22px 20px;border-radius:16px;
-  border:1px solid rgba(207,168,106,.28);
-  background:linear-gradient(135deg, rgba(207,168,106,.08), rgba(138,107,255,.06));
+.premium-block{margin-top:22px;padding:14px 16px;border-radius:12px;
+  border:1px solid rgba(207,168,106,.18);
+  background:linear-gradient(135deg, rgba(207,168,106,.05), rgba(138,107,255,.03));
   text-align:left}
-.premium-head h3{font-family:"Noto Serif SC",serif;font-size:19px;margin-bottom:6px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.premium-head h3{font-family:"Noto Serif SC",serif;font-size:15px;margin-bottom:4px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .premium-tag{font-family:"Space Grotesk";font-size:10px;letter-spacing:1px;color:#08101f;font-weight:700;
   background:linear-gradient(120deg,var(--gold),#ffe9b0);padding:3px 9px;border-radius:999px}
-.premium-head p{color:var(--muted);font-size:12.5px;line-height:1.7;margin-bottom:16px}
-.premium-items{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-bottom:16px}
-.pi{display:flex;flex-direction:column;gap:3px;padding:12px 12px;border-radius:12px;
-  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)}
-.pi-ico{font-size:22px;line-height:1}
-.pi b{font-size:13px;color:#eef3ff;font-weight:600}
-.pi i{font-size:11px;color:var(--muted);font-style:normal}
-.premium-cta{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.premium-head p{color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:10px}
+.premium-items{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:7px;margin-bottom:10px}
+.pi{display:flex;flex-direction:column;gap:2px;padding:9px 10px;border-radius:10px;
+  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}
+.pi-ico{font-size:18px;line-height:1}
+.pi b{font-size:12px;color:#eef3ff;font-weight:600}
+.pi i{font-size:10.5px;color:var(--muted);font-style:normal}
+.premium-cta{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:6px}
 .premium-input{flex:1;min-width:200px;padding:11px 14px;border-radius:12px;font-size:13px;
   background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.16);color:#eef3ff;outline:none}
 .premium-input::placeholder{color:rgba(220,228,255,.45)}
-.premium-input:focus{border-color:rgba(95,224,255,.6)}
+.premium-input:focus{border-color:rgba(245,201,123,.55)}
 .premium-note{color:var(--muted);font-size:11.5px;margin-top:4px;line-height:1.6}
 
 /* 分享横幅（浏览他人分享的星图） */
@@ -592,7 +593,7 @@ body.cinema-mode .topbar{transition:opacity .6s ease}
 .notes-form{display:grid;grid-template-columns:160px 1fr auto;gap:10px;align-items:end}
 .notes-nick,.notes-text{background:rgba(10,16,32,.7);border:1px solid rgba(120,150,210,.25);border-radius:10px;color:#eaf0ff;padding:10px 12px;font-family:inherit;font-size:14px}
 .notes-text{resize:vertical;min-height:46px}
-.notes-nick:focus,.notes-text:focus{outline:none;border-color:#5fe0ff;box-shadow:0 0 0 2px rgba(95,224,255,.15)}
+.notes-nick:focus,.notes-text:focus{outline:none;border-color:var(--gold-line-2);box-shadow:0 0 0 2px rgba(245,201,123,.12)}
 .notes-form .btn-primary[disabled]{opacity:.5;cursor:default}
 @media (max-width:680px){.notes-form{grid-template-columns:1fr}}
 
@@ -601,7 +602,7 @@ body.cinema-mode .topbar{transition:opacity .6s ease}
 
 /* ===== 建国页：星球寄语 ===== */
 .km-msg{width:100%;min-height:74px;resize:vertical;padding:12px 14px;border-radius:12px;background:rgba(10,16,32,.7);border:1px solid rgba(120,150,210,.25);color:#eaf0ff;font-family:inherit;font-size:14px;line-height:1.6}
-.km-msg:focus{outline:none;border-color:#5fe0ff;box-shadow:0 0 0 2px rgba(95,224,255,.15)}
+.km-msg:focus{outline:none;border-color:var(--gold-line-2);box-shadow:0 0 0 2px rgba(245,201,123,.12)}
 
 /* ===== 探索页：星信息卡（编号 / 留言） ===== */
 .si-no{color:#9fb0d0;font-size:12.5px;margin-top:4px;letter-spacing:.3px}

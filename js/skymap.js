@@ -34,8 +34,9 @@ function bvColor(bv){
   return [255,128,90];
 }
 function magRadius(mag){
-  let r = 2.7 - 0.42*mag;
-  return Math.max(0.34, Math.min(7.5, r));
+  let r = 3.0 - 0.55*mag;
+  if (mag < 2) r *= 1.3;          // 亮星更突出
+  return Math.max(0.18, Math.min(8, r));
 }
 
 // 银道坐标(l,b) → 赤道(ra,dec)  J2000
@@ -99,13 +100,18 @@ export function initSkyMap(container, opts = {}){
   function drawStar(c, s, x, y){
     const r = magRadius(s.mag) * Math.max(0.7, Math.min(1.6, cam.zoom*0.6+0.5));
     const col = bvColor(s.bv);
-    if (s.mag < 2.1){
-      const g = c.createRadialGradient(x,y,0,x,y,r*3.4);
-      g.addColorStop(0, `rgba(${col[0]},${col[1]},${col[2]},0.55)`);
+    if (s.mag < 2.1){            // 主星：强辉光
+      const g = c.createRadialGradient(x,y,0,x,y,r*3.8);
+      g.addColorStop(0, `rgba(${col[0]},${col[1]},${col[2]},0.72)`);
       g.addColorStop(1, `rgba(${col[0]},${col[1]},${col[2]},0)`);
-      c.fillStyle = g; c.beginPath(); c.arc(x,y,r*3.4,0,7); c.fill();
+      c.fillStyle = g; c.beginPath(); c.arc(x,y,r*3.8,0,7); c.fill();
+    } else if (s.mag < 3.6){      // 次亮星：弱辉光，拉开层级
+      const g = c.createRadialGradient(x,y,0,x,y,r*2.4);
+      g.addColorStop(0, `rgba(${col[0]},${col[1]},${col[2]},0.28)`);
+      g.addColorStop(1, `rgba(${col[0]},${col[1]},${col[2]},0)`);
+      c.fillStyle = g; c.beginPath(); c.arc(x,y,r*2.4,0,7); c.fill();
     }
-    const a = Math.max(0.22, Math.min(1, 1.15 - s.mag*0.11));
+    const a = Math.max(0.10, Math.min(1, 1.3 - s.mag*0.16));   // 暗星更暗、亮星更亮，层次拉开
     c.fillStyle = `rgba(${col[0]},${col[1]},${col[2]},${a})`;
     c.beginPath(); c.arc(x,y,r,0,7); c.fill();
   }

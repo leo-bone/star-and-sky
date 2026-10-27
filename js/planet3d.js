@@ -158,6 +158,13 @@ export function initPlanet3D(canvas){
   });
   const corona = new THREE.Sprite(coronaMat); corona.visible = false; scene.add(corona);
 
+  // ②-2 外层弥散光晕：更大更淡、淡紫调，缓慢弥散，营造层次而非均匀灰雾
+  const outerCoronaMat = new THREE.SpriteMaterial({
+    map: glowTex, color: 0x9a86ff, transparent: true, opacity: 0.16,
+    blending: THREE.AdditiveBlending, depthWrite: false, depthTest: false,
+  });
+  const outerCorona = new THREE.Sprite(outerCoronaMat); outerCorona.visible = false; scene.add(outerCorona);
+
   // 气态巨行星光环：始终朝向相机的倾斜椭圆环，
   // 用 Sprite + 程序化环状贴图实现 —— 避免真实环形几何在近水平时
   // 外径超出视锥被裁切成"色块"，且能随缩放自适应大小。
@@ -222,16 +229,25 @@ export function initPlanet3D(canvas){
     bodyMat.roughness = p.flavor === 'icy' ? 0.72 : 0.93;
     bodyMat.needsUpdate = true;
 
-    // 日冕 / 大气：颜色取该星的大气色，大小与强度随星而异
+    // 日冕 / 大气：取该星大气色，混入淡紫 + 浅金，分层渲染（内层紧贴 / 外层弥散），去除灰雾感
     const atmoCol = new THREE.Color(p.atmo[0]/255, p.atmo[1]/255, p.atmo[2]/255);
-    coronaMat.color.copy(atmoCol);
-    coronaMat.opacity = 0.32 + p.glowI * 0.30;
-    corona.scale.setScalar(p.glowScale);
+    const warmGold = new THREE.Color(0xf5c97b);
+    const softViolet = new THREE.Color(0x9a86ff);
+    // 内层光晕：紧贴星球，暖金偏紫，较亮
+    coronaMat.color.copy(atmoCol).lerp(warmGold, 0.18);
+    coronaMat.opacity = 0.34 + p.glowI * 0.28;
+    corona.scale.setScalar(p.glowScale * 0.96);
     corona.visible = true;
+    // 外层弥散光晕：淡紫、更大更淡，缓慢弥散
+    outerCoronaMat.color.copy(atmoCol).lerp(softViolet, 0.35);
+    outerCoronaMat.opacity = 0.14 + p.glowI * 0.12;
+    outerCorona.scale.setScalar(p.glowScale * 1.55);
+    outerCorona.visible = true;
 
-    atmMat.uniforms.uColor.value.copy(atmoCol);
-    atmMat.uniforms.uIntensity.value = 0.55 + p.glowI * 0.65;
-    atmMat.uniforms.uPower.value = 2.4 + p.glowI * 1.6;
+    // 边缘菲涅尔辉光：冷调蓝紫，克制强度，作为轮廓而非灰雾
+    atmMat.uniforms.uColor.value.copy(atmoCol).lerp(softViolet, 0.15);
+    atmMat.uniforms.uIntensity.value = 0.45 + p.glowI * 0.5;
+    atmMat.uniforms.uPower.value = 2.6 + p.glowI * 1.4;
     atm.scale.setScalar(1 + p.glowScale * 0.035);
     atm.visible = true;
 
@@ -260,11 +276,14 @@ export function initPlanet3D(canvas){
       bodyMat.bumpScale = 0.012 + p.normalScale * 0.016;
       bodyMat.needsUpdate = true;
       const ac = new THREE.Color(p.atmo[0]/255, p.atmo[1]/255, p.atmo[2]/255);
-      coronaMat.color.copy(ac); coronaMat.opacity = 0.55 + p.glowI * 0.5;
-      corona.scale.setScalar(p.glowScale); corona.visible = true;
-      atmMat.uniforms.uColor.value.copy(ac);
-      atmMat.uniforms.uIntensity.value = 0.55 + p.glowI * 0.65;
-      atmMat.uniforms.uPower.value = 2.4 + p.glowI * 1.6;
+      const wg = new THREE.Color(0xf5c97b), sv = new THREE.Color(0x9a86ff);
+      coronaMat.color.copy(ac).lerp(wg, 0.18); coronaMat.opacity = 0.55 + p.glowI * 0.28;
+      corona.scale.setScalar(p.glowScale * 0.96); corona.visible = true;
+      outerCoronaMat.color.copy(ac).lerp(sv, 0.35); outerCoronaMat.opacity = 0.14 + p.glowI * 0.12;
+      outerCorona.scale.setScalar(p.glowScale * 1.55); outerCorona.visible = true;
+      atmMat.uniforms.uColor.value.copy(ac).lerp(sv, 0.15);
+      atmMat.uniforms.uIntensity.value = 0.45 + p.glowI * 0.5;
+      atmMat.uniforms.uPower.value = 2.6 + p.glowI * 1.4;
       atm.scale.setScalar(1 + p.glowScale * 0.035); atm.visible = true;
       ring.visible = (p.flavor === 'banded');
       spinSpeed = p.spin;
@@ -272,9 +291,11 @@ export function initPlanet3D(canvas){
     }
     bodyMat.map = placeholder; bodyMat.bumpMap = null; bodyMat.needsUpdate = true;
     const tmp = new THREE.Color(star.color1 || '#ffd66b');
-    coronaMat.color.copy(tmp); coronaMat.opacity = 0.4; corona.scale.setScalar(2.9); corona.visible = true;
-    atmMat.uniforms.uColor.value.copy(tmp);
-    atmMat.uniforms.uIntensity.value = 0.7; atmMat.uniforms.uPower.value = 3.0;
+    const wg = new THREE.Color(0xf5c97b), sv = new THREE.Color(0x9a86ff);
+    coronaMat.color.copy(tmp).lerp(wg, 0.18); coronaMat.opacity = 0.42; corona.scale.setScalar(2.8); corona.visible = true;
+    outerCoronaMat.color.copy(tmp).lerp(sv, 0.35); outerCoronaMat.opacity = 0.16; outerCorona.scale.setScalar(4.2); outerCorona.visible = true;
+    atmMat.uniforms.uColor.value.copy(tmp).lerp(sv, 0.15);
+    atmMat.uniforms.uIntensity.value = 0.6; atmMat.uniforms.uPower.value = 3.0;
     atm.scale.setScalar(1.1); atm.visible = true;
 
     // 异步生成真实表面（分帧执行，不阻塞 UI），完成后替换占位贴图

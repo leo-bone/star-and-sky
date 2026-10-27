@@ -7,6 +7,8 @@ import { t } from './i18n.js';
 const DW = 1240, DH = 1754;   // A4 竖版设计尺寸（约 1:1.414）
 const K = 2;                  // 内部分辨率倍数，导出更清晰
 
+let grainTile = null;          // 证书底纹噪点（缓存，一次性生成）
+
 // ===== 配色（克制、哑光）=====
 const C = {
   bgTop:  '#0e1a3a',
@@ -51,8 +53,8 @@ export function initCertificate(){
     drawEyebrow(ctx);
     drawTitle(ctx);
 
-    // ---- 中心星球档案组件 ----
-    const archCx = DW / 2, archCy = 560, archR = 252;
+    // ---- 中心星球档案组件（放大，使“宇宙徽章”成为视觉核心）----
+    const archCx = DW / 2, archCy = 556, archR = 288;
     drawArchive(ctx, archCx, archCy, archR, star);
 
     // ---- 正文区 ----
@@ -95,14 +97,15 @@ function drawBackground(ctx, star){
   vig.addColorStop(1, 'rgba(0,0,0,0.55)');
   ctx.fillStyle = vig; ctx.fillRect(0, 0, DW, DH);
 
-  // 低饱和星云（仅角落氛围，不盖文字）
+  // 低饱和星云：中央 + 四角扩散，打破纯深蓝的死板感（screen 叠加，不盖文字）
   ctx.save();
   ctx.globalCompositeOperation = 'screen';
   const nebBlobs = [
-    [DW*0.16, DH*0.18, DW*0.5, C.neb1],
-    [DW*0.86, DH*0.30, DW*0.46, C.neb2],
-    [DW*0.80, DH*0.92, DW*0.5, C.neb1],
-    [DW*0.20, DH*0.86, DW*0.44, C.neb2],
+    [DW*0.30, DH*0.30, DW*0.55, C.neb1],
+    [DW*0.72, DH*0.42, DW*0.50, C.neb2],
+    [DW*0.66, DH*0.82, DW*0.55, C.neb1],
+    [DW*0.28, DH*0.72, DW*0.50, C.neb2],
+    [DW*0.50, DH*0.50, DW*0.66, 'rgba(72,62,112,0.10)'],   // 中央极淡星云，避免纯色方框
   ];
   nebBlobs.forEach(([x, y, r, col])=>{
     const g = ctx.createRadialGradient(x, y, 0, x, y, r);
@@ -133,6 +136,14 @@ function drawBackground(ctx, star){
     }
     ctx.fillStyle = col; ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2); ctx.fill();
   });
+
+  // 微弱底纹（档案质感）：极淡噪点叠加，避免纯色死板
+  if (!grainTile) grainTile = makeGrain();
+  ctx.save();
+  ctx.globalAlpha = 0.04; ctx.globalCompositeOperation = 'overlay';
+  ctx.fillStyle = ctx.createPattern(grainTile, 'repeat');
+  ctx.fillRect(0, 0, DW, DH);
+  ctx.restore();
 }
 
 // ============================================================
@@ -140,8 +151,8 @@ function drawBackground(ctx, star){
 // ============================================================
 function drawFrame(ctx){
   const M = 54;
-  // 外细金线
-  ctx.strokeStyle = C.goldLine; ctx.lineWidth = 1.4;
+  // 外：1px 哑光金边框（清晰利落，档案质感）
+  ctx.strokeStyle = 'rgba(207,168,106,0.62)'; ctx.lineWidth = 1;
   roundRectPath(ctx, M, M, DW - M*2, DH - M*2, 6); ctx.stroke();
   // 内发丝金线（双线显精致）
   ctx.strokeStyle = C.goldLine2; ctx.lineWidth = 1;
@@ -243,8 +254,8 @@ function drawArchive(ctx, cx, cy, R, star){
   strokeOrbit(ctx, rx, ry, orb, Math.PI, Math.PI*2);
   ctx.restore();
 
-  // —— 图层 3：中心星球本体 ——
-  drawCelestialBody(ctx, cx, cy, R * 0.42, star);
+  // —— 图层 3：中心星球本体（放大，强化核心）——
+  drawCelestialBody(ctx, cx, cy, R * 0.44, star);
 
   // 前半弧（下方，y>0）：后画，盖在星球前方实现遮挡
   ctx.save();
@@ -262,19 +273,19 @@ function drawArchive(ctx, cx, cy, R, star){
 function drawDial(ctx, cx, cy, R, star){
   const rng = mulberry32(hashString((star_const(star)) + 'dial'));
   ctx.save();
-  ctx.strokeStyle = 'rgba(207,168,106,0.72)'; ctx.lineWidth = 1;
+  ctx.strokeStyle = 'rgba(207,168,106,0.85)'; ctx.lineWidth = 1.3;
   ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI*2); ctx.stroke();
-  ctx.strokeStyle = C.goldLine;
-  ctx.beginPath(); ctx.arc(cx, cy, R - 7, 0, Math.PI*2); ctx.stroke();
+  ctx.strokeStyle = 'rgba(207,168,106,0.45)';
+  ctx.beginPath(); ctx.arc(cx, cy, R - 8, 0, Math.PI*2); ctx.stroke();
 
   const N = 72;                       // 刻度数量（随星可微调）
   const off = rng() * Math.PI * 2;
   for (let i = 0; i < N; i++){
     const a = off + i / N * Math.PI * 2;
     const major = (i % 6 === 0);
-    const r1 = R, r2 = R - (major ? 12 : 6);
-    ctx.strokeStyle = major ? 'rgba(207,168,106,0.72)' : C.goldLine;
-    ctx.lineWidth = major ? 1.4 : 0.9;
+    const r1 = R, r2 = R - (major ? 14 : 7);
+    ctx.strokeStyle = major ? 'rgba(231,201,138,0.92)' : 'rgba(207,168,106,0.5)';
+    ctx.lineWidth = major ? 1.9 : 1.2;
     ctx.beginPath();
     ctx.moveTo(cx + Math.cos(a)*r1, cy + Math.sin(a)*r1);
     ctx.lineTo(cx + Math.cos(a)*r2, cy + Math.sin(a)*r2);
@@ -299,12 +310,12 @@ function strokeOrbit(ctx, rx, ry, orb, a0, a1){
 
 // 轨道样式：随星球类型/参数联动（气态更宽更弥散，岩石更细；默认优雅金）
 function orbitStyle(star){
-  const base = { outer: 'rgba(206,176,116,0.34)', inner: 'rgba(228,200,140,0.62)', w: 6 };
+  const base = { outer: 'rgba(206,176,116,0.38)', inner: 'rgba(231,201,138,0.70)', w: 7 };
   const f = (star && star.form);
   if (f === 'planet'){
     const pt = star.planetType;
-    if (pt === 'gas') return { outer: 'rgba(206,176,116,0.30)', inner: 'rgba(228,200,140,0.55)', w: 9 };
-    return { outer: 'rgba(196,176,150,0.30)', inner: 'rgba(220,210,190,0.58)', w: 4 };  // 岩石/月球更细银灰
+    if (pt === 'gas') return { outer: 'rgba(206,176,116,0.34)', inner: 'rgba(231,201,138,0.62)', w: 10 };
+    return { outer: 'rgba(196,176,150,0.34)', inner: 'rgba(224,214,196,0.64)', w: 5 };  // 岩石/月球更细银灰
   }
   return base;
 }
@@ -448,17 +459,17 @@ function drawConstellation(ctx, cx, cy, R, star){
       x = x + (rng()-0.4) * R*0.34;
       y = y + (rng()-0.5) * R*0.34;
     }
-    // 连线
-    ctx.strokeStyle = 'rgba(225,190,120,0.62)'; ctx.lineWidth = 1;
+    // 连线（加粗加亮，强化星盘视觉权重）
+    ctx.strokeStyle = 'rgba(231,201,138,0.85)'; ctx.lineWidth = 1.4;
     ctx.beginPath();
     pts.forEach((p, i)=> i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]));
     ctx.stroke();
-    // 星点（带极淡微光）
+    // 星点（带极淡微光，主点更大更亮）
     pts.forEach((p, i)=>{
-      ctx.beginPath(); ctx.arc(p[0], p[1], i === 0 ? 2.6 : 1.9, 0, Math.PI*2);
-      ctx.fillStyle = i === 0 ? '#fff0c8' : '#ffe9b0'; ctx.fill();
-      if (i === 0){ ctx.strokeStyle = 'rgba(255,233,176,.5)'; ctx.lineWidth = 0.7;
-        ctx.beginPath(); ctx.arc(p[0], p[1], 6, 0, Math.PI*2); ctx.stroke(); }
+      ctx.beginPath(); ctx.arc(p[0], p[1], i === 0 ? 3.2 : 2.4, 0, Math.PI*2);
+      ctx.fillStyle = i === 0 ? '#fff3d2' : '#ffeec0'; ctx.fill();
+      if (i === 0){ ctx.strokeStyle = 'rgba(255,233,176,.6)'; ctx.lineWidth = 0.9;
+        ctx.beginPath(); ctx.arc(p[0], p[1], 8, 0, Math.PI*2); ctx.stroke(); }
     });
     // 极小坐标标注（装饰）
     ctx.fillStyle = 'rgba(159,180,255,0.5)';
@@ -604,6 +615,19 @@ function toOffscreen(img, d){
   const off = document.createElement('canvas'); off.width = d; off.height = d;
   off.getContext('2d').putImageData(img, 0, 0);
   return off;
+}
+// 极淡噪点底纹（档案质感）：缓存一张小 tile，整体以 overlay 极低透明度平铺
+function makeGrain(){
+  const S = 160;
+  const cv = document.createElement('canvas'); cv.width = S; cv.height = S;
+  const x = cv.getContext('2d');
+  const img = x.createImageData(S, S); const d = img.data;
+  for (let i = 0; i < d.length; i += 4){
+    const v = 190 + Math.random() * 65;
+    d[i] = d[i+1] = d[i+2] = v; d[i+3] = 255;
+  }
+  x.putImageData(img, 0, 0);
+  return cv;
 }
 function roundRectPath(ctx, x, y, w, h, r){
   ctx.beginPath();
