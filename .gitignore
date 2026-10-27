@@ -1,0 +1,12 @@
+# WorkBuddy app descriptor (machine-specific localDir)
+.wbapp_*.genie
+
+# WorkBuddy project data
+.workbuddy/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/

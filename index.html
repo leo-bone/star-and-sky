@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>星与星空 · STAR &amp; SKY</title>
+  <meta name="description" content="打开浩瀚宇宙，认领一颗属于自己的星星。这是属于全世界的资产。" />
+  <!-- 首屏性能：字体、html2canvas 均改为非阻塞加载，避免阻塞首次内容绘制 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" />
+  <link rel="stylesheet" href="css/style.css" />
+  <!-- 字体样式表异步加载：先渲染页面，字体就绪后自动生效 -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" /></noscript>
+  <!-- html2canvas 仅在导出证书时需要，改为延迟加载（不阻塞首屏） -->
+  <script src="js/vendor/qrcode.js" defer></script>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <!-- 宇宙背景画布（全屏常驻） -->
+  <canvas id="cosmos"></canvas>
+  <div class="vignette"></div>
+
+  <!-- 顶部品牌条 -->
+  <header class="topbar">
+    <div class="brand" data-go="home">
+      <span class="brand-mark">✦</span>
+      <span class="brand-name">星与星空</span>
+      <span class="brand-sub">STAR &amp; SKY</span>
+    </div>
+      <nav class="topnav">
+        <span class="nav-step" data-step="home" data-i18n="序章">序章</span>
+        <span class="nav-step" data-step="quiz" data-i18n="问答">问答</span>
+        <span class="nav-step" data-step="universe" data-i18n="认星">认星</span>
+        <span class="nav-step" data-step="explore" data-i18n="星空">星空</span>
+        <span class="nav-step" data-step="claim" data-i18n="建国">建国</span>
+        <span class="nav-step" data-step="share" data-i18n="星图">星图</span>
+      </nav>
+      <button id="lang-toggle" class="lang-toggle" type="button" aria-label="切换语言">EN</button>
+  </header>
+
+  <main id="stage">
+
+    <!-- ============ 首页 · 电影开场（古希腊城邦之门） ============ -->
+    <section class="screen active" id="screen-home">
+      <div class="cinema" id="cinema">
+        <div class="letterbox top"></div>
+        <div class="letterbox bottom"></div>
+        <div class="scene-title">A FILM BY STAR &amp; SKY · 城邦之门</div>
+
+        <!-- 门后的浩瀚宇宙（真实神庙照片 · 门洞透出星云） -->
+        <!-- 神庙大图用 <img> 承载并由 JS 在首帧后加载：
+             CSS background 会在样式解析阶段就触发下载并阻塞首屏绘制，
+             改为 <img> 后可精确控制加载时机，首屏先以纯色呈现 -->
+        <div class="gate-sky">
+          <img class="gate-photo-img" id="gate-photo-img" alt="古希腊城邦神殿" decoding="async" />
+          <div class="gate-photo"></div>
+          <div class="gate-cosmos"></div>
+          <div class="gate-veil"></div>
+        </div>
+
+        <!-- 门内透出的宇宙冷光 -->
+        <div class="gate-glow"></div>
+
+        <!-- 透明点击层：点击神庙任意处即可推门进入宇宙 -->
+        <div class="gate-tap" id="the-door" role="button" tabindex="0" aria-label="推开城邦之门，进入宇宙"></div>
+
+        <div class="cinema-text" id="cinema-text">
+          <p class="ct-line" id="ct-0" data-i="0">在古希腊，人们仰望星空，相信每颗星都是一位守护神。</p>
+          <p class="ct-line" id="ct-1" data-i="1">如今，城邦之门为你而开——</p>
+          <p class="ct-line" id="ct-2" data-i="2">门后，是<b>浩瀚宇宙</b>，与一颗正等待你命名的星。</p>
+        </div>
+
+        <div class="cinema-cta" id="cinema-cta">
+          <button class="btn btn-primary btn-lg" id="btn-open-door" data-i18n="推开城邦之门 · 进入宇宙">推开城邦之门 · 进入宇宙 <span class="btn-arrow">↝</span></button>
+          <div class="cinema-sub">
+            <button class="btn btn-ghost btn-sm" id="btn-skip-intro" data-i18n="跳过片头，直接认领">跳过片头，直接认领</button>
+            <button class="btn btn-ghost btn-sm" id="btn-sky-teaser" data-i18n="先探索真实星空">先探索真实星空 ↗</button>
+            <button class="btn btn-ghost btn-sm" id="btn-resume" data-i18n="继续我的星空">继续我的星空</button>
+          </div>
+        </div>
+        <div class="flash"></div>
+      </div>
+    </section>
+
+    <!-- ============ 问答 ============ -->
+    <section class="screen" id="screen-quiz">
+      <div class="quiz-shell">
+        <div class="quiz-progress">
+          <div class="quiz-progress-bar"><i id="quiz-bar"></i></div>
+          <span id="quiz-count">01 / 04</span>
+        </div>
+        <div id="quiz-stage"><!-- 题目由 JS 注入 --></div>
+        <div class="quiz-foot">
+          <button class="btn btn-ghost" id="quiz-prev">返回</button>
+          <button class="btn btn-primary" id="quiz-next">下一题</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 宇宙 / 认星 ============ -->
+    <section class="screen" id="screen-universe">
+      <div class="uni-layout">
+        <div class="uni-left">
+          <p class="eyebrow">YOUR STAR HAS BEEN LOCATED</p>
+          <h2 class="uni-title" data-i18n="你找到了你的星">你找到了你的星</h2>
+          <p class="uni-sub" id="uni-flavor">在亿万光年之外，它为你而亮。</p>
+          <div class="star-params" id="star-params"><!-- 参数表注入 --></div>
+          <button class="btn btn-primary btn-lg" id="btn-claim" data-i18n="认领这颗星">认领这颗星 ↝</button>
+          <button class="btn btn-outline" id="btn-to-explore" data-i18n="进入真实星空 · 找到你的星">进入真实星空 · 找到你的星 ↗</button>
+        </div>
+        <div class="uni-right">
+          <canvas id="planet-canvas"></canvas>
+          <div class="orbit-hint" data-i18n="拖拽旋转 · 滚轮缩放">拖拽旋转 · 滚轮缩放</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 真实星空（找星 / 场景切换） ============ -->
+    <section class="screen" id="screen-explore">
+      <div class="explore-layout">
+        <div class="sky-host" id="sky-host"></div>
+
+        <div class="sky-hud">
+          <div class="sky-search">
+            <input id="sky-search" type="text" data-i18n-ph="输入星名 / 编号查找，如 Vega、HD 48915、α CMa" placeholder="输入星名 / 编号查找，如 Vega、HD 48915、α CMa" />
+            <button class="btn btn-mini" id="sky-find">FIND YOUR STAR</button>
+          </div>
+          <div class="sky-tools">
+            <div class="sky-layers">
+              <button class="layer-btn active" data-layer="lines" data-i18n="星座线">星座线</button>
+              <button class="layer-btn active" data-layer="names" data-i18n="名称">名称</button>
+              <button class="layer-btn active" data-layer="mw" data-i18n="银河">银河</button>
+              <button class="layer-btn active" data-layer="planets" data-i18n="行星">行星</button>
+            </div>
+            <div class="sky-zoom">
+              <button class="btn btn-mini" id="sky-zoom-out">－</button>
+              <button class="btn btn-mini" id="sky-zoom-in">＋</button>
+              <button class="btn btn-mini" id="sky-reset" data-i18n="复位">复位</button>
+            </div>
+          </div>
+        </div>
+
+        <p class="sky-cloud-note" data-i18n="金色光点 = 云端全世界的星 · 点击即可访问 TA 的星图">金色光点 = 云端全世界的星 · 点击即可访问 TA 的星图 ✦</p>
+
+        <div class="sky-info" id="sky-info" style="display:none">
+          <div class="si-name" id="si-name">—</div>
+          <div class="si-desig" id="si-desig">—</div>
+          <div class="si-no" id="si-no">—</div>
+          <!-- 星球寄语紧跟编号下方：这是认领者留下的心意，位置要显眼 -->
+          <div class="si-msg" id="si-msg" style="display:none"></div>
+          <div class="si-coord" id="si-coord">—</div>
+          <div class="si-grid">
+            <div><span data-i18n="视星等">视星等</span><b id="si-mag">—</b></div>
+            <div><span data-i18n="距离">距离</span><b id="si-dist">—</b></div>
+          </div>
+          <div class="si-owner" id="si-owner" style="display:none"></div>
+        </div>
+
+        <div class="explore-foot">
+          <button class="btn btn-ghost" id="explore-back" data-i18n="返回认星">← 返回认星</button>
+          <button class="btn btn-primary" id="sky-mine" data-i18n="定位我的星">定位我的星 ✦</button>
+          <button class="btn btn-primary btn-lg" id="explore-next" data-i18n="认领并命名">认领并命名 ↝</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 认领 / 建国 ============ -->
+    <section class="screen" id="screen-claim">
+      <div class="claim-layout">
+        <div class="claim-col">
+          <h2 class="sec-title" data-i18n="建立你的星辰王国">建立你的星辰王国</h2>
+          <p class="sec-sub" data-i18n="认领之后，这片天体归你统治。命名、立法、组阁、设计旗帜。">认领之后，这片天体归你统治。命名、立法、组阁、设计旗帜。</p>
+
+          <div class="field">
+            <label data-i18n="星名 / 王国之名">星名 / 王国之名</label>
+            <input id="kingdom-name" type="text" maxlength="20" data-i18n-ph="例如：凛冬之冠、晨曦联邦…" placeholder="例如：凛冬之冠、晨曦联邦…" />
+          </div>
+
+          <div class="field">
+            <label data-i18n="统治者称号">统治者称号</label>
+            <input id="ruler-title" type="text" maxlength="12" data-i18n-ph="例如：星皇、守望者、第一议长…" placeholder="例如：星皇、守望者、第一议长…" />
+          </div>
+
+          <div class="field">
+            <label data-i18n="颁布律法（每条一行，回车添加）">颁布律法（每条一行，回车添加）</label>
+            <div class="law-box">
+              <ul id="law-list"></ul>
+              <div class="law-input-row">
+                <input id="law-input" type="text" maxlength="40" data-i18n-ph="写下第一条律法…" placeholder="写下第一条律法…" />
+                <button class="btn btn-mini" id="law-add">＋</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label data-i18n="议会席位（每行 姓名 · 职务）">议会席位（每行 姓名 · 职务）</label>
+            <div class="law-box">
+              <ul id="council-list"></ul>
+              <div class="law-input-row">
+                <input id="council-input" type="text" maxlength="40" data-i18n-ph="如：林夜 · 外交大臣" placeholder="如：林夜 · 外交大臣" />
+                <button class="btn btn-mini" id="council-add">＋</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label data-i18n="星球寄语 · 留言（将随星辰一起保存在云端，朋友也能看到）">星球寄语 · 留言（将随星辰一起保存在云端，朋友也能看到）</label>
+            <textarea id="star-message" class="km-msg" maxlength="140" rows="3" data-i18n-ph="写一句留给这颗星、也留给后来仰望它的人的话…" placeholder="写一句留给这颗星、也留给后来仰望它的人的话…"></textarea>
+          </div>
+        </div>
+
+          <div class="claim-col flag-col">
+          <label class="flag-label" data-i18n="设计你的星球旗帜">设计你的星球旗帜</label>
+          <div class="flag-stage">
+            <svg id="flag-svg" viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg"></svg>
+          </div>
+          <div class="flag-controls">
+            <div class="flag-row">
+              <span data-i18n="底色">底色</span>
+              <input type="color" id="fc-bg" value="#11244d" />
+              <span data-i18n="点缀">点缀</span>
+              <input type="color" id="fc-accent" value="#f5c97b" />
+            </div>
+            <div class="palette" id="palette-bg"></div>
+            <div class="palette" id="palette-accent"></div>
+            <!-- 渐变底：更有宇宙感 -->
+            <div class="flag-row grad-row">
+              <span data-i18n="渐变">渐变</span>
+              <div class="palette grad-palette" id="palette-grad"></div>
+            </div>
+            <div class="flag-row toggles" id="flag-elements">
+              <button class="flag-toggle on" data-el="star" data-i18n="星徽">星徽</button>
+              <button class="flag-toggle" data-el="moon" data-i18n="月牙">月牙</button>
+              <button class="flag-toggle" data-el="ring" data-i18n="星环">星环</button>
+              <button class="flag-toggle" data-el="rays" data-i18n="光芒">光芒</button>
+              <button class="flag-toggle" data-el="band" data-i18n="横幅">横幅</button>
+              <button class="flag-toggle" data-el="vband" data-i18n="竖纹">竖纹</button>
+              <button class="flag-toggle" data-el="diag" data-i18n="斜分">斜分</button>
+              <button class="flag-toggle" data-el="mountain" data-i18n="山峦">山峦</button>
+              <button class="flag-toggle" data-el="border" data-i18n="边框">边框</button>
+              <button class="flag-toggle" data-el="text" data-i18n="铭文">铭文</button>
+              <button class="flag-toggle" data-el="glow" data-i18n="辉光">辉光</button>
+              <button class="flag-toggle" data-el="nebula" data-i18n="星云">星云</button>
+            </div>
+            <div class="flag-row star-count" id="star-count-row">
+              <span data-i18n="星数">星数</span>
+              <button class="sc-btn" data-n="1">1</button>
+              <button class="sc-btn" data-n="3">3</button>
+              <button class="sc-btn on" data-n="5">5</button>
+            </div>
+            <input id="fc-text" type="text" maxlength="10" data-i18n-ph="旗帜铭文（如：光·秩序）" placeholder="旗帜铭文（如：光·秩序）" />
+            <div class="flag-presets" id="flag-presets"></div>
+          </div>
+
+          <button class="btn btn-primary btn-lg" id="btn-generate" data-i18n="命名并生成星图">命名并生成星图 ↝</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 分享 / 星图 ============ -->
+    <section class="screen" id="screen-share">
+      <div class="shared-banner" id="shared-banner" style="display:none">
+        <span class="sb-ico">✦</span>
+        <span data-i18n="你正在浏览一颗被分享的星辰 —— 它属于全世界，也属于此刻仰望它的你。">你正在浏览一颗被分享的星辰 —— 它属于全世界，也属于此刻仰望它的你。</span>
+      </div>
+      <div class="share-layout">
+        <div class="share-card-wrap">
+          <div id="star-card" class="star-card certificate">
+            <div class="cert-border"></div>
+            <div class="card-seal" id="card-seal">✦</div>
+            <div class="cert-head">
+              <div class="cert-brand">✦ 星与星空 · STAR &amp; SKY</div>
+              <div class="cert-no" id="card-no">No. —</div>
+            </div>
+            <div class="cert-title" data-i18n="认 星 证 书">认 星 证 书</div>
+            <div class="cert-title-en">CERTIFICATE OF STAR CITIZENSHIP</div>
+            <div class="cert-deed" id="card-deed"></div>
+            <div class="cert-body">
+              <div class="cert-left">
+                <div class="cert-starname" id="card-starname">—</div>
+                <div class="cert-kingdom" id="card-kingdom">—</div>
+                <div class="cert-coord" id="card-coord">—</div>
+                <div class="cert-message" id="card-message" style="display:none"></div>
+                <div class="cert-flag" id="card-flag"></div>
+                <div class="cert-council-block" id="card-council-block" style="display:none">
+                  <div class="ccap" data-i18n="议会 · COUNCIL">议会 · COUNCIL</div>
+                  <ul class="cc-list" id="card-council-list"></ul>
+                </div>
+                <div class="cert-seal-line" id="card-seal-line" data-i18n="✦ 星际公民 · 永载名册">✦ 星际公民 · 永载名册</div>
+              </div>
+              <div class="cert-right">
+                <div class="cert-plate">
+                  <div class="plate-block">
+                    <div class="plate-cap" data-i18n="天 体 写 真 · PORTRAIT">天 体 写 真 · PORTRAIT</div>
+                    <canvas id="card-orb-canvas" class="cert-orb" width="380" height="380"></canvas>
+                  </div>
+                  <div class="plate-divider"><span>观 测 视 场 · FIELD OF VIEW</span></div>
+                  <div class="plate-block">
+                    <div class="plate-cap" data-i18n="所 在 星 图 · STAR CHART">所 在 星 图 · STAR CHART</div>
+                    <canvas id="card-sky-canvas" class="cert-skychart" width="520" height="320"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="cert-data">
+              <div class="data-cap" data-i18n="观 测 数 据 · OBSERVATION DATA">观 测 数 据 · OBSERVATION DATA</div>
+              <div class="cert-params" id="card-params"></div>
+            </div>
+
+            <div class="cert-quote" id="cert-quote"></div>
+
+            <div class="cert-share">
+              <div class="share-left">
+                <div class="share-site">星与星空 · STAR &amp; SKY</div>
+                <div class="share-url" id="cert-url">star-and-sky.app.workbuddy.host</div>
+                <div class="share-tip" data-i18n="扫码，认领属于你的那颗星 ✦">扫码，认领属于你的那颗星 ✦</div>
+              </div>
+              <div class="share-right">
+                <canvas id="cert-qr" class="cert-qr" width="150" height="150"></canvas>
+                <div class="qr-cap">扫码访问</div>
+              </div>
+            </div>
+
+            <div class="cert-foot">
+              <div class="cert-council" id="card-council">议会：—</div>
+              <div class="cert-date" id="card-date">—</div>
+            </div>
+            <div class="cert-registry">星际公民注册局 · INTERSTELLAR CITIZEN REGISTRY</div>
+            <div class="cert-verify" id="card-verify"></div>
+          </div>
+        </div>
+        <div class="share-actions">
+          <h2 class="sec-title" data-i18n="你的星图已诞生">你的星图已诞生</h2>
+          <p class="sec-sub" data-i18n="保存这张星图，分享给世界。这是你在这片宇宙中留下的坐标。">保存这张星图，分享给世界。这是你在这片宇宙中留下的坐标。</p>
+          <button class="btn btn-primary btn-lg" id="btn-download" data-i18n="下载星图 PNG">下载星图 PNG</button>
+          <button class="btn btn-ghost" id="btn-share-link" data-i18n="复制分享链接">复制分享链接 ↗</button>
+          <button class="btn btn-ghost" id="btn-restart" data-i18n="重新认领一颗">重新认领一颗</button>
+          <p class="share-note" data-i18n="提示：图片含你的星名、坐标与王国信息，可自由传播。">提示：图片含你的星名、坐标与王国信息，可自由传播。</p>
+
+          <div class="premium-block">
+            <div class="premium-head">
+              <h3><span data-i18n="高级版 · 星之周边">高级版 · 星之周边</span> <span class="premium-tag" data-i18n="即将上线">即将上线</span></h3>
+              <p data-i18n="想把这片宇宙带回家？以下高级版与实体周边正在筹备中，免费版功能不受任何影响。">想把这片宇宙带回家？以下高级版与实体周边正在筹备中，免费版功能不受任何影响。</p>
+            </div>
+            <div class="premium-items">
+              <div class="pi"><span class="pi-ico">🪪</span><b data-i18n="高清印刷证书">高清印刷证书</b><i data-i18n="博物馆级装裱">博物馆级装裱</i></div>
+              <div class="pi"><span class="pi-ico">🗺️</span><b data-i18n="实物星图卷轴">实物星图卷轴</b><i data-i18n="丝绢烫金">丝绢烫金</i></div>
+              <div class="pi"><span class="pi-ico">🪐</span><b data-i18n="定制星球模型">定制星球模型</b><i data-i18n="3D 上色">3D 上色</i></div>
+              <div class="pi"><span class="pi-ico">🏅</span><b data-i18n="命名权证书">命名权证书</b><i data-i18n="永久核验">永久核验</i></div>
+              <div class="pi"><span class="pi-ico">🎁</span><b data-i18n="星主题周边">星主题周边</b><i data-i18n="服饰·饰品">服饰·饰品</i></div>
+            </div>
+            <div class="premium-cta">
+              <input id="premium-email" class="premium-input" type="email" data-i18n-ph="留下邮箱，高级版首发时通知你" placeholder="留下邮箱，高级版首发时通知你" />
+              <button class="btn btn-outline btn-sm" id="btn-premium" data-i18n="加入候补名单">加入候补名单</button>
+            </div>
+            <p class="premium-note" id="premium-note" data-i18n="当前为免费版：完整认领、星图生成与分享均不收费。">当前为免费版：完整认领、星图生成与分享均不收费。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 星语留言 -->
+      <div class="notes-wrap" id="notes-wrap">
+          <div class="notes-head">
+          <h3 data-i18n="星语 · 给这颗星留言">星语 · 给这颗星留言</h3>
+          <p data-i18n="无论多远，写下一句话，让后来仰望它的人读到。留言随星辰一起保存在云端。">无论多远，写下一句话，让后来仰望它的人读到。留言随星辰一起保存在云端。</p>
+        </div>
+        <div class="notes-list" id="notes-list"></div>
+        <form class="notes-form" id="notes-form">
+          <input id="notes-nick" class="notes-nick" type="text" maxlength="16" data-i18n-ph="昵称（可选）" placeholder="昵称（可选）" />
+          <textarea id="notes-text" class="notes-text" maxlength="200" data-i18n-ph="写下一句给这颗星的话…" placeholder="写下一句给这颗星的话…"></textarea>
+          <button class="btn btn-primary btn-sm" type="submit" id="notes-submit" data-i18n="留下星语">留下星语</button>
+        </form>
+      </div>
+
+      <div class="wall-wrap">
+        <div class="wall-head">
+          <div>
+            <h3 class="wall-title" data-i18n="世界星图墙">世界星图墙</h3>
+            <p class="wall-desc" data-i18n="每一颗被认领的星，都在为“星辰属于全世界”点亮真实坐标。">每一颗被认领的星，都在为“星辰属于全世界”点亮真实坐标。</p>
+          </div>
+          <span class="wall-sub" id="wall-count">已被认领 0 颗星辰</span>
+        </div>
+        <div class="wall" id="world-wall">
+          <div class="wall-empty">还没有星辰被点亮。认领你的第一颗，让世界星图墙亮起来。</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <div id="toast" class="toast"></div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
