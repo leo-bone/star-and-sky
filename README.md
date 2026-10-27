@@ -6,7 +6,7 @@ A pure front-end, immersive stargazing experience. Claim your own star, roam amo
 realistically textured 3D planets, browse a real star catalog, and generate a shareable
 "Certificate of Star" — all in the browser, no build step required.
 
-> 在线体验 / Live demo: https://star-and-sky.uichain.org
+> 在线体验 / Live demo: https://star-and-sky.app.workbuddy.host/?sharecode=O6SHDCEYS2
 
 ## 功能特性 / Features
 
@@ -62,7 +62,7 @@ npx serve .
 ## 部署 / Deploy
 
 静态站点，可托管于任意静态空间（GitHub Pages / uichain.org / Nginx 等）。
-当前线上地址：`https://star-and-sky.uichain.org`
+当前线上地址：`https://star-and-sky.app.workbuddy.host/?sharecode=O6SHDCEYS2`
 
 ## 许可 / License
 
