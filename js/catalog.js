@@ -22,9 +22,9 @@ export function pickRealStar(seed, conIau){
     const bright = cat.filter(s => s.c === conIau && s.mag != null && s.mag < 4.6);
     const mid    = cat.filter(s => s.c === conIau && s.mag != null && s.mag < 5.6);
     const any    = cat.filter(s => s.c === conIau && s.mag != null);
-    pool = bright.length >= 3 ? bright : (mid.length >= 3 ? mid : (any.length >= 3 ? any : cat.filter(s => s.mag != null && s.mag < 4.6 && s.c)));
+    pool = bright.length >= 3 ? bright : (mid.length >= 3 ? mid : (any.length >= 3 ? any : cat.filter(s => s.mag != null && s.mag < 6.5 && s.c)));
   } else {
-    pool = cat.filter(s => s.mag != null && s.mag < 4.6 && s.c);
+    pool = cat.filter(s => s.mag != null && s.mag < 6.5 && s.c);
   }
   if (!pool.length) return null;
   const idx = ((Math.abs(seed|0) % pool.length) + pool.length) % pool.length;

@@ -5,7 +5,7 @@ import { generateStar, starParamList } from './starData.js';
 import { initKingdom } from './kingdom.js';
 import { initCertificate } from './certificate.js';
 import { encodeStar, shareLink, copyText, parseCodeFromURL, decodeStar } from './share.js';
-import { starKey, pushStar, listStars, addMessage, listMessages, nameTaken, getStarByKey, ownerIdExists } from './cloud.js';
+import { starKey, pushStar, listStars, addMessage, listMessages, nameTaken, getStarByKey, ownerIdExists, catalogTaken } from './cloud.js';
 import { initSkyMap } from './skymap.js';
 import { loadCatalog } from './catalog.js';
 import { t, getLang, setLang, applyI18n, initLangToggle } from './i18n.js';
@@ -268,9 +268,10 @@ quizCtl = initQuiz({
   count: document.getElementById('quiz-count'),
   prevBtn: document.getElementById('quiz-prev'),
   nextBtn: document.getElementById('quiz-next'),
-  onDone: (answers)=>{
+  onDone: async (answers)=>{
     currentAnswers = answers;
-    currentStar = generateStar(answers);
+    // 解出一颗“尚未被认领”的星，保证人人不同（预览=认领=证书 同源一致）
+    currentStar = await generateUniqueStar(answers);
     populateUniverse(currentStar);
     saveSession('universe');
     go('universe');
@@ -295,6 +296,24 @@ function populateUniverse(star){
   }).join('');
   universe.setStar(star);
   planet3d.setStar(star);
+}
+
+// 解出一颗“尚未被认领”的星：先按答题结果生成；若其星表编号（catalog_no，星的物理身份）
+// 已被云端占用，则加盐重选，直到找到一颗空闲的真实恒星。最多 80 次，仍耗尽则退化为合成星
+// （宇宙无限，永不撞车）。这样“预览 → 认领 → 证书”始终指向同一颗、且人人不同。
+async function generateUniqueStar(answers){
+  for (let salt = 0; salt < 80; salt++){
+    const star = generateStar(answers, salt);
+    const cn = star.catalogNo;
+    if (!cn) return star;            // 合成星（无星表编号），直接采用
+    let taken = false;
+    try { taken = await catalogTaken(cn); } catch(e){ taken = false; }
+    if (!taken) return star;
+  }
+  // 真实星池（3240+ 颗）实际不会耗尽；此处仅作极端兜底
+  const star = generateStar(answers, 99991);
+  if (!star.catalogNo) star.catalogNo = star.registry;
+  return star;
 }
 
 // ---------- 认领 ----------
@@ -338,25 +357,39 @@ document.getElementById('btn-generate').addEventListener('click', async ()=>{
   saveSession('share');
   card.build(currentStar, currentKingdom);
   pushWall(currentStar, currentKingdom);
-  // 同步到云端共享星图（与好友一起看）
-  try {
-    const _code = encodeStar(currentStar, currentKingdom);
-    await pushStar({
-      code: starKey(_code), share: _code,
-      name: currentStar.name, designation: currentStar.designation,
-      catalogNo: currentStar.catalogNo,
-      ra: currentStar.ra, dec: currentStar.dec,
-      color1: currentStar.color1, color2: currentStar.color2,
-      spec: currentStar.spec, constellation: currentStar.constellation,
-      owner_name: currentKingdom.name, mag: currentStar.mag, distLy: currentStar.distLy,
-      message: currentKingdom.message,
-      ownerId: deviceId
-    });
-  } catch(e){
-    if (e && e.code === '23505_name'){
-      toast(t('「') + name + t('」') + ' ' + t('刚刚被认领，换个名字再点生成') + ' ✦');
-    } else {
+  // 同步到云端共享星图（与好友一起看）。极罕见的并发撞星（同一颗空闲星被两人同时认领）时，
+  // 重新解出一颗空闲星并重试一次，保证“每人一颗、互不相同”。
+  let starPushed = false;
+  for (let attempt = 0; attempt < 2 && !starPushed; attempt++){
+    try {
+      const _code = encodeStar(currentStar, currentKingdom);
+      await pushStar({
+        code: starKey(_code), share: _code,
+        name: currentStar.name, designation: currentStar.designation,
+        catalogNo: currentStar.catalogNo,
+        ra: currentStar.ra, dec: currentStar.dec,
+        color1: currentStar.color1, color2: currentStar.color2,
+        spec: currentStar.spec, constellation: currentStar.constellation,
+        owner_name: currentKingdom.name, mag: currentStar.mag, distLy: currentStar.distLy,
+        message: currentKingdom.message,
+        ownerId: deviceId
+      });
+      starPushed = true;
+    } catch(e){
+      if (e && e.code === '23505_catalog'){
+        // 并发撞星：换一颗空闲星（保留用户输入的星名），重画证书与星图墙后重试
+        currentStar = await generateUniqueStar(currentAnswers || {});
+        currentStar.name = name;
+        card.build(currentStar, currentKingdom);
+        pushWall(currentStar, currentKingdom);
+        continue;
+      }
+      if (e && e.code === '23505_name'){
+        toast(t('「') + name + t('」') + ' ' + t('刚刚被认领，换个名字再点生成') + ' ✦');
+        return;
+      }
       console.warn('[cloud] 星上云失败', e);
+      break;
     }
   }
   saveClaim(currentStar, currentKingdom);   // 落盘“已认领”记录（与问答进度分离，刷新/重开不丢）

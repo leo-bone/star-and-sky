@@ -244,8 +244,8 @@ const MILKY_GALAXIES = {
 };
 
 // ===== 认领真实恒星：从真实星表按种子确定性选取，叠加 AI 人格 =====
-export function generateStar(answers){
-  const seedStr = JSON.stringify(answers) + '|STAR&SKY';
+export function generateStar(answers, salt = 0){
+  const seedStr = JSON.stringify(answers) + '|STAR&SKY' + (salt ? '|' + salt : '');
   const seed = hashString(seedStr);
   const rng = mulberry32(seed);
 

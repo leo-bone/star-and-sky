@@ -70,6 +70,20 @@ export async function nameTaken(name){
   } catch(e){ console.warn('[cloud] nameTaken 失败', e); return false; }
 }
 
+// 检查某星表编号（catalog_no，即星的“物理身份”）是否已被认领。
+// 不同用户不能认领同一颗真实恒星——星体唯一的最终兜底在数据库 stars_catalog_no_unique 唯一索引。
+export async function catalogTaken(catalogNo){
+  const c = (catalogNo || '').trim();
+  if (!c) return false;
+  try {
+    const cloud = await getCloud();
+    const { data, error } = await cloud.database.from(T_STARS)
+      .select('code').eq('catalog_no', c).limit(1);
+    if (error) throw error;
+    return !!(data && data.length);
+  } catch(e){ console.warn('[cloud] catalogTaken 失败', e); return false; }
+}
+
 // 把一颗认领的星同步到云端。
 //  · code 重复 → 视为幂等成功（同一颗星重复推送，不报错）
 //  · name 重复 → 抛出 e.code='23505_name'，由上层拦截、提示用户换名
@@ -111,6 +125,9 @@ function handle23505(error){
   const msg = (error.message || '') + ' ' + (error.details || '');
   if (/stars_name_unique/.test(msg)){
     const e = new Error('该星名已被认领'); e.code = '23505_name'; throw e;
+  }
+  if (/stars_catalog_no_unique/.test(msg)){
+    const e = new Error('这颗星刚刚被别人认领了'); e.code = '23505_catalog'; throw e;
   }
   return true; // code 重复：幂等成功
 }
