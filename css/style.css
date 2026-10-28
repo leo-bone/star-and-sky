@@ -256,73 +256,6 @@ body{
   box-shadow:0 40px 110px rgba(0,0,0,.7), 0 0 0 1px rgba(207,168,106,.16), inset 0 0 90px rgba(10,30,80,.5)}
 #cert-canvas{display:block;width:100%;height:auto}
 
-/* 顶部深蓝星空区 */
-.cert-top{position:relative;text-align:center}
-.cert-head{display:flex;justify-content:space-between;align-items:center;
-  font-family:"Space Grotesk";font-size:9px;letter-spacing:2px;color:#9fb0e0;text-transform:uppercase}
-.cert-brand{color:#c9b06a}
-.cert-no{color:#f5c97b;font-weight:600}
-.cert-title{font-weight:700;font-size:30px;letter-spacing:8px;margin-top:12px;color:#f3d79a;
-  text-shadow:0 0 22px rgba(245,201,123,.4)}
-.cert-title-en{font-family:"Space Grotesk";font-size:9px;letter-spacing:3px;color:#c8b06a;margin-top:6px}
-
-/* 星球主视觉：金线环 + 轨道 + 星座连线 */
-.cert-orb-area{position:relative;width:230px;height:230px;margin:16px auto 4px}
-.cert-orb{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;z-index:2;
-  background:radial-gradient(circle at 50% 45%, #0a1124, #03050c);
-  box-shadow:0 10px 36px rgba(0,0,0,.7), 0 0 50px rgba(95,224,255,.18)}
-.cert-orb-deco{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-events:none;overflow:visible}
-
-/* 羊皮纸卡片 */
-.cert-parchment{position:relative;margin:8px auto 0;max-width:440px;
-  background:radial-gradient(120% 80% at 50% 0%, #fbf3dd, #f3e6c4 58%, #ecdcb2 100%);
-  border-radius:16px 16px 24px 24px;
-  border:1px solid rgba(180,140,70,.55);
-  box-shadow:0 16px 40px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.4), inset 0 0 44px rgba(190,150,90,.18);
-  padding:22px 24px 30px;color:#3a2c12}
-.cert-parchment::after{content:"";position:absolute;left:50%;bottom:-15px;transform:translateX(-50%);
-  width:76%;height:30px;background:inherit;border-radius:0 0 50% 50%/0 0 100% 100%;
-  border:1px solid rgba(180,140,70,.55);border-top:none;box-shadow:0 12px 22px rgba(0,0,0,.35)}
-.cp-crest{margin:0 auto 12px;width:150px;border-radius:6px;overflow:hidden;
-  border:1px solid rgba(180,140,70,.5);box-shadow:0 4px 12px rgba(0,0,0,.3)}
-.cp-name-label{text-align:center;font-family:"Space Grotesk";font-size:9px;letter-spacing:4px;color:#9a7b3e}
-.cp-name{text-align:center;font-weight:700;font-size:26px;color:#2a2110;letter-spacing:1px;margin-top:4px;line-height:1.15}
-.cp-rule{height:1px;background:linear-gradient(90deg,transparent,rgba(150,110,50,.5),transparent);margin:13px auto;width:68%}
-.cp-reg-label{text-align:center;font-family:"Space Grotesk";font-size:9px;letter-spacing:4px;color:#9a7b3e}
-.cp-reg{text-align:center;font-weight:700;font-size:21px;color:#5a3a14;letter-spacing:1px;margin-top:4px}
-.cp-params{display:grid;grid-template-columns:1fr 1fr;gap:11px 20px;margin-top:16px;position:relative}
-.cp-params::before{content:"";position:absolute;top:2px;bottom:2px;left:50%;width:1px;
-  background:linear-gradient(180deg,transparent,rgba(150,110,50,.45),transparent);transform:translateX(-50%)}
-.cp-col{display:flex;flex-direction:column;gap:10px}
-.cp-row{display:flex;flex-direction:column;gap:1px}
-.cp-k{font-family:"Space Grotesk";font-size:8.5px;letter-spacing:1.5px;color:#9a7b3e;text-transform:uppercase}
-.cp-v{font-family:"Noto Sans SC",sans-serif;font-size:12.5px;color:#2a2110;font-weight:600;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cp-msg{margin:14px auto 0;max-width:92%;font-style:italic;font-size:12.5px;color:#5a3a14;
-  text-align:center;line-height:1.6;padding-top:11px;border-top:1px dashed rgba(150,110,50,.4)}
-.cp-msg .cm-cap{display:block;font-style:normal;font-size:9px;letter-spacing:3px;color:#9a7b3e;margin-bottom:6px;
-  font-family:"Space Grotesk",sans-serif}
-/* 金色丝带编号 */
-.cp-ribbon{position:relative;margin:18px auto 0;width:max-content;max-width:90%;
-  background:linear-gradient(180deg,#f5d27e,#e0ad4e);color:#3a2407;
-  font-family:"Space Grotesk";font-weight:700;letter-spacing:2px;font-size:12px;
-  padding:7px 26px;box-shadow:0 4px 12px rgba(0,0,0,.35)}
-.cp-ribbon::before,.cp-ribbon::after{content:"";position:absolute;top:0;width:14px;height:100%;
-  background:linear-gradient(180deg,#caa23f,#a9802f)}
-.cp-ribbon::before{left:-13px;clip-path:polygon(0 0,100% 0,100% 100%,0 100%,32% 50%)}
-.cp-ribbon::after{right:-13px;clip-path:polygon(0 0,100% 0,68% 50%,100% 100%,0 100%)}
-
-/* 底部深蓝基座：徽章 + 格言 + 二维码 */
-.cert-base{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:14px;
-  margin-top:30px;padding-top:18px;position:relative;z-index:2}
-.cert-base::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(207,168,106,.5),transparent)}
-.base-badge{width:74px;height:74px;flex:none}
-.base-badge svg{width:100%;height:100%;display:block;filter:drop-shadow(0 0 8px rgba(245,201,123,.35))}
-.base-motto{text-align:center;font-family:"Noto Serif SC",serif;color:#e9d3a0;font-size:13px;line-height:1.9;letter-spacing:1px}
-.base-qr{display:flex;flex-direction:column;align-items:center;gap:5px;flex:none}
-.cert-qr{width:96px;height:96px;border-radius:7px;background:#fff;padding:5px;box-shadow:0 5px 14px rgba(0,0,0,.5)}
-.qr-cap{font-size:8.5px;color:#9fb0e0;font-family:"Space Grotesk";letter-spacing:1px;text-align:center}
 
 .share-actions .btn{width:100%;margin-top:12px}
 .share-note{color:var(--muted);font-size:12px;margin-top:14px;line-height:1.7}
@@ -462,13 +395,6 @@ body{
   .q-options.cols3{grid-template-columns:repeat(2,1fr)}
   .star-params{grid-template-columns:1fr}
   .sp-grid{grid-template-columns:1fr}
-  .cert-title{font-size:24px;letter-spacing:5px}
-  .cert-orb-area{width:190px;height:190px}
-  .cert-parchment{padding:18px 16px 26px}
-  .cp-name{font-size:22px}
-  .cp-reg{font-size:18px}
-  .cert-base{grid-template-columns:1fr;gap:14px;justify-items:center;text-align:center}
-  .base-motto{order:3}
 }
 
 /* ================= 电影开场 · 楚门的世界 · 一扇门 ================= */
@@ -622,8 +548,4 @@ body.cinema-mode .topbar{transition:opacity .6s ease}
 .si-owner::before{content:'';display:inline-block;width:5px;height:5px;border-radius:50%;
   background:#5fe0ff;margin-right:6px;vertical-align:middle;box-shadow:0 0 8px rgba(95,224,255,.9)}
 
-/* ===== 证书：星球寄语 ===== */
-.cert-message{margin:14px 0 4px;padding:12px 14px;border-left:3px solid rgba(245,201,123,.6);background:rgba(20,28,52,.5);border-radius:8px}
-.cert-message .cm-cap{display:block;font-size:11px;letter-spacing:2px;color:#f5c97b;margin-bottom:6px;font-family:'Space Grotesk',sans-serif}
-.cert-message{color:#e7eeff;font-size:14px;line-height:1.7;font-style:italic}
 
