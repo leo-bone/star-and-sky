@@ -5,7 +5,7 @@ import { generateStar, starParamList } from './starData.js';
 import { initKingdom } from './kingdom.js';
 import { initCertificate } from './certificate.js';
 import { encodeStar, shareLink, copyText, parseCodeFromURL, decodeStar } from './share.js';
-import { starKey, pushStar, listStars, addMessage, listMessages, nameTaken, getStarByKey } from './cloud.js';
+import { starKey, pushStar, listStars, addMessage, listMessages, nameTaken, getStarByKey, ownerIdExists } from './cloud.js';
 import { initSkyMap } from './skymap.js';
 import { loadCatalog } from './catalog.js';
 import { t, getLang, setLang, applyI18n, initLangToggle } from './i18n.js';
@@ -33,6 +33,23 @@ function loadClaim(){
   } catch(e){ return null; }
 }
 function hasClaim(){ return !!loadClaim(); }
+
+// 设备身份：稳定 UUID（本地持久化），作为“一人一星”的锚点。
+// 前端先按它拦截重复认领；云端 stars.owner_id 唯一索引为并发兜底（需在 WorkBuddy Cloud 后台加列+唯一索引）。
+// 注意：清缓存会重置设备 ID，所以云端的 owner_id 唯一约束才是真正的硬限制；二者互补。
+const DEVICE_KEY = 'star-sky-device-v1';
+function getDeviceId(){
+  try {
+    let id = localStorage.getItem(DEVICE_KEY);
+    if (!id){
+      id = 'd_' + (window.crypto && crypto.randomUUID
+        ? crypto.randomUUID()
+        : (Date.now().toString(36) + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2)));
+      localStorage.setItem(DEVICE_KEY, id);
+    }
+    return id;
+  } catch(e){ return 'anon'; }
+}
 
 // 3D 宇宙背景依赖 three.js（CDN）+ WebGL；若不可用则降级为空操作桩，绝不因此拖垮整站
 const NULL_UNIVERSE = { setStar(){}, showHero(){}, hideHero(){}, setControl(){}, setFocus(){}, setActive(){} };
@@ -266,6 +283,17 @@ document.getElementById('btn-claim').addEventListener('click', ()=>{
 document.getElementById('btn-generate').addEventListener('click', async ()=>{
   const name = document.getElementById('kingdom-name').value.trim();
   if (!name){ toast(t('先给你的星辰王国起个名字吧')); return; }
+  // 一人一星：先查云端该设备是否已认领（stars.owner_id 唯一约束为并发兜底）
+  const deviceId = getDeviceId();
+  if (deviceId !== 'anon'){
+    let claimed = false;
+    try { claimed = await ownerIdExists(deviceId); } catch(e){ claimed = false; }
+    if (claimed){
+      toast(t('你已经认领过一颗属于你的星了，每人限一颗 ✦'));
+      openMyStar();
+      return;
+    }
+  }
   // 命名去重：不同用户不能拥有同名星辰（云不可用时放行，由数据库唯一约束兜底）
   let nameFree = true;
   try { nameFree = !(await nameTaken(name)); } catch(e){ nameFree = true; }
@@ -293,7 +321,8 @@ document.getElementById('btn-generate').addEventListener('click', async ()=>{
       color1: currentStar.color1, color2: currentStar.color2,
       spec: currentStar.spec, constellation: currentStar.constellation,
       owner_name: currentKingdom.name, mag: currentStar.mag, distLy: currentStar.distLy,
-      message: currentKingdom.message
+      message: currentKingdom.message,
+      ownerId: deviceId
     });
   } catch(e){
     if (e && e.code === '23505_name'){

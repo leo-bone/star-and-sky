@@ -70,37 +70,58 @@ export async function nameTaken(name){
 // 把一颗认领的星同步到云端。
 //  · code 重复 → 视为幂等成功（同一颗星重复推送，不报错）
 //  · name 重复 → 抛出 e.code='23505_name'，由上层拦截、提示用户换名
+//  · owner_id 重复 → 一人一星硬限制（stars 表需对 owner_id 建唯一索引，见下方说明）
 // 注：stars 表对 lower(name) 建有唯一索引，是并发撞名的最终兜底。
 export async function pushStar(record){
   const cloud = await getCloud();
-  const { error } = await cloud.database.from(T_STARS).insert({
+  const row = {
     code: record.code,
     share: record.share,
     name: record.name,
     designation: record.designation,
-    ra: record.ra,
-    dec: record.dec,
-    color1: record.color1,
-    color2: record.color2,
-    spec: record.spec,
-    constellation: record.constellation,
+    ra: record.ra, dec: record.dec,
+    color1: record.color1, color2: record.color2,
+    spec: record.spec, constellation: record.constellation,
     owner_name: record.owner_name,
-    mag: record.mag,
-    dist_ly: record.distLy,
+    mag: record.mag, dist_ly: record.distLy,
     catalog_no: record.catalogNo || '',
-    message: record.message || ''
-  });
-  if (error){
-    if (error.code === '23505'){
-      const msg = (error.message || '') + ' ' + (error.details || '');
-      if (/stars_name_unique/.test(msg)){
-        const e = new Error('该星名已被认领'); e.code = '23505_name'; throw e;
-      }
-      return true; // code 重复：幂等成功
+    message: record.message || '',
+    owner_id: record.ownerId || null
+  };
+  try {
+    const { error } = await cloud.database.from(T_STARS).insert(row);
+    if (error) throw error;
+  } catch(e){
+    // 后端尚未给 stars 表加 owner_id 列时，降级为不含该列重试，避免认领被卡死（加列后自动启用硬限制）
+    if (/owner_id/.test((e.message || '') + ' ' + (e.code || ''))){
+      delete row.owner_id;
+      const r2 = await cloud.database.from(T_STARS).insert(row);
+      if (r2.error){ if (r2.error.code === '23505') return handle23505(r2.error); throw r2.error; }
+      return true;
     }
-    throw error;
+    if (e.code === '23505') return handle23505(e);
+    throw e;
   }
   return true;
+}
+function handle23505(error){
+  const msg = (error.message || '') + ' ' + (error.details || '');
+  if (/stars_name_unique/.test(msg)){
+    const e = new Error('该星名已被认领'); e.code = '23505_name'; throw e;
+  }
+  return true; // code 重复：幂等成功
+}
+
+// 一人一星：查该设备/身份是否已认领过（stars 表需建 owner_id 唯一列才生效）
+export async function ownerIdExists(ownerId){
+  if (!ownerId || ownerId === 'anon') return false;
+  try {
+    const cloud = await getCloud();
+    const { data, error } = await cloud.database.from(T_STARS)
+      .select('code').eq('owner_id', ownerId).limit(1);
+    if (error){ if (/owner_id/.test((error.message||'')+(error.code||''))) return false; throw error; }
+    return !!(data && data.length);
+  } catch(e){ console.warn('[cloud] ownerIdExists 失败', e); return false; }
 }
 
 // 列出云端全部公开星（用于“和朋友一起看”的共享星图）
