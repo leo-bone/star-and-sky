@@ -73,6 +73,10 @@ const EN = {
   '星体档案': 'Celestial Archive',
   '认领人': 'Claimant', '已于': 'on', '完成星球纪念认领': 'completed the commemorative claim',
   '星辰档案': 'Star Archive', '纪念存证': 'Memorial Proof',
+  '兹证明 · 此星已被正式认领': 'This is to certify that this star has been officially claimed',
+  '赤经 RA': 'R.A.', '赤纬 Dec': 'Decl.', '视星等': 'App. Mag.',
+  '光谱类型': 'Spectral', '距离地球': 'Distance', '所属星座': 'Constellation',
+  '证书编号': 'Cert. No.', '扫码分享这颗星球记录': 'Scan to share this star record',
   '于浩瀚宇宙之中，认领属于自己的星辰，以此为记，恒久留存。': 'In the vast cosmos, claim a star of your own — a mark to last forever.',
   '备注：本证书为平台纪念性质认领证书，并非 IAU 国际天文学联合会官方天体命名凭证，仅作为数字纪念藏品。': 'Note: This is a commemorative certificate issued by the platform. It is not an official naming credential from the IAU (International Astronomical Union), and serves solely as a digital keepsake.',
   // ---- 分享页 ----
