@@ -31,7 +31,7 @@ body{
 }
 #cosmos{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block}
 .vignette{position:fixed;inset:0;z-index:1;pointer-events:none;
-  background:radial-gradient(130% 100% at 50% 40%, transparent 55%, rgba(0,0,0,.55) 100%)}
+  background:radial-gradient(130% 100% at 50% 42%, transparent 64%, rgba(0,0,0,.34) 100%)}
 
 .topbar{position:fixed;top:0;left:0;right:0;z-index:20;
   display:flex;align-items:center;justify-content:space-between;
@@ -311,9 +311,14 @@ body{
   background-size:150px 150px;border-radius:18px;padding:16px;border:1px solid var(--line);position:relative}
 .wall-empty{grid-column:1/-1;color:var(--muted);font-size:14px;text-align:center;padding:30px;
   border:1px dashed var(--line);border-radius:14px}
-.wall-tile{background:var(--glass);border:1px solid var(--line);border-radius:14px;padding:14px;
+.wall-tile{position:relative;background:var(--glass);border:1px solid var(--line);border-radius:14px;padding:14px;
   cursor:pointer;transition:.22s;backdrop-filter:blur(8px);animation:floaty 7s ease-in-out infinite}
 .wall-tile:hover{border-color:var(--gold);animation-play-state:paused;box-shadow:0 10px 34px rgba(245,201,123,.22)}
+/* 世界星图墙：认领者自己的星，金青描边 + “我的星”徽标，确保认领后一眼可见 */
+.wall-tile.mine{border-color:var(--gold-line-2);box-shadow:0 10px 34px rgba(245,201,123,.35)}
+.wall-tile.mine:hover{box-shadow:0 12px 40px rgba(245,201,123,.5)}
+.wt-badge{position:absolute;top:8px;right:8px;font-size:10px;letter-spacing:1px;color:#08101f;font-weight:600;
+  background:linear-gradient(120deg,var(--gold),var(--cyan));padding:3px 8px;border-radius:999px;z-index:2}
 .wall-tile .wt-orb{width:54px;height:54px;border-radius:50%;margin:0 auto 10px;
   box-shadow:0 0 22px currentColor}
 .wall-tile .wt-name{font-family:"Noto Serif SC",serif;font-size:16px;text-align:center;color:var(--ink)}
@@ -361,12 +366,11 @@ body{
 .explore-foot{position:absolute;bottom:20px;left:0;right:0;z-index:5;display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap}
 
 /* ===== 设计语言统一：细金线 + 深蓝衬底 ===== */
-/* 全屏星空衬底统一深海军蓝调，弱化密集白点与艳紫红，让主背景沉下来 */
+/* 仅保留极轻的顶/底暗角保证文字可读，彻底移除全屏蓝灰蒙层，让深空星场通透 */
 .cosmos-tint{position:fixed;inset:0;z-index:2;pointer-events:none;
   background:
-    radial-gradient(125% 95% at 50% 0%, rgba(13,27,58,.30), transparent 58%),
-    radial-gradient(120% 100% at 50% 100%, rgba(7,10,26,.50), transparent 55%),
-    linear-gradient(180deg, rgba(10,16,40,.10), rgba(6,9,24,.24))}
+    radial-gradient(120% 86% at 50% 0%, rgba(13,27,58,.14), transparent 60%),
+    radial-gradient(120% 90% at 50% 100%, rgba(7,10,26,.22), transparent 58%)}
 
 /* 卡片 / 弹窗 / 信息卡 / 星图瓦片：统一细金线边框，品牌一致 */
 .q-card,.sky-info,.sky-search,.sky-tools,.sky-layers,.note-item,.law-box,
@@ -448,8 +452,8 @@ body{
 /* 帷幕：极轻的暗角，让星辰“若隐若现”而不被压暗；开门时散去 */
 .gate-veil{position:absolute;inset:0;z-index:2;pointer-events:none;
   background:
-    radial-gradient(122% 82% at 50% 42%, rgba(4,7,20,0), rgba(3,5,12,.26) 88%),
-    linear-gradient(180deg, rgba(4,7,18,.20), rgba(2,3,10,.05) 46%, rgba(4,7,18,.30));
+    radial-gradient(122% 82% at 50% 42%, rgba(4,7,20,0), rgba(3,5,12,.16) 90%),
+    linear-gradient(180deg, rgba(4,7,18,.14), rgba(2,3,10,.04) 46%, rgba(4,7,18,.22));
   transition:opacity 1.3s ease}
 .cinema.opening .gate-veil{opacity:0}
 

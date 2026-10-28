@@ -458,11 +458,11 @@ export function initUniverse(canvas){
   });
   // ---- 星点：远 / 中 / 近 三层纵深 ----
   // 远景：数量最多、极小、微弱、不闪烁，作深空背景（亮度进一步压低，拉开纵深）
-  starGroup.add(buildStars(9000, 620, 1700, 0.5, 0.0, 0.62, false));
+  starGroup.add(buildStars(9000, 620, 1700, 0.42, 0.0, 0.5, false));
   // 中景：占大多数、中等大小、正常亮度、稳定不闪，构成主体星场
-  starGroup.add(buildStars(4500, 140, 560, 1.3, 0.0, 1.0, false));
+  starGroup.add(buildStars(4500, 140, 560, 1.25, 0.0, 0.95, false));
   // 近景：少量、更大更亮、缓慢呼吸、含少量大亮星（配 bloom 形成极柔光晕），作视觉亮点
-  starGroup.add(buildStars(420, 28, 120, 2.2, 1.0, 1.3, true));
+  starGroup.add(buildStars(520, 26, 120, 2.7, 1.0, 1.6, true));
 
   // ---- 亮星 + 星芒层（ astrophotography 质感） ----
   const flareTex = makeFlareTexture();

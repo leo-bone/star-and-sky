@@ -554,24 +554,26 @@ async function renderCloudWall(){
   const count = document.getElementById('wall-count');
   await ensureCloudSeed();
   const arr = await listStars(120);
-  // 排除当前正在查看的星（自己的或正在浏览的分享星），避免星图墙上出现重复光点
+  // 标记“我的星”：当前认领/正在查看的星也展示在墙上，并标“我的星 ✦”，不再被排除
   let curCode = null;
   if (currentStar && currentKingdom){ try { curCode = encodeStar(currentStar, currentKingdom); } catch(e){} }
-  const shown = arr.filter(s => !(curCode && s.share === curCode));
-  if (count) count.textContent = t('云端已点亮') + ' ' + shown.length + ' ' + t('颗星辰');
+  if (count) count.textContent = t('云端已点亮') + ' ' + arr.length + ' ' + t('颗星辰');
   if (!box) return;
-  if (!shown.length){
+  if (!arr.length){
     box.innerHTML = '<div class="wall-empty">' + t('还没有星辰被点亮。认领你的第一颗，让世界星图墙亮起来。') + '</div>';
     return;
   }
-  box.innerHTML = shown.map((s,i)=>{
+  box.innerHTML = arr.map((s,i)=>{
     const col = s.color1 || '#ffd27a';
+    const isMine = !!(curCode && s.share === curCode);
     const kname = s.owner_name ? escapeHtml(s.owner_name) + t(' 的星') : (escapeHtml(s.name) + t(' 王国'));
     const desig = s.designation || '';
     // 星球寄语：来自云端 stars.message，让全世界的留言在星图墙上可见
     const msg = (s.message || '').trim();
     const msgHtml = msg ? `<div class="wt-msg">“${escapeHtml(msg)}”</div>` : '';
-    return `<div class="wall-tile" data-share="${encodeURIComponent(s.share)}" style="color:${col};animation-delay:${(i*0.37).toFixed(2)}s">
+    const badge = isMine ? `<div class="wt-badge">${t('我的星 ✦')}</div>` : '';
+    return `<div class="wall-tile${isMine?' mine':''}" data-share="${encodeURIComponent(s.share)}" style="color:${col};animation-delay:${(i*0.37).toFixed(2)}s">
+      ${badge}
       <div class="wt-orb" style="background:radial-gradient(circle at 35% 30%, #fff, ${col} 45%, ${col} 82%, #2a0f00)"></div>
       <div class="wt-name">${escapeHtml(s.name)}</div>
       <div class="wt-desig">${escapeHtml(desig)}</div>
