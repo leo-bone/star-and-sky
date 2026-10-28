@@ -457,8 +457,8 @@ export function initUniverse(canvas){
     transparent:true, blending:THREE.AdditiveBlending, depthWrite:false
   });
   // ---- 星点：远 / 中 / 近 三层纵深 ----
-  // 远景：数量最多、极小、微弱、不闪烁，作深空背景
-  starGroup.add(buildStars(9000, 620, 1700, 0.5, 0.0, 0.78, false));
+  // 远景：数量最多、极小、微弱、不闪烁，作深空背景（亮度进一步压低，拉开纵深）
+  starGroup.add(buildStars(9000, 620, 1700, 0.5, 0.0, 0.62, false));
   // 中景：占大多数、中等大小、正常亮度、稳定不闪，构成主体星场
   starGroup.add(buildStars(4500, 140, 560, 1.3, 0.0, 1.0, false));
   // 近景：少量、更大更亮、缓慢呼吸、含少量大亮星（配 bloom 形成极柔光晕），作视觉亮点
@@ -478,15 +478,15 @@ export function initUniverse(canvas){
     starGroup.add(s);
   }
 
-  // ---- 彩色星云（局部、低透明、偏角落，避免全屏铺雾） ----
+  // ---- 彩色星云（严格贴角落/边缘，极低透明，杜绝全屏灰雾） ----
   const nebTex = makeNebulaTexture();
   const nebColors = ['#3a3160','#27406e','#3a2f5e','#1f4f57','#2f3f66','#4a3344'];  // 更深、更哑光的蓝紫
   const nebula = new THREE.Group(); scene.add(nebula);
-  // 偏向四角/边缘摆放，让出中心留给主体星与星球组件
-  const nebSpots = [[1,1],[-1,1],[1,-1],[-1,-1],[0.5,0.85]];
+  // 5 个点全部推到四角或边缘外，中心与主体内容区完全让出
+  const nebSpots = [[1,1],[-1,1],[1,-1],[-1,-1],[0.96,0.82]];
   for (let i=0;i<nebSpots.length;i++){
     const m = new THREE.SpriteMaterial({ map:nebTex, color:new THREE.Color(nebColors[i%nebColors.length]),
-      transparent:true, blending:THREE.AdditiveBlending, opacity:0.06 + Math.random()*0.035, depthWrite:false, fog:false });
+      transparent:true, blending:THREE.AdditiveBlending, opacity:0.045 + Math.random()*0.03, depthWrite:false, fog:false });
     const s = new THREE.Sprite(m);
     const [sx,sy] = nebSpots[i];
     const r = 540 + Math.random()*420;
@@ -495,11 +495,11 @@ export function initUniverse(canvas){
     nebula.add(s);
   }
 
-  // ---- 远景深空星系（旋涡星系精灵，增强浩瀚感） ----
+  // ---- 远景深空星系（旋涡星系精灵，增强浩瀚感；低透明，避免加色偏亮显灰） ----
   const galTex = makeGalaxyTexture();
   for(let i=0;i<3;i++){
     const m = new THREE.SpriteMaterial({ map:galTex, color:new THREE.Color('#cfe0ff'),
-      transparent:true, blending:THREE.AdditiveBlending, opacity:0.55, depthWrite:false, fog:false });
+      transparent:true, blending:THREE.AdditiveBlending, opacity:0.3, depthWrite:false, fog:false });
     const s = new THREE.Sprite(m);
     const r = 800 + Math.random()*500;
     const th = Math.random()*Math.PI*2, ph = Math.acos(2*Math.random()-1);
@@ -575,8 +575,8 @@ export function initUniverse(canvas){
   // Bloom 阈值提高、强度降低：只让最亮的日冕/临边微微发光，恒星盘面保留星色与颗粒细节，不再被烧成白块
   const composer = new EffectComposer(renderer);
   composer.addPass(new RenderPass(scene, camera));
-  // Bloom 强度下调、阈值上调：只让最亮的近景大星与日冕微微发光，去掉整场雾感发闷
-  const bloom = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.12, 0.55, 0.85);
+  // Bloom 强度再下调、阈值上调：仅最亮的近景大星与日冕极微发光，彻底去除整场雾感发闷，保持通透
+  const bloom = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.10, 0.55, 0.85);
   composer.addPass(bloom);
   composer.addPass(new OutputPass());
 

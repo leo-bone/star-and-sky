@@ -24,7 +24,7 @@ html,body{height:100%}
 body{
   font-family:"Noto Sans SC","Space Grotesk",system-ui,sans-serif;
   /* 深空虚空底色：顶部用较深的暗蓝紫（非灰蓝），中/底一路沉到近黑，还原宇宙纵深 */
-  background:radial-gradient(135% 120% at 50% -15%, #0a0d24 0%, #060815 50%, #01020a 100%);
+  background:radial-gradient(135% 120% at 50% -15%, #0a0c1e 0%, #05060f 48%, #00010a 100%);
   color:var(--ink);
   overflow-x:hidden;
   -webkit-font-smoothing:antialiased;
