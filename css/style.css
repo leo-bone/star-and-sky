@@ -392,19 +392,54 @@ body{
   background:var(--gold);box-shadow:0 0 8px rgba(245,201,123,.8)}
 
 /* ---------- 响应式 ---------- */
+/* 移动端底部导航（桌面端隐藏） */
+.bottom-nav{display:none}
+
 @media (max-width:900px){
   .uni-layout,.claim-layout,.share-layout{grid-template-columns:1fr;gap:28px}
   .claim-layout .claim-col:last-child{border-left:none;padding-left:0}
-  .uni-right{height:46vh;order:-1}
+  .uni-right{height:46vh;min-height:340px;order:-1}
   .star-params{max-height:none}
   .topnav{display:none}
-  .screen{padding-top:84px}
+  /* 顶栏随刘海/挖孔屏留出安全区；内容底部让出底栏空间 */
+  .topbar{padding-top:calc(16px + env(safe-area-inset-top));padding-bottom:14px}
+  .screen{padding-top:80px;padding-bottom:calc(76px + env(safe-area-inset-bottom))}
+  #screen-share{padding-top:96px;padding-bottom:calc(76px + env(safe-area-inset-bottom))}
+  /* 移动端底部导航：固定底栏，保证手机可自由切换板块 */
+  .bottom-nav{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:30;
+    justify-content:space-around;align-items:stretch;gap:2px;
+    padding:6px 4px calc(6px + env(safe-area-inset-bottom));
+    background:linear-gradient(180deg, rgba(5,6,15,.72), rgba(5,6,15,.97));
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border-top:1px solid var(--gold-line)}
+  .bn-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+    background:none;border:none;color:var(--muted);cursor:pointer;font-family:inherit;
+    font-size:11px;letter-spacing:1px;padding:4px 2px;transition:.2s;-webkit-tap-highlight-color:transparent}
+  .bn-item .bn-ico{font-size:18px;line-height:1;filter:drop-shadow(0 0 8px rgba(95,224,255,.35))}
+  .bn-item.active{color:var(--gold)}
+  .bn-item.active .bn-ico{color:var(--gold)}
+  .bn-mine{color:var(--cyan)}
+  /* 真实星空为全屏沉浸页，自带底部控制条，隐藏全局底栏避免遮挡 */
+  .on-explore .bottom-nav{display:none}
+  /* 移动端 toast 上移，避开底部导航 */
+  .toast{bottom:calc(88px + env(safe-area-inset-bottom))}
+  /* 窄屏：云端提示允许换行，避免溢出 */
+  .sky-cloud-note{white-space:normal;max-width:90vw;text-align:center}
 }
+
 @media (max-width:520px){
   .zodiac-grid{grid-template-columns:repeat(3,1fr)}
   .q-options.cols3{grid-template-columns:repeat(2,1fr)}
-  .star-params{grid-template-columns:1fr}
   .sp-grid{grid-template-columns:1fr}
+  .brand-name{font-size:16px;letter-spacing:1px}
+  .nav-mine{font-size:11px;padding:5px 10px}
+  .topbar{padding-left:14px;padding-right:14px;gap:8px}
+  .sec-title{font-size:24px}
+  .premium-items{grid-template-columns:repeat(2,1fr)}
+  .screen{padding-left:16px;padding-right:16px}
+  #screen-share{padding-left:16px;padding-right:16px}
+  .wall{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+  .home-title{letter-spacing:3px}
 }
 
 /* ================= 电影开场 · 楚门的世界 · 一扇门 ================= */

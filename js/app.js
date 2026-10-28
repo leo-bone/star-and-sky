@@ -128,11 +128,13 @@ const navSteps = [...document.querySelectorAll('.nav-step')];
 
 function go(name){
   currentScreen = name;
+  document.body.classList.toggle('on-explore', name === 'explore');
   // 导航是全局骨架：任何子步骤抛错都不能让整页卡死/白屏，
   // 因此把各段包在 try/catch 里，失败只记日志不阻断导航。
   try{
     Object.values(screens).forEach(s => s.classList.toggle('active', s.id === 'screen-'+name));
     navSteps.forEach(n => n.classList.toggle('active', n.dataset.step === name));
+    document.querySelectorAll('.bn-item[data-go]').forEach(n => n.classList.toggle('active', n.dataset.go === name));
   }catch(e){ console.warn('[nav] 切换屏幕失败', e); }
 
   try{
@@ -154,14 +156,18 @@ function go(name){
     if (name === 'share'){
       const sb = document.getElementById('shared-banner');
       if (sb) sb.style.display = isShared ? 'flex' : 'none';
+      const br = document.getElementById('btn-restart'); if (br) br.style.display = hasClaim() ? 'none' : '';
       loadNotes();
       renderCloudWall();
     }
   }catch(e){ console.warn('[nav] 分享页渲染失败', e); }
 
-  // 认领页需先有星
-  if (name === 'claim' && !currentStar){
-    toast('先完成问答，认领一颗属于你的星'); go('quiz'); return;
+  // 认领页：先锁定星名状态（已认领则回填并禁用改名），且需先有星
+  if (name === 'claim'){
+    try { syncClaimLock(); } catch(e){}
+    if (!currentStar){
+      toast('先完成问答，认领一颗属于你的星'); go('quiz'); return;
+    }
   }
   try{
     // 真实星空：可独立探索（无需先认领），直接对标 ISR 的静态纸星图
@@ -224,10 +230,30 @@ function openMyStar(){
   go('share');
 }
 
+// 命名锁定：认领后星名不可更改（与“一人一星 owner_id 唯一 / 重名 lower(name) 唯一”共同构成约束）
+function syncClaimLock(){
+  const input = document.getElementById('kingdom-name');
+  const gen = document.getElementById('btn-generate');
+  if (!input || !gen) return;
+  if (hasClaim()){
+    const c = loadClaim();
+    const nm = (c && ((c.kingdom && c.kingdom.name) || (c.star && c.star.name))) || '';
+    input.value = nm;
+    input.readOnly = true; input.disabled = true; input.placeholder = '';
+    gen.textContent = '✦ 星名已锁定 · 查看我的星图';
+    gen.dataset.locked = '1';
+  } else {
+    input.readOnly = false; input.disabled = false;
+    if (gen.dataset.locked){ gen.textContent = '命名并生成星图 ↝'; delete gen.dataset.locked; }
+  }
+}
+
 document.querySelectorAll('[data-go]').forEach(el=>{
   el.addEventListener('click', ()=> go(el.dataset.go));
 });
 navSteps.forEach(n=> n.addEventListener('click', ()=> go(n.dataset.step)));
+document.querySelectorAll('.bn-item[data-go]').forEach(el=> el.addEventListener('click', ()=> go(el.dataset.go)));
+const bnMine = document.getElementById('bn-mine'); if (bnMine) bnMine.addEventListener('click', openMyStar);
 
 // ---------- 我的星球：随时查阅已认领的星（顶部常驻 + 首页副按钮）----------
 const btnMine = document.getElementById('btn-mine');
@@ -281,6 +307,8 @@ document.getElementById('btn-claim').addEventListener('click', ()=>{
 
 // ---------- 生成星图 ----------
 document.getElementById('btn-generate').addEventListener('click', async ()=>{
+  // 命名锁定：已认领则直接打开自己的星，禁止改名 / 重复认领
+  if (hasClaim()){ toast(t('星名已锁定，每人限认领一颗 ✦')); openMyStar(); return; }
   const name = document.getElementById('kingdom-name').value.trim();
   if (!name){ toast(t('先给你的星辰王国起个名字吧')); return; }
   // 一人一星：先查云端该设备是否已认领（stars.owner_id 唯一约束为并发兜底）

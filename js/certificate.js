@@ -482,29 +482,36 @@ function drawInfoCard(ctx, card, star, kd){
   // 顶部中央金色封签（PLANET REGISTRY），压在顶边框上，制造密封档案感
   drawTopSeal(ctx, cx, y0, 'PLANET REGISTRY');
 
-  // —— 文案（居中，层级：证明语 → 名称 → 注册人 → 参数 → 编号）——
+  // —— 文案（居中，层级：证明语 → 名称 → 国际命名 → 注册人 → 参数 → 编号）——
   ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
-  let y = y0 + 72;
+  let y = y0 + 62;
   setFont(ctx, '500 16px "Noto Serif SC", serif'); ctx.fillStyle = P.label; ctx.letterSpacing = '3px';
   ctx.fillText('兹证明 · 此星已被正式认领', cx, y); ctx.letterSpacing = '0px';
-  y += 40;
-  setFont(ctx, '500 14px "Noto Serif SC", serif'); ctx.fillStyle = P.label; ctx.letterSpacing = '2px';
+  y += 36;
+  setFont(ctx, '500 13px "Noto Serif SC", serif'); ctx.fillStyle = P.label; ctx.letterSpacing = '2px';
   ctx.fillText('星球名称', cx, y); ctx.letterSpacing = '0px';
   y += 44;
-  setFont(ctx, '700 48px "Noto Serif SC", serif'); ctx.fillStyle = P.name;   // 核心：最大字号
+  setFont(ctx, '700 44px "Noto Serif SC", serif'); ctx.fillStyle = P.name;   // 核心：最大字号
   ctx.fillText(star.name || '—', cx, y);
-  y += 22; drawDiamond(ctx, cx, y, 5, P.gold); y += 28;
-  setFont(ctx, '500 14px "Noto Serif SC", serif'); ctx.fillStyle = P.label; ctx.letterSpacing = '2px';
-  ctx.fillText('注册人', cx, y); ctx.letterSpacing = '0px';
-  y += 46;
-  setFont(ctx, '700 34px "Noto Serif SC", serif'); ctx.fillStyle = P.name;   // 第二层级
-  ctx.fillText((kd && kd.ruler) || '星际公民', cx, y);
+  y += 18; drawDiamond(ctx, cx, y, 4, P.gold); y += 20;
+  // 国际命名：星球真实天文编号（如 Sirius · α CMa / HD 48915）
+  setFont(ctx, '500 12px "Noto Serif SC", serif'); ctx.fillStyle = P.label; ctx.letterSpacing = '2px';
+  ctx.fillText('国际命名', cx, y); ctx.letterSpacing = '0px';
   y += 26;
+  setFont(ctx, '400 17px "Space Grotesk", monospace'); ctx.fillStyle = P.name;
+  ctx.fillText(star.designation || star.catalogNo || '—', cx, y);
+  y += 22;
+  setFont(ctx, '500 13px "Noto Serif SC", serif'); ctx.fillStyle = P.label; ctx.letterSpacing = '2px';
+  ctx.fillText('注册人', cx, y); ctx.letterSpacing = '0px';
+  y += 40;
+  setFont(ctx, '700 32px "Noto Serif SC", serif'); ctx.fillStyle = P.name;   // 第二层级
+  ctx.fillText((kd && kd.ruler) || '星际公民', cx, y);
+  y += 18;
   ctx.strokeStyle = P.gold; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(cx - 110, y); ctx.lineTo(cx + 110, y); ctx.stroke();
 
   // 参数表（左右两栏，固定布局）
-  drawParamTable(ctx, card, y + 36, star);
+  drawParamTable(ctx, card, y + 28, star);
 
   // 底部金色标签（证书编号短码），压在底边框上
   drawBottomLabel(ctx, cx, y0 + h, shortCode(star));
@@ -595,7 +602,7 @@ function drawParamTable(ctx, card, y, star){
                 ['视星等', magStr(star)], ['注册时间 UTC', claimDateTime()]];
   const right = [['光谱类型', specStr(star)], ['距离地球', distStr(star)],
                  ['所属星座', star.constellation || '—'], ['证书编号', star.registry || star.catalogNo || '—']];
-  const rowH = 40;
+  const rowH = 32;
   // 中缝极淡竖线
   ctx.save(); ctx.strokeStyle = 'rgba(200,168,110,0.30)'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(cx, y - 18); ctx.lineTo(cx, y - 18 + left.length * rowH); ctx.stroke();
