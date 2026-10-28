@@ -3,7 +3,10 @@
 // 用途：把每颗被认领的星的坐标 + 留言同步到云端，好友凭链接或星图墙即可一起看到。
 
 const PUBLIC_CONFIG = {
-  endpoint: 'https://star-and-sky.app.workbuddy.host',
+  // 走自定义域名 star.uichain.org（Cloudflare Worker 已把该域名整体反代到 WorkBuddy Cloud）。
+  // 好处：① 与前端同源（前端也经 Worker 提供），避免跨域 403；
+  //       ② 为“前端迁 GitHub Pages”铺路——届时只需让 Worker 对 /rest/v1/* 加 CORS 即可跨域调用云端。
+  endpoint: 'https://star.uichain.org',
   publishableKey: 'wbpk_bCE5ZXrk8G16hFrzUJ6aQ2_VSDrieq5pMlW72WBFOSoygPY5SVyBTVv',
   oauthRelayBaseUrl: 'https://www.workbuddy.cn/v2/as/genie-baas/oauth'
 };
