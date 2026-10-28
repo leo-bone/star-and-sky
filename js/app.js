@@ -5,7 +5,7 @@ import { generateStar, starParamList } from './starData.js';
 import { initKingdom } from './kingdom.js';
 import { initCertificate } from './certificate.js';
 import { encodeStar, shareLink, copyText, parseCodeFromURL, decodeStar } from './share.js';
-import { starKey, pushStar, listStars, addMessage, listMessages, nameTaken } from './cloud.js';
+import { starKey, pushStar, listStars, addMessage, listMessages, nameTaken, getStarByKey } from './cloud.js';
 import { initSkyMap } from './skymap.js';
 import { loadCatalog } from './catalog.js';
 import { t, getLang, setLang, applyI18n, initLangToggle } from './i18n.js';
@@ -433,6 +433,20 @@ function openSharedStar(marker){
   card.build(currentStar, currentKingdom);
   showSharedBanner();
   go('share');
+  // 幂等补推云端：保证这颗星后续可用 #c= 短码二维码解析到（认领流程已推，此处兜底）
+  try {
+    const code = encodeStar(currentStar, currentKingdom);
+    pushStar({
+      code: starKey(code), share: code,
+      name: currentStar.name, designation: currentStar.designation,
+      catalogNo: currentStar.catalogNo,
+      ra: currentStar.ra, dec: currentStar.dec,
+      color1: currentStar.color1, color2: currentStar.color2,
+      spec: currentStar.spec, constellation: currentStar.constellation,
+      owner_name: currentKingdom.name, mag: currentStar.mag, distLy: currentStar.distLy,
+      message: currentKingdom.message
+    }).catch(()=>{});
+  } catch(e){}
 }
 
 async function loadCloudStars(){
@@ -703,13 +717,35 @@ function showSharedBanner(){
   if (r) r.textContent = hasClaim() ? t('查看我的星球 ✦') : t('我也要认一颗星 ✦');
 }
 function parseShareFromURL(){
+  // 1) 先试 #star=（完整码，离线即时解析）
   const data = parseCodeFromURL();
-  if (!data) return false;
-  currentStar = data.star; currentKingdom = data.kd; isShared = true;
-  card.build(currentStar, currentKingdom);
-  showSharedBanner();
-  go('share');
-  return true;
+  if (data){
+    currentStar = data.star; currentKingdom = data.kd; isShared = true;
+    card.build(currentStar, currentKingdom);
+    showSharedBanner();
+    go('share');
+    return true;
+  }
+  // 2) 再试 #c=（证书二维码短码，需云端解析；扫码落点更短、更可扫）
+  const m = (location.hash || '').match(/c=([^&]+)/);
+  if (m){
+    resolveShortCode(decodeURIComponent(m[1]));   // 异步解析，期间先留在首页
+    return true;
+  }
+  return false;
+}
+
+// 按云端短码取回完整星并打开（证书二维码的扫码落点）
+async function resolveShortCode(key){
+  try {
+    const share = await getStarByKey(key);
+    if (!share){ toast(t('这颗星暂时无法从云端读取')); go('home'); return; }
+    openSharedStar({ share });
+  } catch(e){
+    console.warn('[short] 解析失败', e);
+    toast(t('分享解析失败'));
+    go('home');
+  }
 }
 
 if (!parseShareFromURL()){

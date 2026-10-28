@@ -3,7 +3,7 @@
 // 中心「星球档案组件」图层顺序：星盘刻度环 → 轨道后半 → 星球本体 → 轨道前半(遮挡) → 星座连线/星点/坐标小字
 import { hashString, mulberry32 } from './rng.js';
 import { t } from './i18n.js';
-import { shareLink, encodeStar } from './share.js';
+import { shareLink, encodeStar, qrLinkForStar } from './share.js';
 // 与 3D 认星页共用同一套程序化星球表面（bodyTexture.js），
 // 确保证书上的星球与网页里「认领的星星」完全一致（修复此前两张图对不上的问题）。
 import { getBodySurface, uvFromDir } from './bodyTexture.js';
@@ -642,9 +642,10 @@ function drawFooter(ctx, star, kd){
   ctx.fillText(t('仰望星辰，不是为了拥有，'), DW / 2, 1552);
   ctx.fillText(t('而是为了让记忆在宇宙中有坐标。'), DW / 2, 1582);
   ctx.restore();
-  // 真实可扫码链接：把当前星 + 王国编码进 URL 哈希，扫码即可在任何设备打开这颗星
+  // 真实可扫码链接：用云端短码（#c=），扫码即可在任何设备打开这颗星；
+  // 短码二维码仅 ~40 模块，证书 116px 也能轻松扫出（完整分享码会生成 ~149 模块超密码扫不动）
   let link = '';
-  try { if (star) link = shareLink(encodeStar(star, kd || {})); } catch(e){ link = ''; }
+  try { if (star){ const code = encodeStar(star, kd || {}); link = qrLinkForStar(code); } } catch(e){ link = ''; }
   drawQR(ctx, 1006, 1560, 116, link);
   drawDisclaimer(ctx);
 }

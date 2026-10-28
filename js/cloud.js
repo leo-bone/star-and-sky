@@ -145,3 +145,19 @@ export async function listMessages(starCode){
     return [];
   }
 }
+
+// 按短码（starKey）取回完整分享码，供证书二维码（#c= 短码）扫码后解析出整颗星。
+// 取不到（云不可用 / 星未落云）返回 null，由上层降级处理。
+export async function getStarByKey(key){
+  try {
+    const cloud = await getCloud();
+    const { data, error } = await cloud.database.from(T_STARS)
+      .select('share, code').eq('code', key).limit(1);
+    if (error) throw error;
+    if (data && data.length && data[0].share) return data[0].share;
+    return null;
+  } catch(e){
+    console.warn('[cloud] getStarByKey 失败', e);
+    return null;
+  }
+}

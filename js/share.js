@@ -1,5 +1,7 @@
 // 分享编解码：把一颗星 + 王国信息压成可放进 URL 的短码，免登录即可分享给全世界。
 
+import { starKey } from './cloud.js';   // 短码哈希（纯函数，不会引起云 SDK 网络副作用）
+
 function slimStar(s){
   // 只保留展示与参数表需要的字段，减小体积（真实星表认领 + 国际命名 + 真实坐标）
   return {
@@ -52,6 +54,15 @@ export function shareLink(code){
   // 保留当前查询串（含部署网关的 ?sharecode=…），否则分享出去的链接在需要网关的部署上会 403 打不开
   const base = location.origin + location.pathname + (location.search || '');
   return base + '#star=' + code;
+}
+
+// 证书二维码专用：用云端短码（#c=）替代完整分享码（#star=）。
+// 理由：完整分享码 base64 后可达 1500+ 字符，生成的二维码是 ~149 模块的超密版，
+// 证书上只有 116px，手机基本扫不出；短码仅 ~12 位，二维码降到 ~40 模块，轻松可扫。
+// 扫码后由 app 端 #c= 解析逻辑去云端取回完整星。
+export function qrLinkForStar(code){
+  const base = location.origin + location.pathname + (location.search || '');
+  return base + '#c=' + starKey(code);
 }
 
 export function copyText(text){
