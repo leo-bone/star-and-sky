@@ -3,6 +3,7 @@
 // 中心「星球档案组件」图层顺序：星盘刻度环 → 轨道后半 → 星球本体 → 轨道前半(遮挡) → 星座连线/星点/坐标小字
 import { hashString, mulberry32 } from './rng.js';
 import { t } from './i18n.js';
+import { shareLink, encodeStar } from './share.js';
 
 const DW = 1240, DH = 1754;   // A4 竖版设计尺寸（约 1:1.414）
 const K = 2;                  // 内部分辨率倍数，导出更清晰
@@ -606,30 +607,58 @@ function drawFooter(ctx, star, kd){
   ctx.fillText(t('仰望星辰，不是为了拥有，'), DW / 2, 1552);
   ctx.fillText(t('而是为了让记忆在宇宙中有坐标。'), DW / 2, 1582);
   ctx.restore();
-  drawQR(ctx, 1006, 1560, 116, star);
+  // 真实可扫码链接：把当前星 + 王国编码进 URL 哈希，扫码即可在任何设备打开这颗星
+  let link = '';
+  try { if (star) link = shareLink(encodeStar(star, kd || {})); } catch(e){ link = ''; }
+  drawQR(ctx, 1006, 1560, 116, link);
   drawDisclaimer(ctx);
 }
 
-function drawQR(ctx, cx, cy, size, star){
-  const n = 21, cell = size / n;
+function drawQR(ctx, cx, cy, size, link){
   const x0 = cx - size / 2, y0 = cy - size / 2;
-  ctx.save();
-  roundRectPath(ctx, x0 - 6, y0 - 6, size + 12, size + 12, 10);
+  // 白底卡片（羊皮纸证书上的二维码位）
+  roundRectPath(ctx, x0 - 7, y0 - 7, size + 14, size + 14, 10);
   ctx.fillStyle = '#fbfbf7'; ctx.fill();
   ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth = 1; ctx.stroke();
-  const rng = mulberry32(hashString((star.name || 'x') + (star.registry || '') + 'qr'));
+
   ctx.fillStyle = '#1c2026';
+  const canReal = (typeof window !== 'undefined') && typeof window.qrcode === 'function' && !!link;
+  if (canReal){
+    try {
+      const qr = window.qrcode(0, 'M');
+      qr.addData(link); qr.make();
+      const count = qr.getModuleCount();
+      const quiet = 2;                       // 静区（quiet zone），提升扫码识别率
+      const total = count + quiet * 2;
+      const cell = size / total;
+      const ox = x0 + (size - cell * total) / 2;
+      const oy = y0 + (size - cell * total) / 2;
+      for (let r = 0; r < count; r++) for (let c = 0; c < count; c++){
+        if (qr.isDark(r, c)) ctx.fillRect(ox + (c + quiet) * cell, oy + (r + quiet) * cell, cell + 0.6, cell + 0.6);
+      }
+    } catch(e){
+      decorativeQR(ctx, x0, y0, size);
+    }
+  } else {
+    decorativeQR(ctx, x0, y0, size);
+  }
+  // 文案
+  ctx.save(); ctx.textAlign = 'center'; ctx.fillStyle = C.gold; ctx.globalAlpha = 0.9;
+  setFont(ctx, '400 13px "Noto Serif SC", serif');
+  ctx.fillText(t('扫码分享这颗星球记录'), cx, cy + size / 2 + 22);
+  ctx.restore();
+}
+
+// 库未加载时的装饰性回退：确定性伪二维码（不可真扫，仅占位，保证证书不崩）
+function decorativeQR(ctx, x0, y0, size){
+  const n = 21, cell = size / n;
+  const rng = mulberry32(hashString('qr-fallback'));
   for (let r = 0; r < n; r++) for (let c = 0; c < n; c++){
     if (rng() > 0.52) ctx.fillRect(x0 + c * cell, y0 + r * cell, cell * 0.92, cell * 0.92);
   }
   drawFinder(ctx, x0, y0, cell);
   drawFinder(ctx, x0 + (n - 7) * cell, y0, cell);
   drawFinder(ctx, x0, y0 + (n - 7) * cell, cell);
-  ctx.restore();
-  ctx.save(); ctx.textAlign = 'center'; ctx.fillStyle = C.gold; ctx.globalAlpha = 0.9;
-  setFont(ctx, '400 13px "Noto Serif SC", serif');
-  ctx.fillText(t('扫码分享这颗星球记录'), cx, cy + size / 2 + 22);
-  ctx.restore();
 }
 
 function drawFinder(ctx, x, y, cell){
