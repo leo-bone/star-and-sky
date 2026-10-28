@@ -49,6 +49,12 @@ body{
 .nav-step:hover{color:var(--ink)}
 .nav-step.active{color:#0a0e24;background:linear-gradient(120deg,var(--gold),var(--cyan));
   font-weight:600;border-color:transparent;box-shadow:0 0 18px rgba(95,224,255,.35)}
+/* 顶部“我的星球”常驻入口：金色胶囊，与 active 导航同语言，保证随时可查阅已认领的星 */
+.nav-mine{font-family:inherit;font-size:11.5px;color:#08101f;cursor:pointer;border:none;
+  background:linear-gradient(120deg,var(--gold),var(--cyan));font-weight:600;letter-spacing:1px;
+  padding:6px 13px;border-radius:999px;white-space:nowrap;
+  box-shadow:0 0 18px rgba(95,224,255,.35);transition:.3s}
+.nav-mine:hover{transform:translateY(-1px);filter:brightness(1.08)}
 
 #stage{position:relative;z-index:10}
 /* 关键修复：分享页含 3 个子元素，必须纵向排列，否则会被 flex 横向排成一行导致文字重叠 */

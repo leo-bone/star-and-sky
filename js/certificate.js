@@ -4,6 +4,9 @@
 import { hashString, mulberry32 } from './rng.js';
 import { t } from './i18n.js';
 import { shareLink, encodeStar } from './share.js';
+// 与 3D 认星页共用同一套程序化星球表面（bodyTexture.js），
+// 确保证书上的星球与网页里「认领的星星」完全一致（修复此前两张图对不上的问题）。
+import { getBodySurface, uvFromDir } from './bodyTexture.js';
 
 const DW = 1240, DH = 1754;   // A4 竖版设计尺寸（约 1:1.414）
 const K = 2;                  // 内部分辨率倍数，导出更清晰
@@ -73,6 +76,11 @@ export function initCertificate(){
 
     // ---- 页脚：圆形印章 + 寄语 + 二维码 + 免责声明 ----
     drawFooter(ctx, star, kd);
+
+    // ---- 信封半包裹：背板装裱边 + 顶部封舌 + 底部口袋，营造"证书装在信封中"的质感 ----
+    drawEnvelopeBack(ctx);
+    drawEnvelopeFlap(ctx);
+    drawEnvelopePocket(ctx);
   }
 
   function download(star){
@@ -93,56 +101,96 @@ export function initCertificate(){
 }
 
 // ============================================================
-// 背景：深蓝渐变 + 低饱和暗紫星云 + 稀疏三层星点
+// 背景：深空渐变 + 银河带 + 多层星云（带纹理）+ 稀疏三层星点 + 底纹
 // ============================================================
 function drawBackground(ctx, star){
-  const bg = ctx.createLinearGradient(0, 0, 0, DH);
-  bg.addColorStop(0, C.bgTop);
+  // 深空渐变：顶部偏冷蓝紫、底部近黑，中段微微透出星云暖意
+  const bg = ctx.createLinearGradient(0, 0, DW*0.3, DH);
+  bg.addColorStop(0, '#0c1430');
+  bg.addColorStop(0.45, C.bgTop);
   bg.addColorStop(1, C.bgBot);
   ctx.fillStyle = bg; ctx.fillRect(0, 0, DW, DH);
 
-  // 暗角
-  const vig = ctx.createRadialGradient(DW/2, DH*0.42, DH*0.25, DW/2, DH*0.5, DH*0.78);
+  // 暗角（压住四角，强化纵深）
+  const vig = ctx.createRadialGradient(DW/2, DH*0.42, DH*0.22, DW/2, DH*0.5, DH*0.82);
   vig.addColorStop(0, 'rgba(0,0,0,0)');
-  vig.addColorStop(1, 'rgba(0,0,0,0.55)');
+  vig.addColorStop(0.7, 'rgba(0,0,0,0.18)');
+  vig.addColorStop(1, 'rgba(0,0,0,0.62)');
   ctx.fillStyle = vig; ctx.fillRect(0, 0, DW, DH);
 
-  // 低饱和星云：中央 + 四角扩散，打破纯深蓝的死板感（screen 叠加，不盖文字）
   ctx.save();
   ctx.globalCompositeOperation = 'screen';
+
+  // 银河带：一道极淡、倾斜的弥漫星雾，横贯画面，制造真正的"深空"层次
+  ctx.save();
+  ctx.translate(DW*0.5, DH*0.5);
+  ctx.rotate(-0.32);
+  const mw = ctx.createLinearGradient(0, -DH*0.34, 0, DH*0.34);
+  mw.addColorStop(0, 'rgba(0,0,0,0)');
+  mw.addColorStop(0.5, 'rgba(120,108,170,0.10)');
+  mw.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = mw; ctx.fillRect(-DW*0.9, -DH*0.34, DW*1.8, DH*0.68);
+  // 银河内细密星尘（沿带点缀），让"雾"有颗粒质感而非死板色块
+  const rngMw = mulberry32(hashString('milkyway'));
+  for (let i = 0; i < 900; i++){
+    const x = (rngMw()-0.5)*DW*1.7;
+    const y = (rngMw()-0.5)*DH*0.34*1.4;
+    const a = 0.06 + rngMw()*0.28;
+    ctx.fillStyle = rngMw()>0.7 ? `rgba(255,228,196,${a})` : `rgba(214,226,255,${a})`;
+    const rr = 0.4 + rngMw()*0.9;
+    ctx.fillRect(x, y, rr, rr);
+  }
+  ctx.restore();
+
+  // 多层星云（暗紫 / 蓝 / 暖金），带柔边与色相变化，叠加出生动深空
   const nebBlobs = [
-    [DW*0.30, DH*0.30, DW*0.55, C.neb1],
-    [DW*0.72, DH*0.42, DW*0.50, C.neb2],
-    [DW*0.66, DH*0.82, DW*0.55, C.neb1],
-    [DW*0.28, DH*0.72, DW*0.50, C.neb2],
-    [DW*0.50, DH*0.50, DW*0.66, 'rgba(72,62,112,0.10)'],   // 中央极淡星云，避免纯色方框
+    [DW*0.28, DH*0.28, DW*0.52, 'rgba(94,70,150,0.20)'],
+    [DW*0.74, DH*0.40, DW*0.48, 'rgba(58,92,168,0.16)'],
+    [DW*0.66, DH*0.82, DW*0.55, 'rgba(150,96,168,0.15)'],
+    [DW*0.26, DH*0.74, DW*0.50, 'rgba(70,108,170,0.14)'],
+    [DW*0.52, DH*0.50, DW*0.60, 'rgba(120,96,170,0.12)'],  // 中央极淡，避免纯色方框
   ];
   nebBlobs.forEach(([x, y, r, col])=>{
     const g = ctx.createRadialGradient(x, y, 0, x, y, r);
     g.addColorStop(0, col);
+    g.addColorStop(0.6, col.replace(/[\d.]+\)$/, '0.04)'));
     g.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = g; ctx.fillRect(0, 0, DW, DH);
   });
+
+  // 星云纹理：低频云絮（半透明叠加），赋予"雾气"而非纯色块的质感
+  if (!nebTex) nebTex = makeNebulaTexture();
+  ctx.globalAlpha = 0.5; ctx.globalCompositeOperation = 'overlay';
+  ctx.fillStyle = ctx.createPattern(nebTex, 'repeat');
+  ctx.fillRect(0, 0, DW, DH);
   ctx.restore();
 
-  // 稀疏三层星点（大星少、细碎弱星铺满，禁止密密麻麻）
+  // 稀疏三层星点（大星少、细碎弱星铺满，禁止密密麻麻；少量亮星带柔光与星芒）
   const rng = mulberry32(hashString((star && star.catalogNo || 'star') + 'bg'));
   const stars = [];
-  // 主星（少量，带极淡微光）
-  for (let i = 0; i < 10; i++) stars.push({ x: rng()*DW, y: rng()*DH, r: 1.6 + rng()*1.4, a: 0.55 + rng()*0.35, big: true });
-  // 中星
+  for (let i = 0; i < 8; i++)  stars.push({ x: rng()*DW, y: rng()*DH, r: 1.8 + rng()*1.8, a: 0.6 + rng()*0.35, big: true });
   for (let i = 0; i < 34; i++) stars.push({ x: rng()*DW, y: rng()*DH, r: 0.9 + rng()*0.8, a: 0.4 + rng()*0.35 });
-  // 细碎弱星（大量但极淡）
-  for (let i = 0; i < 150; i++) stars.push({ x: rng()*DW, y: rng()*DH, r: 0.5 + rng()*0.6, a: 0.18 + rng()*0.22 });
+  for (let i = 0; i < 150; i++) stars.push({ x: rng()*DW, y: rng()*DH, r: 0.5 + rng()*0.6, a: 0.16 + rng()*0.22 });
 
   stars.forEach(s=>{
-    const warm = rng() > 0.86;
+    const warm = rng() > 0.84;
     const col = warm ? `rgba(255,226,188,${s.a})` : `rgba(228,236,255,${s.a})`;
     if (s.big){
-      const g = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.r*4);
+      const g = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.r*5);
       g.addColorStop(0, col);
       g.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(s.x, s.y, s.r*4, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(s.x, s.y, s.r*5, 0, Math.PI*2); ctx.fill();
+      // 极淡四向星芒，强化"亮星"
+      ctx.save(); ctx.globalCompositeOperation = 'screen';
+      const sp = [0, Math.PI/2, Math.PI, 3*Math.PI/2];
+      sp.forEach(ang=>{
+        const ex = s.x + Math.cos(ang)*s.r*7, ey = s.y + Math.sin(ang)*s.r*7;
+        const lg = ctx.createLinearGradient(s.x, s.y, ex, ey);
+        lg.addColorStop(0, col); lg.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.strokeStyle = lg; ctx.lineWidth = 0.8; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(ex, ey); ctx.stroke();
+      });
+      ctx.restore();
     }
     ctx.fillStyle = col; ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2); ctx.fill();
   });
@@ -150,10 +198,29 @@ function drawBackground(ctx, star){
   // 微弱底纹（档案质感）：极淡噪点叠加，避免纯色死板
   if (!grainTile) grainTile = makeGrain();
   ctx.save();
-  ctx.globalAlpha = 0.04; ctx.globalCompositeOperation = 'overlay';
+  ctx.globalAlpha = 0.05; ctx.globalCompositeOperation = 'overlay';
   ctx.fillStyle = ctx.createPattern(grainTile, 'repeat');
   ctx.fillRect(0, 0, DW, DH);
   ctx.restore();
+}
+
+// 星云纹理 tile：低频云絮（多色柔斑叠加），让大面积深空具备"雾气"质感而非纯色块
+let nebTex = null;
+function makeNebulaTexture(){
+  const S = 320;
+  const cv = document.createElement('canvas'); cv.width = S; cv.height = S;
+  const x = cv.getContext('2d');
+  x.fillStyle = '#000'; x.fillRect(0, 0, S, S);
+  const rng = mulberry32(hashString('nebtex'));
+  const cols = ['rgba(120,100,180,0.5)','rgba(70,110,180,0.5)','rgba(150,110,180,0.5)','rgba(90,130,170,0.5)'];
+  for (let i = 0; i < 70; i++){
+    const cx = rng()*S, cy = rng()*S, r = 20 + rng()*90;
+    const g = x.createRadialGradient(cx, cy, 0, cx, cy, r);
+    const c = cols[Math.floor(rng()*cols.length)];
+    g.addColorStop(0, c); g.addColorStop(1, 'rgba(0,0,0,0)');
+    x.fillStyle = g; x.fillRect(0, 0, S, S);
+  }
+  return cv;
 }
 
 // ============================================================
@@ -213,7 +280,7 @@ function drawEyebrow(ctx){
   ctx.fillStyle = C.gold; ctx.globalAlpha = 0.85;
   setFont(ctx, '500 16px "Space Grotesk", "Noto Serif SC", serif');
   ctx.letterSpacing = '6px';
-  ctx.fillText('STAR & SKY  ·  星与星空', DW/2, 116);
+  ctx.fillText('STAR & SKY  ·  星与星空', DW/2, 152);
   ctx.letterSpacing = '0px';
   ctx.restore();
 }
@@ -225,21 +292,21 @@ function drawTitle(ctx){
   setFont(ctx, '600 62px "Noto Serif SC", serif');
   ctx.fillStyle = C.gold;
   ctx.letterSpacing = '14px';
-  ctx.fillText(t('星球认领证书'), DW/2, 182);
+  ctx.fillText(t('星球认领证书'), DW/2, 206);
   ctx.letterSpacing = '0px';
   // 英文副标题
   setFont(ctx, '400 19px "Cormorant Garamond", "Times New Roman", serif');
   ctx.fillStyle = C.goldB; ctx.globalAlpha = 0.9;
   ctx.letterSpacing = '6px';
-  ctx.fillText('PLANET CLAIM CERTIFICATE', DW/2, 214);
+  ctx.fillText('PLANET CLAIM CERTIFICATE', DW/2, 236);
   ctx.letterSpacing = '0px';
   // 短金线分隔
   ctx.globalAlpha = 1;
   ctx.strokeStyle = C.gold; ctx.lineWidth = 1.2;
-  ctx.beginPath(); ctx.moveTo(DW/2 - 60, 240); ctx.lineTo(DW/2 + 60, 240); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(DW/2 - 60, 262); ctx.lineTo(DW/2 + 60, 262); ctx.stroke();
   // 线两端小菱形
   [DW/2 - 60, DW/2 + 60].forEach(x=>{
-    ctx.save(); ctx.translate(x, 240); ctx.rotate(Math.PI/4);
+    ctx.save(); ctx.translate(x, 262); ctx.rotate(Math.PI/4);
     ctx.fillStyle = C.gold; ctx.fillRect(-2.5, -2.5, 5, 5); ctx.restore();
   });
   ctx.restore();
@@ -281,7 +348,7 @@ function drawArchive(ctx, cx, cy, R, star){
 
 // 外圈刻度星盘：细圆环 + 天文刻度（密度/范围随星联动）
 function drawDial(ctx, cx, cy, R, star){
-  const rng = mulberry32(hashString((star_const(star)) + 'dial'));
+  const rng = mulberry32(hashString((starSeedKey(star)) + 'dial'));
   ctx.save();
   ctx.strokeStyle = 'rgba(207,168,106,0.85)'; ctx.lineWidth = 1.3;
   ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI*2); ctx.stroke();
@@ -330,117 +397,81 @@ function orbitStyle(star){
   return base;
 }
 
-// 中心星球本体：恒星（克制发光）/ 行星两种渲染，按数据动态切换
+// 中心星球本体：与 3D 认星页共用同一套 bodyTexture 表面，
+// 保证证书上的星球 == 网页里「认领的星星」（此前两张图不一致，根因在此）。
 function drawCelestialBody(ctx, cx, cy, r, star){
-  if (star && star.form === 'planet'){
-    drawPlanetBody(ctx, cx, cy, r, star);
-    return;
-  }
-  drawStarBody(ctx, cx, cy, r, star);
+  const surface = getBodySurface(star);
+  drawBodyGlow(ctx, cx, cy, r, surface.profile);
+  drawLitSphere(ctx, cx, cy, r, surface);
 }
 
-// 恒星：柔和体积光晕 + 星面 + 极淡星芒（拒绝爆炸强光）
-function drawStarBody(ctx, cx, cy, r, star){
-  const c1 = hexToRgb(star && star.color1 ? star.color1 : '#ffd9a0');
-  const c2 = hexToRgb(star && star.color2 ? star.color2 : '#ff9d5c');
-  const rng = mulberry32(hashString(star_const(star) + 'body'));
-  const perl = makePerlin(rng);
-  const ox = rng()*50, oy = rng()*50, oz = rng()*50;
-
-  // 柔和体积光晕（低强度，screen 叠加）
+// 日冕 / 大气辉光：取自 bodyTexture 的 atmo 色与 glow 参数，与 3D 视口一致
+function drawBodyGlow(ctx, cx, cy, r, profile){
+  const atmo = profile.atmo;
   ctx.save();
   ctx.globalCompositeOperation = 'screen';
-  const glow = ctx.createRadialGradient(cx, cy, r*0.5, cx, cy, r*2.1);
-  glow.addColorStop(0, rgba(c1, 0.34));
-  glow.addColorStop(0.45, rgba(c1, 0.12));
-  glow.addColorStop(1, rgba(c1, 0));
-  ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(cx, cy, r*2.1, 0, Math.PI*2); ctx.fill();
-  ctx.restore();
-
-  // 星面（米粒 + 临边昏暗），逐像素
-  const d = Math.ceil(r*2) + 4;
-  const img = ctx.createImageData(d, d); const data = img.data;
-  const light = c1, dark = scale3(c1, 0.45), fac = [Math.min(255,c1[0]+50), Math.min(255,c1[1]+50), Math.min(255,c1[2]+50)];
-  for (let py = 0; py < d; py++){
-    for (let px = 0; px < d; px++){
-      const o = (py*d + px)*4;
-      const dx = px - r, dy = py - r, dist = Math.hypot(dx, dy);
-      if (dist > r){ data[o+3] = 0; continue; }
-      const nx = dx/r, ny = dy/r, nz = Math.sqrt(Math.max(0, 1 - nx*nx - ny*ny));
-      const g = (fbm3(perl, nx*3.2+ox, ny*3.2+oy, nz*3.2+oz, 4)*0.6
-               + fbm3(perl, nx*7+ox+11, ny*7+oy+11, nz*7+oz+11, 3)*0.4);
-      const tcol = mix3(dark, light, smoothstep(0.2, 0.8, g*0.5+0.5));
-      const limb = Math.pow(Math.max(0, nz), 0.5);
-      const dn = mix(0.32, 1.12, limb);
-      let R = tcol[0]*dn, G = tcol[1]*dn, B = tcol[2]*dn;
-      // 极淡高光斑
-      if (g > 0.62){ const f = smoothstep(0.62, 0.85, g)*0.25; R=mix(R,fac[0],f); G=mix(G,fac[1],f); B=mix(B,fac[2],f); }
-      const aa = smoothstep(r+1.2, r-1.2, dist);
-      data[o]=clamp255(R); data[o+1]=clamp255(G); data[o+2]=clamp255(B); data[o+3]=Math.round(255*aa);
-    }
-  }
-  ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.clip();
-  ctx.drawImage(toOffscreen(img, d), cx - r - 2, cy - r - 2, d, d);
-  ctx.restore();
-
-  // 极淡四向星芒（克制）
-  ctx.save(); ctx.globalCompositeOperation = 'screen';
-  const spikes = [0, Math.PI/2, Math.PI, 3*Math.PI/2];
-  spikes.forEach(ang=>{
-    const len = r * 1.5, ex = cx + Math.cos(ang)*len, ey = cy + Math.sin(ang)*len;
-    const g = ctx.createLinearGradient(cx, cy, ex, ey);
-    g.addColorStop(0, rgba(c1, 0.28)); g.addColorStop(1, rgba(c1, 0));
-    ctx.strokeStyle = g; ctx.lineWidth = 1.4; ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(ex, ey); ctx.stroke();
-  });
-  // 高光边缘
-  ctx.strokeStyle = rgba(c1, 0.5); ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.stroke();
+  const R = r * (1.0 + profile.glowScale * 0.5);
+  const g = ctx.createRadialGradient(cx, cy, r * 0.62, cx, cy, R);
+  g.addColorStop(0,   rgba(atmo, 0));
+  g.addColorStop(0.55, rgba(atmo, 0.10 * profile.glowI));
+  g.addColorStop(1,   rgba(atmo, 0));
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI*2); ctx.fill();
   ctx.restore();
 }
 
-// 行星（岩石/月球/气态）：简洁球面光照，作为组件可切换类型之一
-function drawPlanetBody(ctx, cx, cy, r, star){
-  const c1 = hexToRgb(star.pColor1 || '#9fb4cc'), c2 = hexToRgb(star.pColor2 || '#5d6b82');
-  const c3 = hexToRgb(star.pColor3 || '#c9d4e2');
-  const lunar = star.planetType === 'lunar';
-  const gas = star.planetType === 'gas';
-  const rng = mulberry32(hashString(star_const(star) + 'pbody'));
-  const perl = makePerlin(rng);
-  const ox = rng()*40, oy = rng()*40, oz = rng()*40;
+// 球面本体：以 bodyTexture 的彩色图 + 高度场做逐像素光照（Lambert + 浮雕 + 边缘大气），
+// 与 3D 视口的质感、配色、轮廓完全一致。
+function drawLitSphere(ctx, cx, cy, r, surface){
+  const W = surface.width, H = surface.imgH;
+  const cctx = surface.color.getContext('2d');
+  const cdata = cctx.getImageData(0, 0, W, H).data;
+  const height = surface.heightField;
+  const profile = surface.profile;
+  const atmo = profile.atmo;
+
   const d = Math.ceil(r*2) + 4;
   const img = ctx.createImageData(d, d); const data = img.data;
-  let Lx = 0.46, Ly = 0.52, Lz = 0.70; const ll = Math.hypot(Lx,Ly,Lz); Lx/=ll; Ly/=ll; Lz/=ll;
+  // 主光方向（与 3D 视口一致：左上偏前）
+  let Lx = -0.45, Ly = 0.50, Lz = 0.74;
+  const ll = Math.hypot(Lx, Ly, Lz); Lx/=ll; Ly/=ll; Lz/=ll;
+
+  const colAt = (u, v) => {
+    const x = Math.max(0, Math.min(W-1, Math.round(u * W - 0.5)));
+    const y = Math.max(0, Math.min(H-1, Math.round((1 - v) * H - 0.5)));
+    const i = (y * W + x) * 4;
+    return [cdata[i], cdata[i+1], cdata[i+2]];
+  };
+  const hAt = (u, v) => {
+    const x = Math.max(0, Math.min(W-1, Math.round(u * W - 0.5)));
+    const y = Math.max(0, Math.min(H-1, Math.round((1 - v) * H - 0.5)));
+    return height[y * W + x];
+  };
+
   for (let py = 0; py < d; py++){
     for (let px = 0; px < d; px++){
       const o = (py*d + px)*4;
       const dx = px - r, dy = py - r, dist = Math.hypot(dx, dy);
       if (dist > r){ data[o+3] = 0; continue; }
       const nx = dx/r, ny = dy/r, nz = Math.sqrt(Math.max(0, 1 - nx*nx - ny*ny));
-      let R, G, B;
-      if (gas){
-        const bands = Math.sin((ny*2.4)*Math.PI*1.3)*0.5+0.5;
-        const turb = fbm3(perl, nx*2+ox, ny*2+oy, nz*2+oz, 4)*0.5+0.5;
-        const m = bands*0.55 + turb*0.45;
-        const c = mix3(c2, c1, Math.min(1, Math.max(0, m)));
-        R=c[0];G=c[1];B=c[2];
-      } else {
-        const e = fbm3(perl, nx*2+ox, ny*2+oy, nz*2+oz, 5);
-        let c;
-        if (lunar){ const h = Math.min(1, Math.max(0, (e+1)/2)); c = mix3(c2, c3, h*h); }
-        else { c = mix3(c2, c1, Math.min(1, Math.max(0, (e+1)/2))); }
-        R=c[0];G=c[1];B=c[2];
-        const polar = Math.abs(ny);
-        if (polar > 0.7){ const tt = (polar-0.7)/0.3; const ice = mix3([R,G,B],[240,246,255], tt*0.9); R=ice[0];G=ice[1];B=ice[2]; }
-      }
-      const ndl = nx*Lx + ny*Ly + nz*Lz;
+      const uv = uvFromDir(nx, ny, nz);
+      const u = uv[0], v = uv[1];
+      const base = colAt(u, v);
+      // 浮雕：用相邻高度扰动法线，显现表面凹凸（与 3D bump 一致）
+      const e = 0.0045;
+      const hL = hAt(u-e, v), hR = hAt(u+e, v), hD = hAt(u, v-e), hU = hAt(u, v+e);
+      const sx = (hL - hR) * 2.4, sy = (hD - hU) * 2.4;
+      let Nx = nx - sx, Ny = ny - sy, Nz = nz;
+      const nl = Math.hypot(Nx, Ny, Nz) || 1; Nx/=nl; Ny/=nl; Nz/=nl;
+      const ndl = Nx*Lx + Ny*Ly + Nz*Lz;
       const day = smoothstep(-0.15, 0.5, ndl);
-      const lit = 0.06 + day*0.94;
-      R*=lit; G*=lit; B*=lit;
-      const rim = Math.pow(Math.max(0, 1-nz), 3.0);
-      const atm = lunar ? rim*0.14 : rim*0.4;
-      const atr = hexToRgb(star.pAtmo || '#9cc4ff');
-      R += atr[0]*atm; G += atr[1]*atm; B += atr[2]*atm;
+      const lit = 0.10 + day * 0.95;
+      let R = base[0]*lit, G = base[1]*lit, B = base[2]*lit;
+      // 边缘大气（菲涅尔）：冷调，强化球体轮廓
+      const fres = Math.pow(Math.max(0, 1 - nz), 2.2);
+      R += atmo[0]*fres*0.55; G += atmo[1]*fres*0.55; B += atmo[2]*fres*0.55;
+      // 高光（水面/冰面偏亮）
+      const spec = Math.pow(Math.max(0, ndl), 20) * 0.22;
+      R += 255*spec; G += 255*spec; B += 255*spec;
       const aa = smoothstep(r+1.2, r-1.2, dist);
       data[o]=clamp255(R); data[o+1]=clamp255(G); data[o+2]=clamp255(B); data[o+3]=Math.round(255*aa);
     }
@@ -448,13 +479,17 @@ function drawPlanetBody(ctx, cx, cy, r, star){
   ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.clip();
   ctx.drawImage(toOffscreen(img, d), cx - r - 2, cy - r - 2, d, d);
   ctx.restore();
-  ctx.strokeStyle = rgba(hexToRgb(star.pAtmo||'#9cc4ff'), lunar?0.1:0.18); ctx.lineWidth = 1;
+  // 轮廓淡金/大气边
+  ctx.save();
+  ctx.globalCompositeOperation = 'screen';
+  ctx.strokeStyle = rgba(atmo, 0.45); ctx.lineWidth = 1.2;
   ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.stroke();
+  ctx.restore();
 }
 
 // 星座：金色细线 + 金色星点（图案随星座名确定），附极小坐标标注
 function drawConstellation(ctx, cx, cy, R, star){
-  const seed = hashString((star && star.constellation) ? star.constellation : (star_const(star) + 'con'));
+  const seed = hashString((star && star.constellation) ? star.constellation : (starSeedKey(star) + 'con'));
   const rng = mulberry32(seed);
   const clusters = [
     { bx: cx - R*0.74, by: cy - R*0.60, n: 6 + Math.floor(rng()*2) },
@@ -736,16 +771,124 @@ function drawArcText(ctx, text, cx, cy, r, a0, a1, flip){
   ctx.globalAlpha = 1; ctx.textBaseline = 'alphabetic';
 }
 
-// 底部免责声明（最小字号，灰蓝但保证可读）
+// 底部免责声明（最小字号，灰蓝但保证可读；位置让开底部信封口袋）
 function drawDisclaimer(ctx){
   ctx.save();
   ctx.textAlign = 'center';
   // 上方短金线分隔
   ctx.strokeStyle = C.goldLine2; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(DW/2 - 72, DH - 104); ctx.lineTo(DW/2 + 72, DH - 104); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(DW/2 - 72, DH - 170); ctx.lineTo(DW/2 + 72, DH - 170); ctx.stroke();
   setFont(ctx, '400 14px "Noto Serif SC", serif');
   ctx.fillStyle = '#c2cde6';
-  ctx.fillText(t('备注：本证书为平台纪念性质认领证书，并非 IAU 国际天文学联合会官方天体命名凭证，仅作为数字纪念藏品。'), DW/2, DH - 78);
+  ctx.fillText(t('备注：本证书为平台纪念性质认领证书，并非 IAU 国际天文学联合会官方天体命名凭证，仅作为数字纪念藏品。'), DW/2, DH - 144);
+  ctx.restore();
+}
+
+// ============================================================
+// 信封半包裹：背板装裱边 + 顶部封舌（折下）+ 底部口袋（证书半插其中）
+// 营造"证书装在信封中"的质感 —— 这正是参考图要求的"信封半包裹"效果。
+// ============================================================
+const EP = { edge:'rgba(184,146,63,0.9)' };
+let envPaper = null;
+function makeEnvPaper(){
+  const S = 200;
+  const cv = document.createElement('canvas'); cv.width = S; cv.height = S;
+  const x = cv.getContext('2d');
+  const g = x.createLinearGradient(0, 0, 0, S);
+  g.addColorStop(0, '#f3e8ca'); g.addColorStop(1, '#e2d2ab');
+  x.fillStyle = g; x.fillRect(0, 0, S, S);
+  // 极淡纤维斜纹，赋予纸张纹理质感
+  x.globalAlpha = 0.05; x.strokeStyle = '#b9923f'; x.lineWidth = 1;
+  for (let i = -S; i < S; i += 6){ x.beginPath(); x.moveTo(i, 0); x.lineTo(i + S, S); x.stroke(); }
+  x.globalAlpha = 1;
+  if (grainTile){
+    x.globalAlpha = 0.06; x.globalCompositeOperation = 'multiply';
+    x.fillStyle = x.createPattern(grainTile, 'repeat'); x.fillRect(0, 0, S, S);
+  }
+  return cv;
+}
+function rrSub(ctx, x, y, w, h, r){
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+function drawEnvelopeBack(ctx){
+  // 外缘装裱边：在证书四周覆一层薄信封纸，呈现"证书装在信封 / 文件夹中"
+  const m = 20;
+  if (!envPaper) envPaper = makeEnvPaper();
+  ctx.save();
+  ctx.shadowColor = 'rgba(0,0,0,0.45)'; ctx.shadowBlur = 18; ctx.shadowOffsetY = 4;
+  ctx.beginPath();
+  rrSub(ctx, 0, 0, DW, DH, 6);
+  rrSub(ctx, m, m, DW - m*2, DH - m*2, 4);
+  ctx.fillStyle = '#e6d6ad'; ctx.fill('evenodd');
+  ctx.shadowColor = 'transparent';
+  ctx.strokeStyle = EP.edge; ctx.lineWidth = 1.4;
+  ctx.beginPath(); rrSub(ctx, m, m, DW - m*2, DH - m*2, 4); ctx.stroke();
+  ctx.restore();
+}
+function drawEnvelopeFlap(ctx){
+  // 顶部封舌：向下折叠的三角形，尖端居中，露出门户"开口"。
+  // 注意：封舌与火漆印绘制在最上层，必须收在顶部留白区（≤118px），
+  // 否则会压住下方的标题/眉题文字（此前 tipY=150 时火漆印压住了眉题）。
+  const tipY = 118;
+  if (!envPaper) envPaper = makeEnvPaper();
+  ctx.save();
+  ctx.shadowColor = 'rgba(0,0,0,0.35)'; ctx.shadowBlur = 14; ctx.shadowOffsetY = 6;
+  ctx.beginPath();
+  ctx.moveTo(0, 0); ctx.lineTo(DW, 0); ctx.lineTo(DW/2, tipY); ctx.closePath();
+  ctx.fillStyle = '#ecdcb6'; ctx.fill();
+  ctx.shadowColor = 'transparent';
+  // 纸质纹理（裁剪在封舌内）
+  ctx.save(); ctx.clip();
+  ctx.globalAlpha = 0.5; ctx.fillStyle = ctx.createPattern(envPaper, 'repeat');
+  ctx.fillRect(0, 0, DW, tipY + 2);
+  ctx.restore();
+  // 沿封舌斜边描金
+  ctx.strokeStyle = EP.edge; ctx.lineWidth = 1.6;
+  ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(DW/2, tipY); ctx.lineTo(DW, 0); ctx.stroke();
+  // 中央火漆印 / 徽记（随封舌尖端上移，避免压住眉题）
+  drawFlapSeal(ctx, DW/2, tipY - 6);
+  ctx.restore();
+}
+function drawFlapSeal(ctx, cx, cy){
+  ctx.save();
+  const r = 18;
+  const g = ctx.createRadialGradient(cx - 4, cy - 5, 2, cx, cy, r);
+  g.addColorStop(0, '#f6dca0'); g.addColorStop(1, '#b07a2e');
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.arc(cx, cy, r - 3, 0, Math.PI*2); ctx.stroke();
+  // ✦ 印记
+  ctx.strokeStyle = '#5a3a12'; ctx.lineWidth = 2; ctx.lineCap = 'round';
+  for (let a = 0; a < 4; a++){
+    const ang = a * Math.PI/2;
+    ctx.beginPath(); ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + Math.cos(ang)*9, cy + Math.sin(ang)*9); ctx.stroke();
+  }
+  ctx.restore();
+}
+function drawEnvelopePocket(ctx){
+  // 底部口袋：证书下半截插入此处，上沿金线缝 + 向上投下的阴影，强化"插进信封"
+  const top = DH - 120;
+  if (!envPaper) envPaper = makeEnvPaper();
+  ctx.save();
+  ctx.shadowColor = 'rgba(0,0,0,0.42)'; ctx.shadowBlur = 18; ctx.shadowOffsetY = -7;
+  ctx.beginPath(); roundRectPath(ctx, 0, top, DW, DH - top, 6);
+  ctx.fillStyle = '#e6d6ad'; ctx.fill();
+  ctx.shadowColor = 'transparent';
+  // 纸质纹理
+  ctx.save(); ctx.clip();
+  ctx.globalAlpha = 0.5; ctx.fillStyle = ctx.createPattern(envPaper, 'repeat');
+  ctx.fillRect(0, top, DW, DH - top); ctx.restore();
+  // 上沿金线缝 + 下方高光
+  ctx.strokeStyle = EP.edge; ctx.lineWidth = 1.6;
+  ctx.beginPath(); ctx.moveTo(0, top); ctx.lineTo(DW, top); ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(0, top + 2); ctx.lineTo(DW, top + 2); ctx.stroke();
   ctx.restore();
 }
 
@@ -757,10 +900,9 @@ function claimDateTime(){
   const p = n => String(n).padStart(2, '0');
   return `${d.getUTCFullYear()}.${p(d.getUTCMonth()+1)}.${p(d.getUTCDate())} ${p(d.getUTCHours())}:${p(d.getUTCMinutes())} UTC`;
 }
-function star_const(star){ return (star && (star.catalogNo || star.name)) || 'star'; }
+function starSeedKey(star){ return (star && (star.catalogNo || star.name)) || 'star'; }
 
 function setFont(ctx, f){ ctx.font = f; }
-function spaced(s){ return s.split('').join(' '); }   // 极细字距（部分字体 letterSpacing 不支持时兜底）
 
 function toOffscreen(img, d){
   const off = document.createElement('canvas'); off.width = d; off.height = d;
@@ -808,31 +950,4 @@ function toast(msg){
   clearTimeout(el._t); el._t = setTimeout(()=> el.classList.remove('show'), 2000);
 }
 
-// ---- Perlin 噪声（星球表面/行星用）----
-function makePerlin(rng){
-  const perm = new Uint8Array(512), p = new Uint8Array(256);
-  for (let i=0;i<256;i++) p[i]=i;
-  for (let i=255;i>0;i--){ const j=Math.floor(rng()*(i+1)); const t=p[i]; p[i]=p[j]; p[j]=t; }
-  for (let i=0;i<512;i++) perm[i]=p[i&255];
-  const fade=t=>t*t*t*(t*(t*6-15)+10);
-  const lerp=(a,b,t)=>a+(b-a)*t;
-  const grad=(h,x,y,z)=>{ const u=(h&1)?-x:x, v=(h&2)?-y:y, w=(h&4)?-z:z; return u+v+w; };
-  return (x,y,z)=>{
-    const X=Math.floor(x)&255, Y=Math.floor(y)&255, Z=Math.floor(z)&255;
-    x-=Math.floor(x); y-=Math.floor(y); z-=Math.floor(z);
-    const u=fade(x), v=fade(y), w=fade(z);
-    const A=perm[X]+Y, AA=perm[A]+Z, AB=perm[A+1]+Z;
-    const B=perm[X+1]+Y, BA=perm[B]+Z, BB=perm[B+1]+Z;
-    return lerp(
-      lerp(lerp(grad(perm[AA],x,y,z), grad(perm[BA],x-1,y,z), u),
-           lerp(grad(perm[AB],x,y-1,z), grad(perm[BB],x-1,y-1,z), u), v),
-      lerp(lerp(grad(perm[AA+1],x,y,z-1), grad(perm[BA+1],x-1,y,z-1), u),
-           lerp(grad(perm[AB+1],x,y-1,z-1), grad(perm[BB+1],x-1,y-1,z-1), u), v),
-      w);
-  };
-}
-function fbm3(noise, x, y, z, oct){
-  let s=0, a=0.5, f=1;
-  for (let o=0;o<oct;o++){ s += a*noise(x*f, y*f, z*f); f*=2; a*=0.5; }
-  return s;
-}
+// ---- Perlin 噪声（星球表面）已迁移至 bodyTexture.js，证书端复用其输出 ----

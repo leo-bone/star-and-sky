@@ -11,6 +11,28 @@ import { loadCatalog } from './catalog.js';
 import { t, getLang, setLang, applyI18n, initLangToggle } from './i18n.js';
 
 const SESSION_KEY = 'star-sky-session-v1';
+const CLAIM_KEY = 'star-sky-claim-v1';   // 已认领星球（与问答进度分离，独立持久化，刷新/重开不丢失）
+
+// 已认领星球：以分享码形式持久化，恢复时解码即得与证书、云端完全一致的星与王国。
+// 独立密钥，避免“重新认领/重开”误删已认领记录。
+function saveClaim(star, kd){
+  try {
+    const code = encodeStar(star, kd || {});
+    localStorage.setItem(CLAIM_KEY, JSON.stringify({ code, ts: Date.now() }));
+  } catch(e){ console.warn('[claim] 保存认领记录失败', e); }
+}
+function loadClaim(){
+  try {
+    const raw = localStorage.getItem(CLAIM_KEY);
+    if (!raw) return null;
+    const o = JSON.parse(raw);
+    if (!o || !o.code) return null;
+    const data = decodeStar(o.code);
+    if (!data) return null;
+    return { star: data.star, kingdom: data.kd, ts: o.ts };
+  } catch(e){ return null; }
+}
+function hasClaim(){ return !!loadClaim(); }
 
 // 3D 宇宙背景依赖 three.js（CDN）+ WebGL；若不可用则降级为空操作桩，绝不因此拖垮整站
 const NULL_UNIVERSE = { setStar(){}, showHero(){}, hideHero(){}, setControl(){}, setFocus(){}, setActive(){} };
@@ -160,6 +182,7 @@ function playHome(){
   homeTimers.push(setTimeout(() => cta && cta.classList.add('show'), 600 + lines.length * 1100 + 300));
 }
 function openDoor(){
+  if (hasClaim()){ openMyStar(); return; }   // 已认领：直接打开自己的星（每人限一颗）
   const cinema = document.getElementById('cinema');
   if (!cinema || cinema.classList.contains('opening')) return;
   cinema.classList.add('opening');
@@ -174,10 +197,26 @@ function openDoor(){
   }, 2050);
 }
 
+// 随时查阅：打开已认领的星球（从持久化的分享码解码，与证书/云端完全一致）
+function openMyStar(){
+  const c = loadClaim();
+  if (!c){ toast(t('你还没有认领星球，先去认领一颗吧 ✦')); go('quiz'); return; }
+  currentStar = c.star; currentKingdom = c.kingdom; isShared = false;
+  card.build(currentStar, currentKingdom);
+  renderWall();
+  go('share');
+}
+
 document.querySelectorAll('[data-go]').forEach(el=>{
   el.addEventListener('click', ()=> go(el.dataset.go));
 });
 navSteps.forEach(n=> n.addEventListener('click', ()=> go(n.dataset.step)));
+
+// ---------- 我的星球：随时查阅已认领的星（顶部常驻 + 首页副按钮）----------
+const btnMine = document.getElementById('btn-mine');
+if (btnMine) btnMine.addEventListener('click', openMyStar);
+const btnMineHome = document.getElementById('btn-mine-home');
+if (btnMineHome) btnMineHome.addEventListener('click', openMyStar);
 
 // ---------- 问答 → 生成星星 ----------
 quizCtl = initQuiz({
@@ -217,6 +256,7 @@ function populateUniverse(star){
 
 // ---------- 认领 ----------
 document.getElementById('btn-claim').addEventListener('click', ()=>{
+  if (hasClaim()){ openMyStar(); return; }   // 已认领：不重复认领，直接打开自己的星
   const saved = loadSession();
   if (saved && saved.kingdom) kingdom.restore(saved.kingdom);
   go('claim');
@@ -262,6 +302,11 @@ document.getElementById('btn-generate').addEventListener('click', async ()=>{
       console.warn('[cloud] 星上云失败', e);
     }
   }
+  saveClaim(currentStar, currentKingdom);   // 落盘“已认领”记录（与问答进度分离，刷新/重开不丢）
+  // 已认领后，首页主 CTA 与副按钮切换为“我的星球”，避免重复认领
+  const od = document.getElementById('btn-open-door');
+  if (od){ od.textContent = t('查看我的星球 ✦'); od.removeAttribute('data-i18n'); }
+  const mh = document.getElementById('btn-mine-home'); if (mh) mh.style.display = '';
   renderWall();
   go('share');
 });
@@ -280,9 +325,17 @@ document.getElementById('btn-share-link').addEventListener('click', async ()=>{
   }
 });
 document.getElementById('btn-restart').addEventListener('click', ()=>{
-  if (isShared){ isShared = false; location.hash = ''; go('quiz'); return; }
-  try { localStorage.removeItem(SESSION_KEY); } catch(e){}
-  location.reload();
+  if (isShared){
+    isShared = false;
+    // 清除 URL 分享参数，避免刷新后重新进入只读模式
+    try { history.replaceState(null, '', location.pathname + location.search.replace(/[?&]code=[^&]+/, '')); } catch(e){}
+    location.hash = '';
+    // 若已认领则回到自己的星，否则去认领（均不清除认领记录）
+    if (hasClaim()) openMyStar(); else go('quiz');
+    return;
+  }
+  // 查看自己的星时：返回首页（保留认领记录，不做破坏性清除）
+  go('home');
 });
 
 // 高级版 / 周边：候补名单（仅本地预留，无后端，不强制）
@@ -487,13 +540,17 @@ async function renderCloudWall(){
   const count = document.getElementById('wall-count');
   await ensureCloudSeed();
   const arr = await listStars(120);
-  if (count) count.textContent = t('云端已点亮') + ' ' + arr.length + ' ' + t('颗星辰');
+  // 排除当前正在查看的星（自己的或正在浏览的分享星），避免星图墙上出现重复光点
+  let curCode = null;
+  if (currentStar && currentKingdom){ try { curCode = encodeStar(currentStar, currentKingdom); } catch(e){} }
+  const shown = arr.filter(s => !(curCode && s.share === curCode));
+  if (count) count.textContent = t('云端已点亮') + ' ' + shown.length + ' ' + t('颗星辰');
   if (!box) return;
-  if (!arr.length){
+  if (!shown.length){
     box.innerHTML = '<div class="wall-empty">' + t('还没有星辰被点亮。认领你的第一颗，让世界星图墙亮起来。') + '</div>';
     return;
   }
-  box.innerHTML = arr.map((s,i)=>{
+  box.innerHTML = shown.map((s,i)=>{
     const col = s.color1 || '#ffd27a';
     const kname = s.owner_name ? escapeHtml(s.owner_name) + t(' 的星') : (escapeHtml(s.name) + t(' 王国'));
     const desig = s.designation || '';
@@ -564,14 +621,20 @@ document.getElementById('btn-sky-teaser')?.addEventListener('click', ()=> go('ex
 
 // 电影开场：开门
 document.getElementById('btn-open-door')?.addEventListener('click', openDoor);
-document.getElementById('btn-skip-intro')?.addEventListener('click', ()=> go('quiz'));
+document.getElementById('btn-skip-intro')?.addEventListener('click', ()=>{
+  if (hasClaim()){ openMyStar(); return; }
+  go('quiz');
+});
 const theDoor = document.getElementById('the-door');
 if (theDoor){
   theDoor.addEventListener('click', openDoor);
   theDoor.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDoor(); } });
 }
 document.getElementById('explore-back').addEventListener('click', ()=> go('universe'));
-document.getElementById('explore-next').addEventListener('click', ()=> go('claim'));
+document.getElementById('explore-next').addEventListener('click', ()=>{
+  if (hasClaim()){ openMyStar(); return; }
+  go('claim');
+});
 document.getElementById('sky-mine').addEventListener('click', ()=>{
   if (currentStar){ skyMap.setUserStar(mapUserStar()); toast(t('已定位你的星 ✦')); }
 });
@@ -625,12 +688,19 @@ btnResume.addEventListener('click', ()=>{
 
 if (!loadSession()) btnResume.style.display = 'none';
 
+// 已认领：首页主 CTA 改为“查看我的星球”，并显式展示首页副按钮，保证随时可查阅
+if (hasClaim()){
+  const od = document.getElementById('btn-open-door');
+  if (od){ od.textContent = t('查看我的星球 ✦'); od.removeAttribute('data-i18n'); }
+  if (btnMineHome) btnMineHome.style.display = '';
+}
+
 // ---------- 启动 ----------
 function showSharedBanner(){
   const b = document.getElementById('shared-banner');
   if (b) b.style.display = 'flex';
   const r = document.getElementById('btn-restart');
-  if (r) r.textContent = t('我也要认一颗星 ✦');
+  if (r) r.textContent = hasClaim() ? t('查看我的星球 ✦') : t('我也要认一颗星 ✦');
 }
 function parseShareFromURL(){
   const data = parseCodeFromURL();

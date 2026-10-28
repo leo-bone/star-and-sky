@@ -3,7 +3,7 @@
 function slimStar(s){
   // 只保留展示与参数表需要的字段，减小体积（真实星表认领 + 国际命名 + 真实坐标）
   return {
-    name: s.name, catalogNo: s.catalogNo, form: s.form, registry: s.registry,
+    name: s.name, catalogNo: s.catalogNo, form: s.form, planetType: s.planetType, registry: s.registry,
     desig: s.desig, jname: s.jname, hd: s.hd, hip: s.hip,
     designation: s.designation || `${s.jname} · ${s.desig}`,
     constellation: s.constellation, coord: s.coord, coordShort: s.coordShort,
