@@ -1,14 +1,14 @@
 // 3D 宇宙背景依赖 three.js（CDN）+ WebGL；改为动态 import，
 // 即使 CDN 抽风或 WebGL 不可用，也只是降级为空操作，绝不拖垮整站（开门/问答/证书照常）
-import { initQuiz } from './quiz.js';
-import { generateStar, starParamList } from './starData.js';
-import { initKingdom } from './kingdom.js';
-import { initCertificate } from './certificate.js';
-import { encodeStar, shareLink, copyText, parseCodeFromURL, decodeStar } from './share.js';
-import { starKey, pushStar, listStars, addMessage, listMessages, nameTaken, getStarByKey, ownerIdExists, catalogTaken } from './cloud.js';
-import { initSkyMap } from './skymap.js';
-import { loadCatalog } from './catalog.js';
-import { t, getLang, setLang, applyI18n, initLangToggle } from './i18n.js';
+import { initQuiz } from './quiz.js?v=20261029';
+import { generateStar, starParamList } from './starData.js?v=20261029';
+import { initKingdom } from './kingdom.js?v=20261029';
+import { initCertificate } from './certificate.js?v=20261029';
+import { encodeStar, shareLink, copyText, parseCodeFromURL, decodeStar } from './share.js?v=20261029';
+import { starKey, pushStar, listStars, addMessage, listMessages, nameTaken, getStarByKey, ownerIdExists, catalogTaken } from './cloud.js?v=20261029';
+import { initSkyMap } from './skymap.js?v=20261029';
+import { loadCatalog } from './catalog.js?v=20261029';
+import { t, getLang, setLang, applyI18n, initLangToggle } from './i18n.js?v=20261029';
 
 const SESSION_KEY = 'star-sky-session-v1';
 const CLAIM_KEY = 'star-sky-claim-v1';   // 已认领星球（与问答进度分离，独立持久化，刷新/重开不丢失）
@@ -54,7 +54,7 @@ function getDeviceId(){
 // 3D 宇宙背景依赖 three.js（CDN）+ WebGL；若不可用则降级为空操作桩，绝不因此拖垮整站
 const NULL_UNIVERSE = { setStar(){}, showHero(){}, hideHero(){}, setControl(){}, setFocus(){}, setActive(){} };
 let universe = NULL_UNIVERSE;
-import('./universe.js').then(m => {
+import('./universe.js?v=20261029').then(m => {
   try { universe = m.initUniverse(document.getElementById('cosmos')); }
   catch (e) { console.warn('3D 宇宙背景初始化失败，已降级为静态背景', e); }
 }).catch(e => console.warn('3D 宇宙背景模块加载失败（CDN/WebGL），已降级为空操作', e));
@@ -63,7 +63,7 @@ const card = initCertificate();
 // 3D 星球视口依赖 three.js（CDN）；若不可用则降级为空操作桩，绝不拖垮整站
 const NULL_PLANET3D = { setStar(){}, show(){}, hide(){}, resize(){} };
 let planet3d = NULL_PLANET3D;
-import('./planet3d.js').then(m => {
+import('./planet3d.js?v=20261029').then(m => {
   try {
     planet3d = m.initPlanet3D(document.getElementById('planet-canvas'));
     if (currentStar && screens.universe && screens.universe.classList.contains('active')){
