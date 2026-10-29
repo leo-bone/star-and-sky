@@ -4,6 +4,7 @@
 import { hashString, mulberry32 } from './rng.js';
 import { shareLink, encodeStar, qrLinkForStar } from './share.js';
 import { getBodySurface, uvFromDir } from './bodyTexture.js';
+import { t } from './i18n.js';
 
 // ===== 画布：9:12 竖版（3:4）=====
 const DW = 1240, DH = 1653;   // 设计尺寸（3:4）
@@ -76,9 +77,9 @@ export function initCertificate(){
       link.download = `星球认领证书_${star.name}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
-      toast('星图已保存，去分享吧 ✦');
+      toast(t('星图已保存，去分享吧 ✦'));
     } catch (e){
-      toast('生成失败，请重试');
+      toast(t('生成失败，请重试'));
       console.error(e);
     }
   }
@@ -495,12 +496,18 @@ function drawInfoCard(ctx, card, star, kd){
   ctx.fillText(star.name || '—', cx, y);
   y += 18; drawDiamond(ctx, cx, y, 4, P.gold); y += 20;
   // 国际命名：星球真实天文编号（如 Sirius · α CMa / HD 48915）
-  setFont(ctx, '500 12px "Noto Serif SC", serif'); ctx.fillStyle = P.label; ctx.letterSpacing = '2px';
-  ctx.fillText('国际命名', cx, y); ctx.letterSpacing = '0px';
-  y += 26;
-  setFont(ctx, '400 17px "Space Grotesk", monospace'); ctx.fillStyle = P.name;
-  ctx.fillText(star.designation || star.catalogNo || '—', cx, y);
-  y += 22;
+  // 一键认领时星名即国际通用名，避免与「星球名称」重复显示
+  const showDesig = star.designation && star.designation !== star.name;
+  if (showDesig){
+    setFont(ctx, '500 12px "Noto Serif SC", serif'); ctx.fillStyle = P.label; ctx.letterSpacing = '2px';
+    ctx.fillText('国际命名', cx, y); ctx.letterSpacing = '0px';
+    y += 26;
+    setFont(ctx, '400 17px "Space Grotesk", monospace'); ctx.fillStyle = P.name;
+    ctx.fillText(star.designation || star.catalogNo || '—', cx, y);
+    y += 22;
+  } else {
+    y += 22;
+  }
   setFont(ctx, '500 13px "Noto Serif SC", serif'); ctx.fillStyle = P.label; ctx.letterSpacing = '2px';
   ctx.fillText('注册人', cx, y); ctx.letterSpacing = '0px';
   y += 40;

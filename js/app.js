@@ -123,12 +123,14 @@ const screens = {
   explore: document.getElementById('screen-explore'),
   claim: document.getElementById('screen-claim'),
   share: document.getElementById('screen-share'),
+  premium: document.getElementById('screen-premium'),
 };
 const navSteps = [...document.querySelectorAll('.nav-step')];
 
 function go(name){
   currentScreen = name;
   document.body.classList.toggle('on-explore', name === 'explore');
+  document.body.classList.toggle('on-premium', name === 'premium');
   // 导航是全局骨架：任何子步骤抛错都不能让整页卡死/白屏，
   // 因此把各段包在 try/catch 里，失败只记日志不阻断导航。
   try{
@@ -166,7 +168,7 @@ function go(name){
   if (name === 'claim'){
     try { syncClaimLock(); } catch(e){}
     if (!currentStar){
-      toast('先完成问答，认领一颗属于你的星'); go('quiz'); return;
+      toast(t('先完成问答，认领一颗属于你的星')); go('quiz'); return;
     }
   }
   try{
@@ -240,11 +242,11 @@ function syncClaimLock(){
     const nm = (c && ((c.kingdom && c.kingdom.name) || (c.star && c.star.name))) || '';
     input.value = nm;
     input.readOnly = true; input.disabled = true; input.placeholder = '';
-    gen.textContent = '✦ 星名已锁定 · 查看我的星图';
+    gen.textContent = t('✦ 星名已锁定 · 查看我的星图');
     gen.dataset.locked = '1';
   } else {
     input.readOnly = false; input.disabled = false;
-    if (gen.dataset.locked){ gen.textContent = '命名并生成星图 ↝'; delete gen.dataset.locked; }
+    if (gen.dataset.locked){ gen.textContent = t('认领并命名星球') + ' ↝'; delete gen.dataset.locked; }
   }
 }
 
@@ -325,11 +327,9 @@ document.getElementById('btn-claim').addEventListener('click', ()=>{
 });
 
 // ---------- 生成星图 ----------
-document.getElementById('btn-generate').addEventListener('click', async ()=>{
-  // 命名锁定：已认领则直接打开自己的星，禁止改名 / 重复认领
-  if (hasClaim()){ toast(t('星名已锁定，每人限认领一颗 ✦')); openMyStar(); return; }
-  const name = document.getElementById('kingdom-name').value.trim();
-  if (!name){ toast(t('先给你的星辰王国起个名字吧')); return; }
+// 认领前置校验：已认领 / 一人一星 / 重名。不通过则跳转或提示并返回 false
+async function claimAllowed(name){
+  if (hasClaim()){ toast(t('星名已锁定，每人限认领一颗 ✦')); openMyStar(); return false; }
   // 一人一星：先查云端该设备是否已认领（stars.owner_id 唯一约束为并发兜底）
   const deviceId = getDeviceId();
   if (deviceId !== 'anon'){
@@ -338,17 +338,24 @@ document.getElementById('btn-generate').addEventListener('click', async ()=>{
     if (claimed){
       toast(t('你已经认领过一颗属于你的星了，每人限一颗 ✦'));
       openMyStar();
-      return;
+      return false;
     }
   }
   // 命名去重：不同用户不能拥有同名星辰（云不可用时放行，由数据库唯一约束兜底）
-  let nameFree = true;
-  try { nameFree = !(await nameTaken(name)); } catch(e){ nameFree = true; }
-  if (!nameFree){
-    toast(t('「') + name + t('」这颗星辰已被认领，换个名字再建国吧 ✦'));
-    document.getElementById('kingdom-name').focus();
-    return;
+  if (name){
+    let nameFree = true;
+    try { nameFree = !(await nameTaken(name)); } catch(e){ nameFree = true; }
+    if (!nameFree){
+      toast(t('「') + name + t('」这颗星辰已被认领，换个名字再建国吧 ✦'));
+      const inp = document.getElementById('kingdom-name'); if (inp) inp.focus();
+      return false;
+    }
   }
+  return true;
+}
+
+// 提交认领：写星名、构建王国、绘证书、上云（含并发撞星重试一次）、落盘、跳转
+async function commitClaim(name){
   if (currentStar) currentStar.name = name;
   const state = kingdom.getState();
   state.flagSVG = kingdom.buildFlagSVG();
@@ -359,6 +366,7 @@ document.getElementById('btn-generate').addEventListener('click', async ()=>{
   pushWall(currentStar, currentKingdom);
   // 同步到云端共享星图（与好友一起看）。极罕见的并发撞星（同一颗空闲星被两人同时认领）时，
   // 重新解出一颗空闲星并重试一次，保证“每人一颗、互不相同”。
+  const deviceId = getDeviceId();
   let starPushed = false;
   for (let attempt = 0; attempt < 2 && !starPushed; attempt++){
     try {
@@ -386,7 +394,7 @@ document.getElementById('btn-generate').addEventListener('click', async ()=>{
       }
       if (e && e.code === '23505_name'){
         toast(t('「') + name + t('」') + ' ' + t('刚刚被认领，换个名字再点生成') + ' ✦');
-        return;
+        return false;
       }
       console.warn('[cloud] 星上云失败', e);
       break;
@@ -399,6 +407,28 @@ document.getElementById('btn-generate').addEventListener('click', async ()=>{
   const mh = document.getElementById('btn-mine-home'); if (mh) mh.style.display = '';
   renderWall();
   go('share');
+  return true;
+}
+
+// 认领并命名：完整取名 / 立法 / 旗帜流程
+document.getElementById('btn-generate').addEventListener('click', async ()=>{
+  const name = document.getElementById('kingdom-name').value.trim();
+  if (!name){ toast(t('先给你的星辰王国起个名字吧')); return; }
+  if (!(await claimAllowed(name))) return;
+  await commitClaim(name);
+});
+
+// 认领星球：一键以国际通用名为星名，跳过取名 / 立法 / 旗帜（证书照常生成）
+document.getElementById('btn-claim-simple').addEventListener('click', async ()=>{
+  if (!currentStar) return;
+  const name = (currentStar.designation || currentStar.catalogNo || '').trim();
+  if (!name){
+    toast(t('这颗星暂无国际通用名，请点“认领并命名星球”取名'));
+    return;
+  }
+  if (!(await claimAllowed(name))) return;
+  document.getElementById('kingdom-name').value = name;   // 极简王国：星名即国际通用名，无需填表
+  await commitClaim(name);
 });
 
 // ---------- 下载 / 分享 / 重置 ----------
@@ -716,7 +746,7 @@ function showSkyInfo(info){
   const ownerEl = document.getElementById('si-owner');
   if (info.owner_name){
     ownerEl.style.display = 'block';
-    ownerEl.textContent = '认领者 · ' + info.owner_name;
+    ownerEl.textContent = t('认领者 · ') + info.owner_name;
   } else {
     ownerEl.style.display = 'none';
   }

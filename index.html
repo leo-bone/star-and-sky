@@ -269,7 +269,11 @@
             </div>
           </div>
 
-          <button class="btn btn-primary btn-lg" id="btn-generate" data-i18n="命名并生成星图">命名并生成星图 ↝</button>
+          <div class="claim-actions">
+            <button class="btn btn-primary btn-lg" id="btn-claim-simple" data-i18n="认领星球">认领星球 ✦</button>
+            <button class="btn btn-outline btn-lg" id="btn-generate" data-i18n="认领并命名星球">认领并命名星球 ↝</button>
+          </div>
+          <p class="claim-hint" data-i18n="不想取名？一键认领，星名用国际通用名，证书照常生成">不想取名？一键认领，星名用国际通用名，证书照常生成</p>
         </div>
       </div>
     </section>
@@ -294,23 +298,13 @@
           <button class="btn btn-ghost" id="btn-restart" data-i18n="重新认领一颗">重新认领一颗</button>
           <p class="share-note" data-i18n="提示：图片含你的星名、坐标与王国信息，可自由传播。">提示：图片含你的星名、坐标与王国信息，可自由传播。</p>
 
-          <div class="premium-block">
-            <div class="premium-head">
-              <h3><span data-i18n="高级版 · 星之周边">高级版 · 星之周边</span> <span class="premium-tag" data-i18n="即将上线">即将上线</span></h3>
-              <p data-i18n="想把这片宇宙带回家？以下高级版与实体周边正在筹备中，免费版功能不受任何影响。">想把这片宇宙带回家？以下高级版与实体周边正在筹备中，免费版功能不受任何影响。</p>
+          <div class="premium-entry">
+            <div class="pe-ico">🚀</div>
+            <div class="pe-text">
+              <h3 data-i18n="高级版 · 星之周边">高级版 · 星之周边 <span class="premium-tag" data-i18n="即将上线">即将上线</span></h3>
+              <p data-i18n="正在筹备高清证书、实物星图卷轴与星球模型等，免费版功能不受影响。">正在筹备高清证书、实物星图卷轴与星球模型等，免费版功能不受影响。</p>
             </div>
-            <div class="premium-items">
-              <div class="pi"><span class="pi-ico">🪪</span><b data-i18n="高清印刷证书">高清印刷证书</b><i data-i18n="博物馆级装裱">博物馆级装裱</i></div>
-              <div class="pi"><span class="pi-ico">🗺️</span><b data-i18n="实物星图卷轴">实物星图卷轴</b><i data-i18n="丝绢烫金">丝绢烫金</i></div>
-              <div class="pi"><span class="pi-ico">🪐</span><b data-i18n="定制星球模型">定制星球模型</b><i data-i18n="3D 上色">3D 上色</i></div>
-              <div class="pi"><span class="pi-ico">🏅</span><b data-i18n="命名权证书">命名权证书</b><i data-i18n="永久核验">永久核验</i></div>
-              <div class="pi"><span class="pi-ico">🎁</span><b data-i18n="星主题周边">星主题周边</b><i data-i18n="服饰·饰品">服饰·饰品</i></div>
-            </div>
-            <div class="premium-cta">
-              <input id="premium-email" class="premium-input" type="email" data-i18n-ph="留下邮箱，高级版首发时通知你" placeholder="留下邮箱，高级版首发时通知你" />
-              <button class="btn btn-outline btn-sm" id="btn-premium" data-i18n="加入候补名单">加入候补名单</button>
-            </div>
-            <p class="premium-note" id="premium-note" data-i18n="当前为免费版：完整认领、星图生成与分享均不收费。">当前为免费版：完整认领、星图生成与分享均不收费。</p>
+            <button class="btn btn-ghost" data-go="premium" data-i18n="查看即将上线">查看即将上线 ↗</button>
           </div>
         </div>
       </div>
@@ -339,6 +333,31 @@
         </div>
         <div class="wall" id="world-wall">
           <div class="wall-empty">还没有星辰被点亮。认领你的第一颗，让世界星图墙亮起来。</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 即将上线 / 高级版（从星图页独立拆出） ============ -->
+    <section class="screen" id="screen-premium">
+      <div class="premium-page">
+        <button class="btn btn-ghost premium-back" data-go="share" data-i18n="← 返回星图">← 返回星图</button>
+        <div class="premium-block">
+          <div class="premium-head">
+            <h3><span data-i18n="高级版 · 星之周边">高级版 · 星之周边</span> <span class="premium-tag" data-i18n="即将上线">即将上线</span></h3>
+            <p data-i18n="想把这片宇宙带回家？以下高级版与实体周边正在筹备中，免费版功能不受任何影响。">想把这片宇宙带回家？以下高级版与实体周边正在筹备中，免费版功能不受任何影响。</p>
+          </div>
+          <div class="premium-items">
+            <div class="pi"><span class="pi-ico">🪪</span><b data-i18n="高清印刷证书">高清印刷证书</b><i data-i18n="博物馆级装裱">博物馆级装裱</i></div>
+            <div class="pi"><span class="pi-ico">🗺️</span><b data-i18n="实物星图卷轴">实物星图卷轴</b><i data-i18n="丝绢烫金">丝绢烫金</i></div>
+            <div class="pi"><span class="pi-ico">🪐</span><b data-i18n="定制星球模型">定制星球模型</b><i data-i18n="3D 上色">3D 上色</i></div>
+            <div class="pi"><span class="pi-ico">🏅</span><b data-i18n="命名权证书">命名权证书</b><i data-i18n="永久核验">永久核验</i></div>
+            <div class="pi"><span class="pi-ico">🎁</span><b data-i18n="星主题周边">星主题周边</b><i data-i18n="服饰·饰品">服饰·饰品</i></div>
+          </div>
+          <div class="premium-cta">
+            <input id="premium-email" class="premium-input" type="email" data-i18n-ph="留下邮箱，高级版首发时通知你" placeholder="留下邮箱，高级版首发时通知你" />
+            <button class="btn btn-outline btn-sm" id="btn-premium" data-i18n="加入候补名单">加入候补名单</button>
+          </div>
+          <p class="premium-note" id="premium-note" data-i18n="当前为免费版：完整认领、星图生成与分享均不收费。">当前为免费版：完整认领、星图生成与分享均不收费。</p>
         </div>
       </div>
     </section>

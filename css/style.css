@@ -288,6 +288,24 @@ body{
 .premium-input:focus{border-color:rgba(245,201,123,.55)}
 .premium-note{color:var(--muted);font-size:11.5px;margin-top:4px;line-height:1.6}
 
+/* 认领页双按钮（认领星球 / 认领并命名星球）+ 易上手提示 */
+.claim-actions{display:flex;gap:12px;margin-top:18px;flex-wrap:wrap}
+.claim-actions .btn{flex:1;min-width:160px}
+.claim-hint{margin-top:11px;color:var(--muted);font-size:12px;line-height:1.6}
+.claim-hint::before{content:"✦ ";color:var(--gold)}
+
+/* 星图页：即将上线入口卡（点击进入独立页） */
+.premium-entry{display:flex;align-items:center;gap:14px;margin-top:22px;padding:14px 16px;border-radius:12px;
+  background:rgba(255,255,255,.03);border:1px solid rgba(200,168,110,.25)}
+.premium-entry .pe-ico{font-size:26px;line-height:1}
+.premium-entry .pe-text{flex:1;min-width:0}
+.premium-entry .pe-text h3{font-family:"Noto Serif SC",serif;font-size:15px;margin-bottom:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.premium-entry .pe-text p{color:var(--muted);font-size:12px;line-height:1.6}
+
+/* 即将上线独立页 */
+.premium-page{max-width:680px;margin:0 auto;width:100%}
+.premium-back{margin-bottom:14px}
+
 /* 分享横幅（浏览他人分享的星图） */
 .shared-banner{display:flex;align-items:center;gap:12px;width:min(1100px,100%);margin:0 auto 24px;
   padding:14px 20px;border-radius:14px;border:1px solid rgba(95,224,255,.32);
@@ -421,6 +439,7 @@ body{
   .bn-mine{color:var(--cyan)}
   /* 真实星空为全屏沉浸页，自带底部控制条，隐藏全局底栏避免遮挡 */
   .on-explore .bottom-nav{display:none}
+  .on-premium .bottom-nav{display:none}
   /* 移动端 toast 上移，避开底部导航 */
   .toast{bottom:calc(88px + env(safe-area-inset-bottom))}
   /* 窄屏：云端提示允许换行，避免溢出 */
