@@ -1,9 +1,9 @@
 // 真实星空图：基于真实星表的全天交互星图（赤道坐标等距投影）
 // 能力：真实恒星/星座连线/星座名/银河带/行星/用户星与好友星高亮/按名或注册号搜索定位/
 //       平移缩放/图层开关/真实行星实时位置/点击好友星打开其星页
-import { planetPositions } from './planets.js?v=20261034';
-import { loadCatalog } from './catalog.js?v=20261034';
-import { t, getLang } from './i18n.js?v=20261034';
+import { planetPositions } from './planets.js?v=20261035';
+import { loadCatalog } from './catalog.js?v=20261035';
+import { t, getLang } from './i18n.js?v=20261035';
 
 const CON_NAMES = {
   And:'仙女座',Ant:'唧筒座',Aps:'天燕座',Aql:'天鹰座',Aqr:'宝瓶座',Ara:'天坛座',Ari:'白羊座',
@@ -38,9 +38,13 @@ const CON_NAMES_EN = {
   UMa:'Ursa Major',UMi:'Ursa Minor',Vel:'Vela',Vir:'Virgo',Vol:'Volans',Vul:'Vulpecula'
 };
 
-// 按当前语言返回星座名：中文用 CON_NAMES，英文用 CON_NAMES_EN（IAU 拉丁名）
+// 按当前语言返回星座名：中文用 CON_NAMES；英文优先用 IAU 码映射 CON_NAMES_EN，
+// 若传入的是中文名（如用户星 constellation 存的是中文），则经 t() 翻成英文，避免回退成中文。
 function conName(code){
-  return getLang() === 'en' ? (CON_NAMES_EN[code] || code) : (CON_NAMES[code] || code);
+  if (getLang() !== 'en') return CON_NAMES[code] || code;
+  if (CON_NAMES_EN[code]) return CON_NAMES_EN[code];   // IAU 码 → 英文（如 'Leo'→'Leo'）
+  const en = t(code);                                  // 中文名 → 英文（如 '狮子座'→'Leo'）
+  return (en && en !== code) ? en : code;
 }
 
 function bvColor(bv){

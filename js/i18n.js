@@ -22,7 +22,9 @@ const EN = {
   '复位': 'Reset',
   '金色光点 = 云端全世界的星 · 点击即可访问 TA 的星图': 'Gold dots = stars from all over the world · tap to visit their sky',
   '视星等': 'Magnitude', '距离': 'Distance',
-  '返回认星': 'Back', '定位我的星': 'Locate my star', '认领并命名': 'Claim & name',
+  '输入星名 / 编号查找，如 Vega、HD 48915、α CMa': 'Search by star name / number, e.g. Vega, HD 48915, α CMa',
+  '返回': 'Back',
+  '返回认星': 'Back to claim', '定位我的星': 'Locate my star', '认领并命名': 'Claim & name',
   // ---- 建国页 ----
   '建立你的星辰王国': 'Build Your Star Kingdom',
   '认领之后，这片天体归你统治。命名、立法、组阁、设计旗帜。': 'Once claimed, this celestial body is yours to rule. Name it, legislate, appoint, design its flag.',
@@ -58,7 +60,7 @@ const EN = {
   '议会 · COUNCIL': 'COUNCIL', '议会：依星律自治': 'Council: self-governed by star law',
   '✦ 星际公民 · 永载名册': '✦ Interstellar Citizen · Forever recorded',
   '星球寄语': 'Star message',
-  '★ 你的星': '★ Your star', '我的星': 'My star',
+  '★ 你的星': '★ Your star', '我的星': 'My star', '我的星 ✦': 'My star ✦',
   '天球坐标 · ': 'Celestial coord · ',
   '恒星编号': 'Star No.', '国际命名': 'Designation', '星表编号': 'Catalog No.',
   '光谱类型': 'Spectral type', '表面温度': 'Surface temp', '直径': 'Diameter',
@@ -291,6 +293,10 @@ export function applyI18n(){
   });
   const tg = document.getElementById('lang-toggle');
   if (tg) tg.textContent = currentLang === 'en' ? '中文' : 'EN';
+  // 语言标记挂到 body，供纯 CSS 文案（如 info 卡“编号”前缀）按语言切换
+  if (typeof document !== 'undefined' && document.body){
+    document.body.classList.toggle('lang-en', currentLang === 'en');
+  }
   // 影院开场诗（含 <b> 强调，需保留标签）
   const ct0 = document.getElementById('ct-0');
   const ct1 = document.getElementById('ct-1');

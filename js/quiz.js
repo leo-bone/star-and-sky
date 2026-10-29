@@ -1,5 +1,5 @@
 // 沉浸问答：爱好 / 星座 / 性格 / 人生信念
-import { t } from './i18n.js?v=20261034';
+import { t } from './i18n.js?v=20261035';
 const HOBBIES = [
   { id:'艺术 / 音乐', ico:'🎨', sub:'Art & Music' },
   { id:'科学 / 探索', ico:'🔭', sub:'Science' },
@@ -59,7 +59,7 @@ export function initQuiz({ stage, bar, count, prevBtn, nextBtn, onDone }){
     bar.style.width = ((step+1)/TOTAL*100) + '%';
     count.textContent = String(step+1).padStart(2,'0') + ' / ' + String(TOTAL).padStart(2,'0');
     prevBtn.style.visibility = step === 0 ? 'hidden' : 'visible';
-    nextBtn.textContent = step === TOTAL-1 ? t('生成我的星星 ✦') : t('下一题');
+    nextBtn.textContent = step === TOTAL-1 ? t('生成我的星星') + ' ✦' : t('下一题');
     stage.innerHTML = card(step);
     bind(step);
   }

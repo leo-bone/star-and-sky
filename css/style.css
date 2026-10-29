@@ -655,6 +655,7 @@ body.cinema-mode .topbar{transition:opacity .6s ease}
 /* ===== 探索页：星信息卡（编号 / 留言） ===== */
 .si-no{color:#9fb0d0;font-size:12.5px;margin-top:4px;letter-spacing:.3px}
 .si-no::before{content:'编号 ';color:#6f80a8}
+body.lang-en .si-no::before{content:'No. '}
 /* 星球寄语：紧跟编号下方，是认领者的心意，用宇宙渐变底 + 柔光强调 */
 .si-msg{margin-top:10px;padding:10px 13px;border-radius:10px;position:relative;overflow:hidden;
   border:1px solid rgba(95,224,255,.26);
