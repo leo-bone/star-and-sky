@@ -1,6 +1,6 @@
 // 认领与王国建造：旗帜设计器 + 律法 + 议会 + 本地存储
-import { hashString, mulberry32 } from './rng.js?v=20261032';
-import { t } from './i18n.js?v=20261032';
+import { hashString, mulberry32 } from './rng.js?v=20261033';
+import { t } from './i18n.js?v=20261033';
 
 const KEY = 'star-sky-claim-v1';
 
@@ -255,7 +255,7 @@ export function initKingdom(){
     const chip = g
       ? `<span class="preset-chip" style="background:linear-gradient(135deg,${g.a},${g.b})"><i style="background:${p.accent}"></i></span>`
       : `<span class="preset-chip" style="background:${p.bg}"><i style="background:${p.accent}"></i></span>`;
-    b.innerHTML = chip + t(p.name);
+    b.innerHTML = chip + '<span class="preset-name" data-i18n="' + p.name + '">' + p.name + '</span>';
     b.onclick = ()=>{
       bg.value = p.bg || '#11244d';
       accent.value = p.accent; starCount = p.starCount || 5; textIn.value = p.text || '';
@@ -363,7 +363,17 @@ export function initKingdom(){
   document.getElementById('star-count-row').style.display = 'flex';
   applyFlag();
 
-  return { getState, buildFlagSVG, save, load, restore, applyFlag };
+  // 切换语言时，重译“渐变色块”的悬浮提示（预设名已用 data-i18n 自动翻译）
+  function refreshTexts(){
+    if (!gradHost) return;
+    gradHost.querySelectorAll('.grad-sw').forEach(sw=>{
+      const key = sw.dataset.grad;
+      const g = GRADIENTS[key];
+      sw.title = g ? t(g.name) : t('纯色');
+    });
+  }
+
+  return { getState, buildFlagSVG, save, load, restore, applyFlag, refreshTexts };
 }
 
 function escapeHtml(s){

@@ -1,11 +1,11 @@
 // 星球认领证书 —— 单张高分辨率 canvas 绘制（按《星球认领证书｜通用视觉规范》重构）
 // 版本：9:12 竖版 · 深空档案风 · 版式骨架锁死，仅星球/名称/注册信息可变
 // 中心星球与 3D 认星页共用同一套 bodyTexture 表面，保证证书星 == 网页「认领的星星」。
-import { hashString, mulberry32 } from './rng.js?v=20261032';
-import { shareLink, encodeStar, qrLinkForStar } from './share.js?v=20261032';
-import { getBodySurface, uvFromDir } from './bodyTexture.js?v=20261032';
-import { t } from './i18n.js?v=20261032';
-import { localizedSpecName } from './starData.js?v=20261032';
+import { hashString, mulberry32 } from './rng.js?v=20261033';
+import { shareLink, encodeStar, qrLinkForStar } from './share.js?v=20261033';
+import { getBodySurface, uvFromDir } from './bodyTexture.js?v=20261033';
+import { t } from './i18n.js?v=20261033';
+import { localizedSpecName } from './starData.js?v=20261033';
 
 // ===== 画布：9:12 竖版（3:4）=====
 const DW = 1240, DH = 1653;   // 设计尺寸（3:4）
@@ -707,6 +707,14 @@ function drawFooter(ctx, star, kd){
   ctx.fillText(t('而是为了让记忆在宇宙中有坐标。'), 620, 1586);
   ctx.letterSpacing = '0px';
   ctx.restore();
+
+  // 铸造者钱包（王国凭证）：极淡小字，位于标语下方，不喧宾夺主
+  if (kd && kd.minter){
+    ctx.save(); ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(200,168,110,0.55)';
+    setFont(ctx, '400 11px "Space Grotesk", monospace'); ctx.letterSpacing = '1px';
+    ctx.fillText('Minted by ' + kd.minter, 620, 1612);
+    ctx.letterSpacing = '0px'; ctx.restore();
+  }
 
   let link = '';
   try { if (star){ const code = encodeStar(star, kd || {}); link = qrLinkForStar(code); } } catch(e){ link = ''; }

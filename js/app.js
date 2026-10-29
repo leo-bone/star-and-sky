@@ -1,14 +1,15 @@
 // 3D 宇宙背景依赖 three.js（CDN）+ WebGL；改为动态 import，
 // 即使 CDN 抽风或 WebGL 不可用，也只是降级为空操作，绝不拖垮整站（开门/问答/证书照常）
-import { initQuiz } from './quiz.js?v=20261032';
-import { generateStar, starParamList } from './starData.js?v=20261032';
-import { initKingdom } from './kingdom.js?v=20261032';
-import { initCertificate } from './certificate.js?v=20261032';
-import { encodeStar, shareLink, copyText, parseCodeFromURL, decodeStar } from './share.js?v=20261032';
-import { starKey, pushStar, listStars, addMessage, listMessages, nameTaken, getStarByKey, ownerIdExists, catalogTaken } from './cloud.js?v=20261032';
-import { initSkyMap } from './skymap.js?v=20261032';
-import { loadCatalog } from './catalog.js?v=20261032';
-import { t, getLang, setLang, applyI18n, initLangToggle } from './i18n.js?v=20261032';
+import { initQuiz } from './quiz.js?v=20261033';
+import { generateStar, starParamList } from './starData.js?v=20261033';
+import { initKingdom } from './kingdom.js?v=20261033';
+import { initCertificate } from './certificate.js?v=20261033';
+import { encodeStar, shareLink, copyText, parseCodeFromURL, decodeStar } from './share.js?v=20261033';
+import { starKey, pushStar, listStars, addMessage, listMessages, nameTaken, getStarByKey, ownerIdExists, catalogTaken } from './cloud.js?v=20261033';
+import { initSkyMap } from './skymap.js?v=20261033';
+import { loadCatalog } from './catalog.js?v=20261033';
+import { t, getLang, setLang, applyI18n, initLangToggle } from './i18n.js?v=20261033';
+import { isMinted, getMint, connectWallet, mint, getAddress, mintAddress } from './mint.js?v=20261033';
 
 const SESSION_KEY = 'star-sky-session-v1';
 const CLAIM_KEY = 'star-sky-claim-v1';   // 已认领星球（与问答进度分离，独立持久化，刷新/重开不丢失）
@@ -54,7 +55,7 @@ function getDeviceId(){
 // 3D 宇宙背景依赖 three.js（CDN）+ WebGL；若不可用则降级为空操作桩，绝不因此拖垮整站
 const NULL_UNIVERSE = { setStar(){}, showHero(){}, hideHero(){}, setControl(){}, setFocus(){}, setActive(){} };
 let universe = NULL_UNIVERSE;
-import('./universe.js?v=20261032').then(m => {
+import('./universe.js?v=20261033').then(m => {
   try { universe = m.initUniverse(document.getElementById('cosmos')); }
   catch (e) { console.warn('3D 宇宙背景初始化失败，已降级为静态背景', e); }
 }).catch(e => console.warn('3D 宇宙背景模块加载失败（CDN/WebGL），已降级为空操作', e));
@@ -63,7 +64,7 @@ const card = initCertificate();
 // 3D 星球视口依赖 three.js（CDN）；若不可用则降级为空操作桩，绝不拖垮整站
 const NULL_PLANET3D = { setStar(){}, show(){}, hide(){}, resize(){} };
 let planet3d = NULL_PLANET3D;
-import('./planet3d.js?v=20261032').then(m => {
+import('./planet3d.js?v=20261033').then(m => {
   try {
     planet3d = m.initPlanet3D(document.getElementById('planet-canvas'));
     if (currentStar && screens.universe && screens.universe.classList.contains('active')){
@@ -170,6 +171,7 @@ function go(name){
     if (!currentStar){
       toast(t('先完成问答，认领一颗属于你的星')); go('quiz'); return;
     }
+    try { updateMintGate(); } catch(e){ console.warn('[nav] 门禁刷新失败', e); }
   }
   try{
     // 真实星空：可独立探索（无需先认领），直接对标 ISR 的静态纸星图
@@ -329,6 +331,14 @@ document.getElementById('btn-claim').addEventListener('click', ()=>{
   go('claim');
 });
 
+// 认星页「命名并认领星球」：直达建国页（取名 / 立法 / 旗帜 / 铸造）
+document.getElementById('btn-name-claim').addEventListener('click', ()=>{
+  if (hasClaim()){ openMyStar(); return; }
+  const saved = loadSession();
+  if (saved && saved.kingdom) kingdom.restore(saved.kingdom);
+  go('claim');
+});
+
 // ---------- 生成星图 ----------
 // 认领前置校验：已认领 / 一人一星 / 重名。不通过则跳转或提示并返回 false
 async function claimAllowed(name){
@@ -362,6 +372,7 @@ async function commitClaim(name){
   if (currentStar) currentStar.name = name;
   const state = kingdom.getState();
   state.flagSVG = kingdom.buildFlagSVG();
+  state.minter = mintAddress(currentStarCode());   // 铸造者钱包地址随王国数据一同保存/分享
   currentKingdom = state;
   kingdom.save();
   saveSession('share');
@@ -383,6 +394,7 @@ async function commitClaim(name){
         spec: currentStar.spec, constellation: currentStar.constellation,
         owner_name: currentKingdom.name, mag: currentStar.mag, distLy: currentStar.distLy,
         message: currentKingdom.message,
+        minter: currentKingdom.minter || null,
         ownerId: deviceId
       });
       starPushed = true;
@@ -421,17 +433,71 @@ document.getElementById('btn-generate').addEventListener('click', async ()=>{
   await commitClaim(name);
 });
 
-// 认领星球：一键以国际通用名为星名，跳过取名 / 立法 / 旗帜（证书照常生成）
-document.getElementById('btn-claim-simple').addEventListener('click', async ()=>{
-  if (!currentStar) return;
-  const name = (currentStar.designation || currentStar.catalogNo || '').trim();
-  if (!name){
-    toast(t('这颗星暂无国际通用名，请点“认领并命名星球”取名'));
-    return;
+// 保存：仅落盘王国设计（取名 / 立法 / 旗帜），不认领、不上链；便于随时回来继续
+document.getElementById('btn-save').addEventListener('click', ()=>{
+  kingdom.save();
+  saveSession('draft');
+  toast(t('已保存，可随时回来继续 ✦'));
+});
+
+// ---------- 建国门禁（钱包 Mint Kingdom Pass）----------
+function currentStarCode(){
+  if (!currentStar) return null;
+  return currentStar.catalogNo || currentStar.designation || null;
+}
+// 依据是否已铸造，显示/隐藏门禁并锁定或解锁建国表单
+function updateMintGate(){
+  const gate = document.getElementById('mint-gate');
+  if (!gate) return;
+  const code = currentStarCode();
+  const minted = isMinted(code);
+  // 锁定：禁用建国表单内所有输入与按钮（门禁卡本身除外）
+  const zone = document.getElementById('screen-claim');
+  zone.querySelectorAll('.claim-col input, .claim-col textarea, .claim-col button, .flag-controls input, .flag-controls button')
+    .forEach(el=>{
+      if (el.id === 'btn-connect-wallet' || el.id === 'btn-mint') return;
+      el.disabled = !minted;
+    });
+  gate.style.display = minted ? 'none' : 'flex';
+  const st = document.getElementById('mg-status');
+  if (st){
+    const m = getMint(code);
+    st.textContent = minted ? (t('已铸造 · 解锁建国') + (m ? ' · ' + shortAddr(m.address) : '')) : '';
+    st.classList.toggle('ok', minted);
   }
-  if (!(await claimAllowed(name))) return;
-  document.getElementById('kingdom-name').value = name;   // 极简王国：星名即国际通用名，无需填表
-  await commitClaim(name);
+  const mintBtn = document.getElementById('btn-mint');
+  if (mintBtn) mintBtn.disabled = minted;   // 已铸造则无需再铸
+  zone.classList.toggle('kingdom-locked', !minted);
+}
+function shortAddr(a){ return a ? (a.slice(0,6) + '…' + a.slice(-4)) : ''; }
+
+document.getElementById('btn-connect-wallet').addEventListener('click', async ()=>{
+  const st = document.getElementById('mg-status');
+  try {
+    const addr = await connectWallet();
+    if (st){ st.textContent = t('钱包已连接') + ' · ' + shortAddr(addr); st.classList.add('ok'); }
+    const mb = document.getElementById('btn-mint'); if (mb) mb.disabled = false;
+  } catch(e){
+    if (st){ st.textContent = (e && e.message) || t('未连接'); st.classList.remove('ok'); }
+  }
+});
+
+document.getElementById('btn-mint').addEventListener('click', async ()=>{
+  const st = document.getElementById('mg-status');
+  const mb = document.getElementById('btn-mint');
+  const code = currentStarCode();
+  if (!code){ toast(t('请先在「认星」页认领一颗星')); return; }
+  if (mb){ mb.disabled = true; mb.textContent = t('铸造中…'); }
+  try {
+    await mint(code, currentStar && currentStar.name);
+    if (st){ st.textContent = t('已铸造 · 解锁建国'); st.classList.add('ok'); }
+    updateMintGate();
+  } catch(e){
+    if (st){ st.textContent = (e && e.message) || t('签名被取消或失败'); st.classList.remove('ok'); }
+  } finally {
+    if (mb){ mb.textContent = t('铸造王国凭证 NFT'); }
+    updateMintGate();
+  }
 });
 
 // ---------- 下载 / 分享 / 重置 ----------
@@ -892,7 +958,7 @@ function refreshI18n(){
   if (currentScreen === 'quiz' && quizCtl && quizCtl.redraw) quizCtl.redraw();
   else if (currentScreen === 'universe' && currentStar) populateUniverse(currentStar);
   else if (currentScreen === 'explore'){ if (lastSkyInfo) showSkyInfo(lastSkyInfo); }
-  else if (currentScreen === 'claim'){ if (kingdom.applyFlag) kingdom.applyFlag(); }
+  else if (currentScreen === 'claim'){ if (kingdom.applyFlag) kingdom.applyFlag(); if (kingdom.refreshTexts) kingdom.refreshTexts(); }
   else if (currentScreen === 'share'){ if (currentStar && currentKingdom) card.build(currentStar, currentKingdom); renderWall(); }
 }
 window.__onLangChange = refreshI18n;

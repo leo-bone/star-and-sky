@@ -41,10 +41,13 @@ const EN = {
   '星徽': 'Star', '月牙': 'Moon', '星环': 'Ring', '光芒': 'Rays', '横幅': 'Band',
   '竖纹': 'V-stripes', '斜分': 'Diagonal', '山峦': 'Mountain', '边框': 'Border',
   '铭文': 'Inscription', '辉光': 'Glow', '星云': 'Nebula', '星数': 'Stars',
+  '星核': 'Starcore', '极光带': 'Aurora Belt', '余烬': 'Ember', '冰晶': 'Ice',
   '旗帜铭文（如：光·秩序）': 'Flag inscription (e.g. Light·Order)',
   '命名并生成星图': 'Name & generate star chart',
   '认领星球': 'Claim star',
   '认领并命名星球': 'Claim & name star',
+  '保存': 'Save',
+  '开始创造你的星球吧': 'Start creating your planet',
   '不想取名？一键认领，星名用国际通用名，证书照常生成': 'Skip naming? One tap to claim — the star keeps its official designation; certificate still generated',
   '✦ 星名已锁定 · 查看我的星图': '✦ Star name locked · view my star',
   '认领者 · ': 'Claimed by · ',
@@ -245,6 +248,16 @@ const EN = {
   '星案特册 注册星球':'STAR ARCHIVE',
   // ---- 单位（距离/自转）----
   '光年':' ly', '小时':'h', '天':'d',
+  // ---- 建国门禁 / 钱包铸造 ----
+  '连接钱包':'Connect Wallet', '铸造王国凭证 NFT':'Mint Kingdom Pass NFT',
+  '铸造中…':'Minting…', '已铸造 · 解锁建国':'Minted · kingdom unlocked',
+  '请安装 MetaMask 等钱包':'Please install MetaMask or a Web3 wallet',
+  '签名被取消或失败':'Signature cancelled or failed',
+  '未获取到钱包账户':'No wallet account obtained',
+  '请先连接钱包并铸造凭证':'Connect a wallet and mint the pass first',
+  '建国需先铸造王国凭证（钱包签名）':'Building a kingdom requires minting the Kingdom Pass (wallet signature)',
+  '普通用户需连接钱包并铸造 Kingdom Pass NFT，才能解锁旗帜设计与建国。铸造后，王国数据将随证书一同保存与分享。':'Regular users must connect a wallet and mint the Kingdom Pass NFT to unlock flag design and kingdom building. After minting, kingdom data is saved and shared together with the certificate.',
+  '钱包已连接':'Wallet connected', '未连接':'Not connected',
 };
 
 let currentLang = (typeof localStorage !== 'undefined' && localStorage.getItem('star-sky-lang')) || 'zh';

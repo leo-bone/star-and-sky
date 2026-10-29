@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Cormorant+Garamond:wght@400;500;600&display=swap" />
-  <link rel="stylesheet" href="css/style.css?v=20261032" />
+  <link rel="stylesheet" href="css/style.css?v=20261033" />
   <!-- 字体样式表异步加载：先渲染页面，字体就绪后自动生效 -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Cormorant+Garamond:wght@400;500;600&display=swap" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Cormorant+Garamond:wght@400;500;600&display=swap" /></noscript>
@@ -119,6 +119,8 @@
           <p class="uni-sub" id="uni-flavor">在亿万光年之外，它为你而亮。</p>
           <div class="star-params" id="star-params"><!-- 参数表注入 --></div>
           <button class="btn btn-primary btn-lg" id="btn-claim" data-i18n="认领这颗星">认领这颗星 ↝</button>
+          <button class="btn btn-outline btn-lg" id="btn-name-claim" data-i18n="认领并命名星球">认领并命名星球 ↝</button>
+          <p class="uni-desc" data-i18n="开始创造你的星球吧">开始创造你的星球吧</p>
           <button class="btn btn-outline" id="btn-to-explore" data-i18n="进入真实星空 · 找到你的星">进入真实星空 · 找到你的星 ↗</button>
         </div>
         <div class="uni-right">
@@ -179,6 +181,18 @@
 
     <!-- ============ 认领 / 建国 ============ -->
     <section class="screen" id="screen-claim">
+      <div class="mint-gate" id="mint-gate">
+        <div class="mg-ico">⛓</div>
+        <div class="mg-text">
+          <h3 data-i18n="建国需先铸造王国凭证（钱包签名）">建国需先铸造王国凭证（钱包签名）</h3>
+          <p data-i18n="普通用户需连接钱包并铸造 Kingdom Pass NFT，才能解锁旗帜设计与建国。铸造后，王国数据将随证书一同保存与分享。">普通用户需连接钱包并铸造 Kingdom Pass NFT，才能解锁旗帜设计与建国。铸造后，王国数据将随证书一同保存与分享。</p>
+        </div>
+        <div class="mg-actions">
+          <button class="btn btn-outline btn-sm" id="btn-connect-wallet" data-i18n="连接钱包">连接钱包</button>
+          <button class="btn btn-primary btn-sm" id="btn-mint" data-i18n="铸造王国凭证 NFT" disabled>铸造王国凭证 NFT</button>
+          <span class="mg-status" id="mg-status"></span>
+        </div>
+      </div>
       <div class="claim-layout">
         <div class="claim-col">
           <h2 class="sec-title" data-i18n="建立你的星辰王国">建立你的星辰王国</h2>
@@ -232,7 +246,7 @@
               <span data-i18n="底色">底色</span>
               <input type="color" id="fc-bg" value="#11244d" />
               <span data-i18n="点缀">点缀</span>
-              <input type="color" id="fc-accent" value="#f5c97b" />
+              <input type="color" id="fc-accent" value="#c44fa0" />
             </div>
             <div class="flag-row star-count" id="star-count-row">
               <span data-i18n="星数">星数</span>
@@ -271,10 +285,9 @@
           </div>
 
           <div class="claim-actions">
-            <button class="btn btn-primary btn-lg" id="btn-claim-simple" data-i18n="认领星球">认领星球 ✦</button>
-            <button class="btn btn-outline btn-lg" id="btn-generate" data-i18n="认领并命名星球">认领并命名星球 ↝</button>
+            <button class="btn btn-primary btn-lg" id="btn-generate" data-i18n="认领并命名星球">认领并命名星球 ↝</button>
+            <button class="btn btn-ghost btn-lg" id="btn-save" data-i18n="保存">保存</button>
           </div>
-          <p class="claim-hint" data-i18n="不想取名？一键认领，星名用国际通用名，证书照常生成">不想取名？一键认领，星名用国际通用名，证书照常生成</p>
         </div>
       </div>
     </section>
@@ -371,6 +384,6 @@
 
   <div id="toast" class="toast"></div>
 
-  <script type="module" src="js/app.js?v=20261032"></script>
+  <script type="module" src="js/app.js?v=20261033"></script>
 </body>
 </html>
