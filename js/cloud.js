@@ -132,6 +132,21 @@ function handle23505(error){
   return true; // code 重复：幂等成功
 }
 
+// 升级建国：按 catalog_no（星的物理身份）更新同一颗星的王国 / 铸造信息。
+// 不新增行，避免与 stars_catalog_no_unique 唯一约束碰撞导致“换一颗星”。
+export async function updateStar(catalogNo, fields){
+  if (!catalogNo) return false;
+  try {
+    const cloud = await getCloud();
+    const { error } = await cloud.database.from(T_STARS).update(fields).eq('catalog_no', catalogNo);
+    if (error) throw error;
+    return true;
+  } catch(e){
+    console.warn('[cloud] updateStar 失败', e);
+    return false;
+  }
+}
+
 // 一人一星：查该设备/身份是否已认领过（stars 表需建 owner_id 唯一列才生效）
 export async function ownerIdExists(ownerId){
   if (!ownerId || ownerId === 'anon') return false;

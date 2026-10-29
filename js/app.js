@@ -1,15 +1,15 @@
 // 3D 宇宙背景依赖 three.js（CDN）+ WebGL；改为动态 import，
 // 即使 CDN 抽风或 WebGL 不可用，也只是降级为空操作，绝不拖垮整站（开门/问答/证书照常）
-import { initQuiz } from './quiz.js?v=20261039';
-import { generateStar, starParamList } from './starData.js?v=20261039';
-import { initKingdom } from './kingdom.js?v=20261039';
-import { initCertificate } from './certificate.js?v=20261039';
-import { encodeStar, shareLink, copyText, parseCodeFromURL, decodeStar } from './share.js?v=20261039';
-import { starKey, pushStar, listStars, addMessage, listMessages, nameTaken, getStarByKey, ownerIdExists, catalogTaken } from './cloud.js?v=20261039';
-import { initSkyMap } from './skymap.js?v=20261039';
-import { loadCatalog } from './catalog.js?v=20261039';
-import { t, getLang, setLang, applyI18n, initLangToggle } from './i18n.js?v=20261039';
-import { isMinted, getMint, connectWallet, mint, getAddress, mintAddress } from './mint.js?v=20261039';
+import { initQuiz } from './quiz.js?v=20261040';
+import { generateStar, starParamList } from './starData.js?v=20261040';
+import { initKingdom } from './kingdom.js?v=20261040';
+import { initCertificate } from './certificate.js?v=20261040';
+import { encodeStar, shareLink, copyText, parseCodeFromURL, decodeStar } from './share.js?v=20261040';
+import { starKey, pushStar, updateStar, listStars, addMessage, listMessages, nameTaken, getStarByKey, ownerIdExists, catalogTaken } from './cloud.js?v=20261040';
+import { initSkyMap } from './skymap.js?v=20261040';
+import { loadCatalog } from './catalog.js?v=20261040';
+import { t, getLang, setLang, applyI18n, initLangToggle } from './i18n.js?v=20261040';
+import { isMinted, getMint, connectWallet, mint, getAddress, mintAddress } from './mint.js?v=20261040';
 
 const SESSION_KEY = 'star-sky-session-v1';
 const CLAIM_KEY = 'star-sky-claim-v1';   // 已认领星球（与问答进度分离，独立持久化，刷新/重开不丢失）
@@ -55,7 +55,7 @@ function getDeviceId(){
 // 3D 宇宙背景依赖 three.js（CDN）+ WebGL；若不可用则降级为空操作桩，绝不因此拖垮整站
 const NULL_UNIVERSE = { setStar(){}, showHero(){}, hideHero(){}, setControl(){}, setFocus(){}, setActive(){} };
 let universe = NULL_UNIVERSE;
-import('./universe.js?v=20261039').then(m => {
+import('./universe.js?v=20261040').then(m => {
   try { universe = m.initUniverse(document.getElementById('cosmos')); }
   catch (e) { console.warn('3D 宇宙背景初始化失败，已降级为静态背景', e); }
 }).catch(e => console.warn('3D 宇宙背景模块加载失败（CDN/WebGL），已降级为空操作', e));
@@ -64,7 +64,7 @@ const card = initCertificate();
 // 3D 星球视口依赖 three.js（CDN）；若不可用则降级为空操作桩，绝不拖垮整站
 const NULL_PLANET3D = { setStar(){}, show(){}, hide(){}, resize(){} };
 let planet3d = NULL_PLANET3D;
-import('./planet3d.js?v=20261039').then(m => {
+import('./planet3d.js?v=20261040').then(m => {
   try {
     planet3d = m.initPlanet3D(document.getElementById('planet-canvas'));
     if (currentStar && screens.universe && screens.universe.classList.contains('active')){
@@ -160,6 +160,7 @@ function go(name){
       const sb = document.getElementById('shared-banner');
       if (sb) sb.style.display = isShared ? 'flex' : 'none';
       const br = document.getElementById('btn-restart'); if (br) br.style.display = hasClaim() ? 'none' : '';
+      refreshUpgradeBtn();
       loadNotes();
       renderCloudWall();
     }
@@ -353,12 +354,14 @@ document.getElementById('btn-name-claim').addEventListener('click', ()=>{
 });
 
 // ---------- 生成星图 ----------
-// 认领前置校验：已认领 / 一人一星 / 重名。不通过则跳转或提示并返回 false
+// 认领前置校验：已认领 / 一人一星 / 重名。不通过则跳转或提示并返回 false。
+// 例外：当 currentStar 正是“已认领的那颗星”时，视为“升级建国”（补充王国 / 铸造），放行。
 async function claimAllowed(name){
-  if (hasClaim()){ toast(t('星名已锁定，每人限认领一颗 ✦')); openMyStar(); return false; }
-  // 一人一星：先查云端该设备是否已认领（stars.owner_id 唯一约束为并发兜底）
+  const claimedRec = loadClaim();
+  const upgradingOwn = !!(claimedRec && currentStar && claimedRec.star.catalogNo === currentStar.catalogNo);
+  if (hasClaim() && !upgradingOwn){ toast(t('星名已锁定，每人限认领一颗 ✦')); openMyStar(); return false; }
   const deviceId = getDeviceId();
-  if (deviceId !== 'anon'){
+  if (!upgradingOwn && deviceId !== 'anon'){
     let claimed = false;
     try { claimed = await ownerIdExists(deviceId); } catch(e){ claimed = false; }
     if (claimed){
@@ -368,7 +371,7 @@ async function claimAllowed(name){
     }
   }
   // 命名去重：不同用户不能拥有同名星辰（云不可用时放行，由数据库唯一约束兜底）
-  if (name){
+  if (!upgradingOwn && name){
     let nameFree = true;
     try { nameFree = !(await nameTaken(name)); } catch(e){ nameFree = true; }
     if (!nameFree){
@@ -395,6 +398,20 @@ async function commitClaim(name){
   // 重新解出一颗空闲星并重试一次，保证“每人一颗、互不相同”。
   const deviceId = getDeviceId();
   let starPushed = false;
+  // 升级建国：同一颗已认领的星补充王国 / 铸造信息 → 按 catalog_no 更新云端同一行，避免重复建星
+  const claimedRec = loadClaim();
+  const upgradingOwn = !!(claimedRec && currentStar && claimedRec.star.catalogNo === currentStar.catalogNo);
+  if (upgradingOwn && currentStar.catalogNo){
+    try {
+      const _code = encodeStar(currentStar, currentKingdom);
+      await updateStar(currentStar.catalogNo, {
+        code: starKey(_code), share: _code,
+        owner_name: currentKingdom.name, message: currentKingdom.message,
+        minter: currentKingdom.minter || null
+      });
+      starPushed = true;
+    } catch(e){ console.warn('[cloud] 升级更新云端失败', e); }
+  }
   for (let attempt = 0; attempt < 2 && !starPushed; attempt++){
     try {
       const _code = encodeStar(currentStar, currentKingdom);
@@ -513,6 +530,7 @@ document.getElementById('btn-mint').addEventListener('click', async ()=>{
   } finally {
     if (mb){ mb.textContent = t('铸造王国凭证 NFT'); }
     updateMintGate();
+    refreshUpgradeBtn();
   }
 });
 
@@ -521,6 +539,19 @@ document.getElementById('btn-back-claim')?.addEventListener('click', ()=>{
   if (!currentStar){ go('quiz'); return; }   // 异常兜底：无星则回问答重新生成
   go('universe');
 });
+
+// 星图页「建立城邦 · 铸造 NFT」：免费认领过的人可随时升级建国（门禁照常，铸造后解锁）
+document.getElementById('btn-upgrade')?.addEventListener('click', ()=>{
+  if (!currentStar){ go('quiz'); return; }
+  go('claim');
+});
+// 升级按钮仅在“自己已认领、尚未铸造”时显示；分享他人星图或已铸造则隐藏
+function refreshUpgradeBtn(){
+  const b = document.getElementById('btn-upgrade');
+  if (!b) return;
+  const eligible = !isShared && hasClaim() && !!currentStar && !isMinted(currentStarCode());
+  b.style.display = eligible ? '' : 'none';
+}
 
 // ---------- 下载 / 分享 / 重置 ----------
 document.getElementById('btn-download').addEventListener('click', ()=> card.download(currentStar));

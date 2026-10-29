@@ -26,6 +26,7 @@ const EN = {
   '返回': 'Back',
   '返回认星': 'Back to claim', '定位我的星': 'Locate my star', '认领并命名': 'Claim & name',
   '返回认领星球': 'Back to claim star',
+  '建立城邦 · 铸造 NFT': 'Build kingdom · Mint NFT',
   '长按图片即可保存到手机相册': 'Long-press the image to save it to your phone album',
   '关闭': 'Close',
   // ---- 建国页 ----
