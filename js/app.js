@@ -1,14 +1,14 @@
 // 3D 宇宙背景依赖 three.js（CDN）+ WebGL；改为动态 import，
 // 即使 CDN 抽风或 WebGL 不可用，也只是降级为空操作，绝不拖垮整站（开门/问答/证书照常）
-import { initQuiz } from './quiz.js?v=20261031';
-import { generateStar, starParamList } from './starData.js?v=20261031';
-import { initKingdom } from './kingdom.js?v=20261031';
-import { initCertificate } from './certificate.js?v=20261031';
-import { encodeStar, shareLink, copyText, parseCodeFromURL, decodeStar } from './share.js?v=20261031';
-import { starKey, pushStar, listStars, addMessage, listMessages, nameTaken, getStarByKey, ownerIdExists, catalogTaken } from './cloud.js?v=20261031';
-import { initSkyMap } from './skymap.js?v=20261031';
-import { loadCatalog } from './catalog.js?v=20261031';
-import { t, getLang, setLang, applyI18n, initLangToggle } from './i18n.js?v=20261031';
+import { initQuiz } from './quiz.js?v=20261032';
+import { generateStar, starParamList } from './starData.js?v=20261032';
+import { initKingdom } from './kingdom.js?v=20261032';
+import { initCertificate } from './certificate.js?v=20261032';
+import { encodeStar, shareLink, copyText, parseCodeFromURL, decodeStar } from './share.js?v=20261032';
+import { starKey, pushStar, listStars, addMessage, listMessages, nameTaken, getStarByKey, ownerIdExists, catalogTaken } from './cloud.js?v=20261032';
+import { initSkyMap } from './skymap.js?v=20261032';
+import { loadCatalog } from './catalog.js?v=20261032';
+import { t, getLang, setLang, applyI18n, initLangToggle } from './i18n.js?v=20261032';
 
 const SESSION_KEY = 'star-sky-session-v1';
 const CLAIM_KEY = 'star-sky-claim-v1';   // 已认领星球（与问答进度分离，独立持久化，刷新/重开不丢失）
@@ -54,7 +54,7 @@ function getDeviceId(){
 // 3D 宇宙背景依赖 three.js（CDN）+ WebGL；若不可用则降级为空操作桩，绝不因此拖垮整站
 const NULL_UNIVERSE = { setStar(){}, showHero(){}, hideHero(){}, setControl(){}, setFocus(){}, setActive(){} };
 let universe = NULL_UNIVERSE;
-import('./universe.js?v=20261031').then(m => {
+import('./universe.js?v=20261032').then(m => {
   try { universe = m.initUniverse(document.getElementById('cosmos')); }
   catch (e) { console.warn('3D 宇宙背景初始化失败，已降级为静态背景', e); }
 }).catch(e => console.warn('3D 宇宙背景模块加载失败（CDN/WebGL），已降级为空操作', e));
@@ -63,7 +63,7 @@ const card = initCertificate();
 // 3D 星球视口依赖 three.js（CDN）；若不可用则降级为空操作桩，绝不拖垮整站
 const NULL_PLANET3D = { setStar(){}, show(){}, hide(){}, resize(){} };
 let planet3d = NULL_PLANET3D;
-import('./planet3d.js?v=20261031').then(m => {
+import('./planet3d.js?v=20261032').then(m => {
   try {
     planet3d = m.initPlanet3D(document.getElementById('planet-canvas'));
     if (currentStar && screens.universe && screens.universe.classList.contains('active')){
@@ -190,6 +190,9 @@ function go(name){
     document.body.classList.remove('cinema-mode');
   }
   window.scrollTo({ top:0, behavior:'smooth' });
+  // 关键：导航到某页时，按“当前语言”重渲染该页动态内容。
+  // 否则先中文生成星、切英文后才点进问答/认星页，面板仍是中文（图像里的中文漏翻根因）。
+  refreshI18n();
 }
 function playHome(){
   homeTimers.forEach(clearTimeout); homeTimers = [];
@@ -281,7 +284,7 @@ quizCtl = initQuiz({
 });
 
 function populateUniverse(star){
-  document.getElementById('uni-flavor').textContent = star.flavor;
+  document.getElementById('uni-flavor').textContent = t(star.flavor);
   const box = document.getElementById('star-params');
   const map = new Map(starParamList(star));
   // 三组呈现，清爽不挤：基础信息 / 物理参数 / 天体坐标

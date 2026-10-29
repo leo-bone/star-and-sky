@@ -5,6 +5,7 @@ const EN = {
   '星与星空': 'Stars & Sky',
   '序章': 'Prologue', '问答': 'Quiz', '认星': 'Claim Star', '星空': 'Star Map',
   '建国': 'Build Kingdom', '星图': 'Star Chart',
+  '我的星球 ✦': 'My Star ✦',
   // ---- 首页电影开场 ----
   '推开城邦之门 · 进入宇宙': 'Open the Gate · Enter the Cosmos',
   '跳过片头，直接认领': 'Skip Intro',
@@ -130,6 +131,11 @@ const EN = {
   '还没有可分享的星图': 'No star chart to share yet',
   '请填写有效的邮箱地址': 'Please enter a valid email',
   '已加入候补名单': 'Joined the waitlist', '感谢支持': 'Thank you for your support',
+  // ---- 首页已认领 CTA（动态写入）----
+  '查看我的星球 ✦': 'View my star ✦',
+  '我的星球 · 随时查阅 ✦': 'My star · view anytime ✦',
+  '我也要认一颗星 ✦': 'I want to claim one too ✦',
+  '城邦之门': 'The City Gate',
   '还没有进行中的星空': 'No sky in progress yet',
   '无法打开这颗星': 'Cannot open this star',
   '星图还没准备好': 'Star chart not ready yet',

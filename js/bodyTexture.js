@@ -7,7 +7,7 @@
 //      / 火星岩质(rocky) / 冰壳世界(icy)，各自有专属色板与地貌特征
 //   4. 输出等距柱状(equirectangular)彩色图 + 法线图，3D 可直接作球面 UV
 
-import { hashString, mulberry32 } from './rng.js?v=20261031';
+import { hashString, mulberry32 } from './rng.js?v=20261032';
 
 const TAU = Math.PI * 2;
 const FLAVORS = ['granular', 'cloudy', 'banded', 'rocky', 'icy'];

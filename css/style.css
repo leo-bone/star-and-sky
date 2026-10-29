@@ -41,6 +41,9 @@ body{
 .brand-mark{color:var(--gold);font-size:20px;filter:drop-shadow(0 0 8px var(--gold))}
 .brand-name{font-family:"Noto Serif SC",serif;font-weight:700;font-size:19px;letter-spacing:2px}
 .brand-sub{color:var(--muted);font-size:11px;letter-spacing:3px;font-family:"Space Grotesk"}
+/* 英文模式下：Logo 副标题（STAR & SKY）与问答英文小注已冗余，隐藏，避免与英文主名/主标签重复 */
+html[lang="en"] .brand-sub{display:none}
+html[lang="en"] .opt .sub{display:none}
 .topnav{display:flex;gap:4px;flex-wrap:nowrap}
 .nav-step{font-size:11.5px;color:var(--muted);padding:6px 11px;border-radius:999px;white-space:nowrap;
   border:1px solid transparent;cursor:pointer;transition:.3s;letter-spacing:1px}

@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Cormorant+Garamond:wght@400;500;600&display=swap" />
-  <link rel="stylesheet" href="css/style.css?v=20261031" />
+  <link rel="stylesheet" href="css/style.css?v=20261032" />
   <!-- 字体样式表异步加载：先渲染页面，字体就绪后自动生效 -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Cormorant+Garamond:wght@400;500;600&display=swap" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Cormorant+Garamond:wght@400;500;600&display=swap" /></noscript>
@@ -34,7 +34,7 @@
   <header class="topbar">
     <div class="brand" data-go="home">
       <span class="brand-mark">✦</span>
-      <span class="brand-name">星与星空</span>
+      <span class="brand-name" data-i18n="星与星空">星与星空</span>
       <span class="brand-sub">STAR &amp; SKY</span>
     </div>
       <nav class="topnav">
@@ -46,7 +46,7 @@
         <span class="nav-step" data-step="share" data-i18n="星图">星图</span>
         <span class="nav-step" data-step="premium" data-i18n="即将上线">即将上线</span>
       </nav>
-      <button id="btn-mine" class="nav-mine" type="button" title="随时查看你认领的星球">我的星球 ✦</button>
+      <button id="btn-mine" class="nav-mine" type="button" title="随时查看你认领的星球" data-i18n="我的星球 ✦">我的星球 ✦</button>
       <button id="lang-toggle" class="lang-toggle" type="button" aria-label="切换语言">EN</button>
   </header>
 
@@ -57,7 +57,7 @@
       <div class="cinema" id="cinema">
         <div class="letterbox top"></div>
         <div class="letterbox bottom"></div>
-        <div class="scene-title">A FILM BY STAR &amp; SKY · 城邦之门</div>
+        <div class="scene-title">A FILM BY STAR &amp; SKY · <span data-i18n="城邦之门">城邦之门</span></div>
 
         <!-- 门后的浩瀚宇宙（真实神庙照片 · 门洞透出星云） -->
         <!-- 神庙大图用 <img> 承载并由 JS 在首帧后加载：
@@ -88,7 +88,7 @@
             <button class="btn btn-ghost btn-sm" id="btn-skip-intro" data-i18n="跳过片头，直接认领">跳过片头，直接认领</button>
             <button class="btn btn-ghost btn-sm" id="btn-sky-teaser" data-i18n="先探索真实星空">先探索真实星空 ↗</button>
             <button class="btn btn-ghost btn-sm" id="btn-resume" data-i18n="继续我的星空">继续我的星空</button>
-            <button class="btn btn-ghost btn-sm" id="btn-mine-home" data-i18n="我的星球 · 随时查阅" style="display:none">我的星球 · 随时查阅 ✦</button>
+            <button class="btn btn-ghost btn-sm" id="btn-mine-home" data-i18n="我的星球 · 随时查阅 ✦" style="display:none">我的星球 · 随时查阅 ✦</button>
           </div>
         </div>
         <div class="flash"></div>
@@ -361,16 +361,16 @@
 
   <!-- 移动端底部导航（桌面端隐藏）：保证手机上也能在各大板块间切换 -->
   <nav class="bottom-nav" id="bottom-nav" aria-label="底部导航">
-    <button class="bn-item" data-go="home" type="button"><span class="bn-ico">✦</span><span>序章</span></button>
-    <button class="bn-item" data-go="universe" type="button"><span class="bn-ico">✶</span><span>认星</span></button>
-    <button class="bn-item" data-go="explore" type="button"><span class="bn-ico">✺</span><span>星空</span></button>
-    <button class="bn-item" data-go="share" type="button"><span class="bn-ico">❖</span><span>星图</span></button>
+    <button class="bn-item" data-go="home" type="button"><span class="bn-ico">✦</span><span data-i18n="序章">序章</span></button>
+    <button class="bn-item" data-go="universe" type="button"><span class="bn-ico">✶</span><span data-i18n="认星">认星</span></button>
+    <button class="bn-item" data-go="explore" type="button"><span class="bn-ico">✺</span><span data-i18n="星空">星空</span></button>
+    <button class="bn-item" data-go="share" type="button"><span class="bn-ico">❖</span><span data-i18n="星图">星图</span></button>
     <button class="bn-item" data-go="premium" type="button"><span class="bn-ico">◈</span><span data-i18n="即将上线">即将上线</span></button>
-    <button class="bn-item bn-mine" id="bn-mine" type="button"><span class="bn-ico">⚑</span><span>我的星</span></button>
+    <button class="bn-item bn-mine" id="bn-mine" type="button"><span class="bn-ico">⚑</span><span data-i18n="我的星">我的星</span></button>
   </nav>
 
   <div id="toast" class="toast"></div>
 
-  <script type="module" src="js/app.js?v=20261031"></script>
+  <script type="module" src="js/app.js?v=20261032"></script>
 </body>
 </html>
