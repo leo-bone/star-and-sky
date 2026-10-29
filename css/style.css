@@ -267,15 +267,19 @@ body{
 .share-note{color:var(--muted);font-size:12px;margin-top:14px;line-height:1.7}
 
 /* 高级版 · 星之周边（即将上线，数据层已预留 premium 字段） */
-.premium-block{margin-top:22px;padding:14px 16px;border-radius:12px;
-  border:1px solid rgba(207,168,106,.18);
-  background:linear-gradient(135deg, rgba(207,168,106,.05), rgba(138,107,255,.03));
-  text-align:left}
-.premium-head h3{font-family:"Noto Serif SC",serif;font-size:15px;margin-bottom:4px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.premium-page{max-width:720px;margin:0 auto;padding:8px 4px;text-align:center}
+.premium-block{margin-top:22px;padding:22px 20px;border-radius:16px;
+  border:1px solid rgba(207,168,106,.22);
+  background:linear-gradient(135deg, rgba(207,168,106,.06), rgba(138,107,255,.04));
+  text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.45), inset 0 0 60px rgba(10,30,80,.4)}
+.premium-head{margin-bottom:18px}
+.cs-eyebrow{display:inline-block;font-family:"Space Grotesk",sans-serif;font-size:11px;letter-spacing:4px;font-weight:700;
+  color:#08101f;background:linear-gradient(120deg,var(--gold),#ffe9b0);padding:5px 16px;border-radius:999px;margin-bottom:12px}
+.premium-head h3{font-family:"Noto Serif SC",serif;font-size:22px;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;color:#f3e9d2}
 .premium-tag{font-family:"Space Grotesk";font-size:10px;letter-spacing:1px;color:#08101f;font-weight:700;
   background:linear-gradient(120deg,var(--gold),#ffe9b0);padding:3px 9px;border-radius:999px}
-.premium-head p{color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:10px}
-.premium-items{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:7px;margin-bottom:10px}
+.premium-head p{color:var(--muted);font-size:13px;line-height:1.7;margin-bottom:0;max-width:520px;margin-left:auto;margin-right:auto}
+.premium-items{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin:0 auto 16px;max-width:560px}
 .pi{display:flex;flex-direction:column;gap:2px;padding:9px 10px;border-radius:10px;
   background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}
 .pi-ico{font-size:18px;line-height:1}
@@ -444,6 +448,14 @@ body{
   .toast{bottom:calc(88px + env(safe-area-inset-bottom))}
   /* 窄屏：云端提示允许换行，避免溢出 */
   .sky-cloud-note{white-space:normal;max-width:90vw;text-align:center}
+  /* 移动端星空信息框：缩小尺寸，避免遮挡中心星球与参数 */
+  .sky-info{left:12px;bottom:16px;min-width:0;max-width:62vw;padding:10px 12px}
+  .si-name{font-size:16px;letter-spacing:.5px}
+  .si-desig,.si-no,.si-coord{font-size:11px;margin-top:2px}
+  .si-grid{margin-top:8px;gap:6px}
+  .si-grid span{font-size:9px;letter-spacing:.5px}
+  .si-grid b{font-size:13px}
+  .si-msg{padding:8px 10px;margin-top:8px}
 }
 
 @media (max-width:520px){
@@ -459,6 +471,11 @@ body{
   #screen-share{padding-left:16px;padding-right:16px}
   .wall{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
   .home-title{letter-spacing:3px}
+  /* 小屏进一步压缩信息框，保证“视星等/距离”两格完整可见 */
+  .sky-info{max-width:58vw;padding:8px 10px;left:10px;bottom:12px}
+  .si-name{font-size:15px}
+  .si-grid{gap:5px}
+  .si-grid b{font-size:12px}
 }
 
 /* ================= 电影开场 · 楚门的世界 · 一扇门 ================= */

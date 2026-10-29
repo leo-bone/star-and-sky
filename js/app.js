@@ -292,7 +292,7 @@ function populateUniverse(star){
   ];
   box.innerHTML = GROUPS.map(g=>{
     const rows = g.keys.filter(k=>map.has(k)).map(k=>
-      `<div class="sp"><span>${k}</span><b>${map.get(k)}</b></div>`).join('');
+      `<div class="sp"><span>${t(k)}</span><b>${map.get(k)}</b></div>`).join('');
     if (!rows) return '';
     return `<div class="sp-group"><div class="sp-group-title">${g.title}</div><div class="sp-grid">${rows}</div></div>`;
   }).join('');

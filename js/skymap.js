@@ -3,7 +3,7 @@
 //       平移缩放/图层开关/真实行星实时位置/点击好友星打开其星页
 import { planetPositions } from './planets.js';
 import { loadCatalog } from './catalog.js';
-import { t } from './i18n.js';
+import { t, getLang } from './i18n.js';
 
 const CON_NAMES = {
   And:'仙女座',Ant:'唧筒座',Aps:'天燕座',Aql:'天鹰座',Aqr:'宝瓶座',Ara:'天坛座',Ari:'白羊座',
@@ -20,6 +20,28 @@ const CON_NAMES = {
   Tel:'望远镜座',Tri:'三角座',TrA:'南三角座',Tuc:'杜鹃座',UMa:'大熊座',UMi:'小熊座',Vel:'船帆座',
   Vir:'室女座',Vol:'飞鱼座',Vul:'狐狸座'
 };
+
+// IAU 标准英文名（拉丁名，即英文通用名），用于英文模式下的星座标注
+const CON_NAMES_EN = {
+  And:'Andromeda',Ant:'Antlia',Aps:'Apus',Aql:'Aquila',Aqr:'Aquarius',Ara:'Ara',Ari:'Aries',
+  Aur:'Auriga',Boo:'Boötes',Cae:'Caelum',Cam:'Camelopardalis',Cnc:'Cancer',CVn:'Canes Venatici',
+  CMa:'Canis Major',Cmi:'Canis Minor',Cap:'Capricornus',Car:'Carina',Cas:'Cassiopeia',Cen:'Centaurus',
+  Cep:'Cepheus',Cet:'Cetus',Cha:'Chamaeleon',Cir:'Circinus',Col:'Columba',Com:'Coma Berenices',
+  CrA:'Corona Australis',CrB:'Corona Borealis',Crv:'Corvus',Crt:'Crater',Cru:'Crux',Cyg:'Cygnus',
+  Del:'Delphinus',Dor:'Dorado',Dra:'Draco',Equ:'Equuleus',Eri:'Eridanus',For:'Fornax',Gem:'Gemini',
+  Gru:'Grus',Her:'Hercules',Hor:'Horologium',Hya:'Hydra',Hyi:'Hydrus',Ind:'Indus',Lac:'Lacerta',
+  Leo:'Leo',LMi:'Leo Minor',Lep:'Lepus',Lib:'Libra',Lup:'Lupus',Lyn:'Lynx',Lyr:'Lyra',Men:'Mensa',
+  Mic:'Microscopium',Mon:'Monoceros',Mus:'Musca',Nor:'Norma',Oct:'Octans',Oph:'Ophiuchus',Ori:'Orion',
+  Pav:'Pavo',Peg:'Pegasus',Per:'Perseus',Phe:'Phoenix',Pic:'Pictor',PsA:'Piscis Austrinus',Pyx:'Pyxis',
+  Ret:'Reticulum',Sge:'Sagitta',Sgr:'Sagittarius',Sco:'Scorpius',Scl:'Sculptor',Sct:'Scutum',Ser:'Serpens',
+  Sex:'Sextans',Tau:'Taurus',Tel:'Telescopium',Tri:'Triangulum',TrA:'Triangulum Australe',Tuc:'Tucana',
+  UMa:'Ursa Major',UMi:'Ursa Minor',Vel:'Vela',Vir:'Virgo',Vol:'Volans',Vul:'Vulpecula'
+};
+
+// 按当前语言返回星座名：中文用 CON_NAMES，英文用 CON_NAMES_EN（IAU 拉丁名）
+function conName(code){
+  return getLang() === 'en' ? (CON_NAMES_EN[code] || code) : (CON_NAMES[code] || code);
+}
 
 function bvColor(bv){
   if (bv == null) return [255,255,255];
@@ -192,7 +214,7 @@ export function initSkyMap(container, opts = {}){
       bctx.fillStyle = `rgba(176,194,238,${nameAlpha.toFixed(3)})`;
       bctx.font = `${nameSize}px "Noto Sans SC", sans-serif`; bctx.textAlign='center';
       for (const feat of constellations.features){
-        const ab = feat.id; const nm = CON_NAMES[ab]; if(!nm) continue;
+        const ab = feat.id; const nm = conName(ab); if(!nm) continue;
         let sx=0, sy=0, n=0;
         for (const seg of feat.geometry.coordinates) for (const pt of seg){
           const cr=Math.cos(pt[0]*Math.PI/180), sr=Math.sin(pt[0]*Math.PI/180);
@@ -254,7 +276,7 @@ export function initSkyMap(container, opts = {}){
         // 标签
         const label = selected.owner_name && selected.type==='friend'
           ? `${selected.name} · ${selected.owner_name}`
-          : (selected.label || selected.name || '我的星');
+          : (selected.label || selected.name || t('我的星'));
         ctx.font='bold 13px "Noto Sans SC", sans-serif';
         const w = ctx.measureText(label).width + 16;
         ctx.fillStyle='rgba(10,16,34,0.86)';
@@ -348,17 +370,17 @@ export function initSkyMap(container, opts = {}){
   function buildInfo(s){
     const parts=[];
     if (s.desig) parts.push(s.desig);
-    if (s.con){ const cn = CON_NAMES[s.con] || s.con; if (cn) parts.push(cn); }
+    if (s.con){ const cn = conName(s.con); if (cn) parts.push(cn); }
     const raH=Math.floor(s.ra/15), raM=Math.floor((s.ra/15-raH)*60);
     const sign=s.dec>=0?'+':'−', ad=Math.abs(s.dec);
     const decD=Math.floor(ad), decM=Math.floor((ad-decD)*60);
     return {
-      name: s.label||s.name||'我的星',
+      name: s.label||s.name||t('我的星'),
       desig: parts.join(' · '),
       no: s.no || (s.desig || ''),
       coord: `RA ${raH}h${String(raM).padStart(2,'0')}m  Dec ${sign}${decD}°${String(decM).padStart(2,'0')}′`,
       mag: s.mag!=null?s.mag.toFixed(2):'—',
-      dist: s.d!=null? (s.dr? s.d+' 光年' : '≈'+s.d+' 光年') : '—',
+      dist: s.d!=null? (s.dr? '' : '≈') + s.d + t('光年') : '—',
       message: s.message || '',
       owner_name: s.owner_name || '',
       ra: s.ra, dec: s.dec

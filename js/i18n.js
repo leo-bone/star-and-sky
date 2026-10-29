@@ -225,6 +225,20 @@ const EN = {
   '它的光，出发时世界还很年轻。':'Its light set out when the world was young.',
   '你与它的相遇，是宇宙级别的巧合。':'Your meeting with it is a cosmic coincidence.',
   '它不属于任何机构，此刻它属于你。':'It belongs to no institution; right now it is yours.',
+  // ---- 星座（证书/星空页值，IAU 标准英文名）----
+  '猎户座':'Orion', '天琴座':'Lyra', '仙女座':'Andromeda', '天蝎座':'Scorpius',
+  '大熊座':'Ursa Major', '小熊座':'Ursa Minor', '天鹰座':'Aquila', '天鹅座':'Cygnus',
+  '武仙座':'Hercules', '英仙座':'Perseus', '双子座':'Gemini', '狮子座':'Leo',
+  '室女座':'Virgo', '天秤座':'Libra', '麒麟座':'Monoceros', '船底座':'Carina',
+  '御夫座':'Auriga', '北冕座':'Corona Borealis', '蛇夫座':'Ophiuchus', '长蛇座':'Hydra',
+  // ---- 大气气体成分（证书/宇宙页值）----
+  '氢 H':'H', '氦 He':'He', '氧 O₂':'O₂', '氮 N₂':'N₂', '二氧化碳 CO₂':'CO₂',
+  '甲烷 CH₄':'CH₄', '氨 NH₃':'NH₃', '水蒸气 H₂O':'H₂O', '氖 Ne':'Ne',
+  // ---- 证书/星空页补充 ----
+  '注册时间 UTC':'Registered (UTC)',
+  '星案特册 注册星球':'STAR ARCHIVE',
+  // ---- 单位（距离/自转）----
+  '光年':' ly', '小时':'h', '天':'d',
 };
 
 let currentLang = (typeof localStorage !== 'undefined' && localStorage.getItem('star-sky-lang')) || 'zh';

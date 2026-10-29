@@ -5,6 +5,7 @@ import { hashString, mulberry32 } from './rng.js';
 import { shareLink, encodeStar, qrLinkForStar } from './share.js';
 import { getBodySurface, uvFromDir } from './bodyTexture.js';
 import { t } from './i18n.js';
+import { localizedSpecName } from './starData.js';
 
 // ===== 画布：9:12 竖版（3:4）=====
 const DW = 1240, DH = 1653;   // 设计尺寸（3:4）
@@ -208,7 +209,7 @@ function drawTitle(ctx){
   setFont(ctx, '700 66px "Noto Serif SC", serif');
   ctx.fillStyle = C.gold;
   ctx.letterSpacing = '6px';
-  ctx.fillText('星球认领证书', cx, 170);
+  ctx.fillText(t('星球认领证书'), cx, 170);
   ctx.letterSpacing = '0px';
   // 英文副标题：微调放大
   setFont(ctx, '400 20px "Cormorant Garamond", "Times New Roman", serif');
@@ -487,10 +488,10 @@ function drawInfoCard(ctx, card, star, kd){
   ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
   let y = y0 + 62;
   setFont(ctx, '500 16px "Noto Serif SC", serif'); ctx.fillStyle = P.label; ctx.letterSpacing = '3px';
-  ctx.fillText('兹证明 · 此星已被正式认领', cx, y); ctx.letterSpacing = '0px';
+  ctx.fillText(t('兹证明 · 此星已被正式认领'), cx, y); ctx.letterSpacing = '0px';
   y += 36;
   setFont(ctx, '500 13px "Noto Serif SC", serif'); ctx.fillStyle = P.label; ctx.letterSpacing = '2px';
-  ctx.fillText('星球名称', cx, y); ctx.letterSpacing = '0px';
+  ctx.fillText(t('星球名称'), cx, y); ctx.letterSpacing = '0px';
   y += 44;
   setFont(ctx, '700 44px "Noto Serif SC", serif'); ctx.fillStyle = P.name;   // 核心：最大字号
   ctx.fillText(star.name || '—', cx, y);
@@ -500,7 +501,7 @@ function drawInfoCard(ctx, card, star, kd){
   const showDesig = star.designation && star.designation !== star.name;
   if (showDesig){
     setFont(ctx, '500 12px "Noto Serif SC", serif'); ctx.fillStyle = P.label; ctx.letterSpacing = '2px';
-    ctx.fillText('国际命名', cx, y); ctx.letterSpacing = '0px';
+    ctx.fillText(t('国际命名'), cx, y); ctx.letterSpacing = '0px';
     y += 26;
     setFont(ctx, '400 17px "Space Grotesk", monospace'); ctx.fillStyle = P.name;
     ctx.fillText(star.designation || star.catalogNo || '—', cx, y);
@@ -509,10 +510,10 @@ function drawInfoCard(ctx, card, star, kd){
     y += 22;
   }
   setFont(ctx, '500 13px "Noto Serif SC", serif'); ctx.fillStyle = P.label; ctx.letterSpacing = '2px';
-  ctx.fillText('注册人', cx, y); ctx.letterSpacing = '0px';
+  ctx.fillText(t('注册人'), cx, y); ctx.letterSpacing = '0px';
   y += 40;
   setFont(ctx, '700 32px "Noto Serif SC", serif'); ctx.fillStyle = P.name;   // 第二层级
-  ctx.fillText((kd && kd.ruler) || '星际公民', cx, y);
+  ctx.fillText((kd && kd.ruler) || t('星际公民'), cx, y);
   y += 18;
   ctx.strokeStyle = P.gold; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(cx - 110, y); ctx.lineTo(cx + 110, y); ctx.stroke();
@@ -605,10 +606,10 @@ function drawParamTable(ctx, card, y, star){
   const cx = card.x0 + card.w/2;
   const colL = card.x0 + 90;
   const colR = cx + 60;
-  const left = [['赤经 RA', raStr(star)], ['赤纬 Dec', decStr(star)],
-                ['视星等', magStr(star)], ['注册时间 UTC', claimDateTime()]];
-  const right = [['光谱类型', specStr(star)], ['距离地球', distStr(star)],
-                 ['所属星座', star.constellation || '—'], ['证书编号', star.registry || star.catalogNo || '—']];
+  const left = [[t('赤经 RA'), raStr(star)], [t('赤纬 Dec'), decStr(star)],
+                [t('视星等'), magStr(star)], [t('注册时间 UTC'), claimDateTime()]];
+  const right = [[t('光谱类型'), specStr(star)], [t('距离地球'), distStr(star)],
+                 [t('所属星座'), t(star.constellation || '—')], [t('证书编号'), star.registry || star.catalogNo || '—']];
   const rowH = 32;
   // 中缝极淡竖线
   ctx.save(); ctx.strokeStyle = 'rgba(200,168,110,0.30)'; ctx.lineWidth = 1;
@@ -642,8 +643,8 @@ function drawFooter(ctx, star, kd){
 
   ctx.save(); ctx.textAlign = 'center'; ctx.fillStyle = C.gold;
   setFont(ctx, 'italic 400 20px "Noto Serif SC", serif');
-  ctx.fillText('仰望星辰，不是为了拥有，', 620, 1552);
-  ctx.fillText('而是为了让记忆在宇宙中有坐标。', 620, 1586);
+  ctx.fillText(t('仰望星辰，不是为了拥有，'), 620, 1552);
+  ctx.fillText(t('而是为了让记忆在宇宙中有坐标。'), 620, 1586);
   ctx.restore();
 
   let link = '';
@@ -660,7 +661,7 @@ function drawSeal(ctx, cx, cy, r, star){
   ctx.globalAlpha = 1;
 
   drawArcText(ctx, 'PLANET REGISTRY', cx, cy, r - 20, Math.PI*1.18, Math.PI*1.82, false);
-  drawArcText(ctx, '星案特册 注册星球', cx, cy, r - 20, Math.PI*0.20, Math.PI*0.80, true);
+  drawArcText(ctx, t('星案特册 注册星球'), cx, cy, r - 20, Math.PI*0.20, Math.PI*0.80, true);
 
   ctx.save(); ctx.translate(cx, cy); ctx.rotate(-0.4);
   ctx.strokeStyle = C.gold; ctx.globalAlpha = 0.85; ctx.lineWidth = 1.6;
@@ -699,7 +700,7 @@ function drawQR(ctx, cx, cy, size, link){
   }
   ctx.save(); ctx.textAlign = 'center'; ctx.fillStyle = C.gold; ctx.globalAlpha = 0.9;
   setFont(ctx, '400 13px "Noto Serif SC", serif');
-  ctx.fillText('扫码分享这颗星球记录', cx, cy + size / 2 + 22);
+  ctx.fillText(t('扫码分享这颗星球记录'), cx, cy + size / 2 + 22);
   ctx.restore();
 }
 
@@ -756,13 +757,13 @@ function magStr(star){
   return (mag >= 0 ? '+' : '') + Number(mag).toFixed(2);
 }
 function specStr(star){
-  const s = star.spec, n = star.specName;
+  const s = star.spec, n = localizedSpecName(star.spec, star.radiusSolar);
   if (!s && !n) return '—';
   return [s, n].filter(Boolean).join(' · ');
 }
 function distStr(star){
   const d = star.distLy; if (d == null) return '—';
-  return Number(d).toLocaleString('en-US') + ' ly';
+  return (star.dr ? '' : '≈') + Number(d).toLocaleString('en-US') + ' ly';
 }
 
 function claimDateTime(){

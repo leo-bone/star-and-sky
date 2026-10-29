@@ -39,16 +39,18 @@ const CONSTELLATIONS = [
 ];
 
 // 光谱型→中文名：同一光谱型按推算半径区分光度级（矮星/巨星/超巨星），
-// 避免把红超巨星（如参宿四）错标为“红矮星”这类天文错误
-function spectralName(spec, radiusSolar){
-  const base = SPECTRAL[spec] ? t(SPECTRAL[spec].name) : t('恒星');
+// 避免把红超巨星（如参宿四）错标为“红矮星”这类天文错误。
+// 这里只产出“原始中文键”，展示时由 localizedSpecName 按当前语言翻译，保证切换语言即时生效。
+function spectralNameRaw(spec, radiusSolar){
+  const base = SPECTRAL[spec] ? SPECTRAL[spec].name : '恒星';
   const r = radiusSolar || 0;
-  if (spec === 'M'){ if (r > 50) return t('红超巨星'); if (r > 10) return t('红巨星'); return t('红矮星'); }
-  if (spec === 'K'){ if (r > 20) return t('橙巨星'); return t('橙矮星'); }
-  if (spec === 'G'){ if (r > 15) return t('黄巨星'); return t('类太阳黄星'); }
-  if (spec === 'F'){ if (r > 20) return t('黄白巨星'); return t('黄白星'); }
+  if (spec === 'M'){ if (r > 50) return '红超巨星'; if (r > 10) return '红巨星'; return '红矮星'; }
+  if (spec === 'K'){ if (r > 20) return '橙巨星'; return '橙矮星'; }
+  if (spec === 'G'){ if (r > 15) return '黄巨星'; return '类太阳黄星'; }
+  if (spec === 'F'){ if (r > 20) return '黄白巨星'; return '黄白星'; }
   return base;
 }
+export function localizedSpecName(spec, radiusSolar){ return t(spectralNameRaw(spec, radiusSolar)); }
 
 // 拜耳命名希腊字母（IAU 标准 24 个）；早期字母更稀有，符合真实星表分布
 const GREEK = ['α','β','γ','δ','ε','ζ','η','θ','ι','κ','λ','μ','ν','ξ','ο','π','ρ','σ','τ','υ','φ','χ','ψ','ω'];
@@ -205,7 +207,7 @@ function genPlanet(rng, answers, sizeFactor){
   const tr = { terran:[200,330], desert:[280,520], ice:[60,210], gas:[90,560] }[pt];
   const pTemp = Math.round(rand(rng,tr[0],tr[1]));
   const a = atmoStr(rng, pt);
-  return { planetType:pt, planetTypeName:t(def.name), planetDesc:t(def.desc),
+  return { planetType:pt, planetTypeName:def.name, planetDesc:t(def.desc), // 类型名存原始中文键，展示时按语言翻译
     pColor1:def.c1, pColor2:def.c2, pColor3:def.c3, pAtmo:def.atmo,
     pRadiusEarth:rE, pDiameterKm:diameterKm, pMassEarth:massEarth,
     pTemp, pAtmoStr:a.str, oxygen:a.oxygen, atmoComp:a.comp, gravity };
@@ -257,7 +259,7 @@ export function generateStar(answers, salt = 0){
 
   let constellation;
   const beliefKey = answers.beliefs || 'explore';
-  const galaxy = t(pick(rng, MILKY_GALAXIES[beliefKey] || MILKY_GALAXIES.explore));
+  const galaxy = pick(rng, MILKY_GALAXIES[beliefKey] || MILKY_GALAXIES.explore); // 存原始中文键，展示时再按语言翻译
   const sizeFactor = sizeFromPersonality(answers.personality);
   const registry = 'RX' + String((Math.abs(seed) % 1000000)).padStart(6, '0');
 
@@ -291,7 +293,8 @@ export function generateStar(answers, salt = 0){
     const cat = makeDesignations(r2, cstDef, raVal, decVal);
     hd = cat.hd; hip = cat.hip; desig = cat.desig; designation = cat.jname + ' · ' + cat.desig;
     name = makeName(r2); catalogNo = cat.catalogNo;
-    distance = randInt(r2, 4, 48000).toLocaleString() + ' 光年'; distLy = null; dr = 0;
+    const synD = randInt(r2, 4, 48000);
+    distance = synD.toLocaleString() + ' 光年'; distLy = synD; dr = 0; // 合成星：给出可行的展示距离（≈）
     constellation = cstDef.zh;
   }
 
@@ -316,10 +319,13 @@ export function generateStar(answers, salt = 0){
   }
 
   // 按真实推算半径修正光谱中文名（光度级），避免红超巨星被错标为红矮星
-  specName = spectralName(spec, radiusSolar);
+  specName = spectralNameRaw(spec, radiusSolar);
 
   const age = +rand(rng, 0.6, 12.8).toFixed(1);
-  const rotation = (rng() > .5) ? (rand(rng, 6, 200)).toFixed(1) + ' 小时' : (rand(rng, 1, 90)).toFixed(1) + ' 天';
+  const rotIsDays = rng() > .5;
+  const rotVal = (rotIsDays ? rand(rng, 1, 90) : rand(rng, 6, 200)).toFixed(1);
+  const rotation = rotVal + (rotIsDays ? ' 天' : ' 小时'); // 兼容旧字段；rotVal/rotUnit 供展示时按语言翻译
+  const rotationVal = rotVal, rotationUnit = rotIsDays ? '天' : '小时';
   const planets = randInt(rng, 0, 11);
   const moons = randInt(rng, 0, 42);
 
@@ -342,7 +348,7 @@ export function generateStar(answers, salt = 0){
 
   const base = { name, catalogNo, desig, jname: designation, hd, hip, designation,
     form:'star', constellation, ra:raVal, dec:decVal, coord, coordShort, mag,
-    galaxy, distance, belief:beliefKey, age, rotation, planets, moons, trait, flavor,
+    galaxy, distance, belief:beliefKey, age, rotation, rotationVal, rotationUnit, planets, moons, trait, flavor,
     realStar: !!real, registry, distLy, dr };
 
   const a = genStarAtmo(rng);
@@ -350,25 +356,44 @@ export function generateStar(answers, salt = 0){
     massSolar, luminosity, gravity, comp:a.comp, compStr:a.compStr, oxygen:a.oxygen };
 }
 
-// 参数 → 用于展示的扁平列表（按形态区分）
+// 参数 → 用于展示的扁平列表（按形态区分）。
+// 注意：这里在“展示时”才调用 t() 翻译，因此生成后切换语言也能即时生效，
+// 不再依赖生成那一刻的语言环境（避免“中文星”切到英文仍显示中文）。
+function fmtDist(s){
+  if (s.distLy != null){
+    return (s.dr ? '' : '≈') + Number(s.distLy).toLocaleString() + t('光年');
+  }
+  // 兜底：合成星等没有 distLy，翻译已生成字符串里的单位
+  return (s.distance || '—').replace(/光年/g, t('光年').trim());
+}
+function fmtComp(s){
+  const arr = s.comp || s.atmoComp || [];
+  if (!arr.length) return '—';
+  return arr.map(c => `${t(c.gas)} ${c.pct}%`).join(' · ');
+}
+function fmtRotation(s){
+  const v = s.rotationVal != null ? s.rotationVal : (s.rotation || '').replace(/[^\d.]/g, '');
+  if (!v) return '—';
+  return v + ' ' + t(s.rotationUnit || '天');
+}
 export function starParamList(s){
   if (s.form === 'planet'){
     return [
       ['天体编号', s.catalogNo],
       ['国际命名', s.designation],
       ['星表编号', s.hd],
-      ['行星类型', s.planetTypeName],
+      ['行星类型', t(s.planetTypeName)],
       ['表面温度', s.pTemp.toLocaleString() + ' K'],
       ['直径', s.pDiameterKm.toLocaleString() + ' km'],
       ['质量', s.pMassEarth + ' M⊕'],
       ['表面重力', s.gravity + ' g'],
-      ['距地球', s.distance],
-      ['所属星系', s.galaxy],
-      ['所在星座', s.constellation],
+      ['距地球', fmtDist(s)],
+      ['所属星系', t(s.galaxy)],
+      ['所在星座', t(s.constellation)],
       ['天球坐标', s.coord],
-      ['大气构成', s.compStr],
+      ['大气构成', fmtComp(s)],
       ['含氧量', s.oxygen + ' %'],
-      ['自转周期', s.rotation],
+      ['自转周期', fmtRotation(s)],
       ['卫星数量', s.moons + ' 颗'],
       ['星龄', s.age + ' 亿年']
     ];
@@ -377,19 +402,19 @@ export function starParamList(s){
     ['恒星编号', s.catalogNo],
     ['国际命名', s.designation],
     ['星表编号', s.hd],
-    ['光谱类型', `${s.spec} 型 · ${s.specName}`],
+    ['光谱类型', `${s.spec} 型 · ${localizedSpecName(s.spec, s.radiusSolar)}`],
     ['表面温度', s.temp.toLocaleString() + ' K'],
     ['直径', s.diameterKm.toLocaleString() + ' km'],
     ['质量', s.massSolar + ' M☉'],
     ['光度', s.luminosity + ' L☉'],
-    ['距地球', s.distance],
-    ['所属星系', s.galaxy],
-    ['所在星座', s.constellation],
+    ['距地球', fmtDist(s)],
+    ['所属星系', t(s.galaxy)],
+    ['所在星座', t(s.constellation)],
     ['天球坐标', s.coord],
-    ['物质构成', s.compStr],
+    ['物质构成', fmtComp(s)],
     ['含氧量', s.oxygen + ' %'],
     ['表面重力', s.gravity + ' g'],
-    ['自转周期', s.rotation],
+    ['自转周期', fmtRotation(s)],
     ['行星数量', s.planets + ' 颗'],
     ['卫星数量', s.moons + ' 颗'],
     ['星龄', s.age + ' 亿年']
