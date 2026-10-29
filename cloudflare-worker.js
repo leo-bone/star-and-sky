@@ -52,8 +52,13 @@ async function handleRequest(request) {
   }
 
   // —— 其余（前端静态资源）：从 GitHub Pages 取 ——
+  // 静态资源已自带 ?v= 版本号（每次部署变更），这里再补 no-cache，
+  // 让浏览器/边缘每次重新校验，避免“部署了却看不到更新”。
   const target = PAGES + src.pathname + src.search;
-  return await fetch(target, {
+  const resp = await fetch(target, {
     method: request.method, headers: request.headers, redirect: "follow"
   });
+  const outH = new Headers(resp.headers);
+  outH.set("Cache-Control", "no-cache");
+  return new Response(resp.body, { status: resp.status, statusText: resp.statusText, headers: outH });
 }
