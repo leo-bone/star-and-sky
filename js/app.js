@@ -1,15 +1,15 @@
 // 3D 宇宙背景依赖 three.js（CDN）+ WebGL；改为动态 import，
 // 即使 CDN 抽风或 WebGL 不可用，也只是降级为空操作，绝不拖垮整站（开门/问答/证书照常）
-import { initQuiz } from './quiz.js?v=20261035';
-import { generateStar, starParamList } from './starData.js?v=20261035';
-import { initKingdom } from './kingdom.js?v=20261035';
-import { initCertificate } from './certificate.js?v=20261035';
-import { encodeStar, shareLink, copyText, parseCodeFromURL, decodeStar } from './share.js?v=20261035';
-import { starKey, pushStar, listStars, addMessage, listMessages, nameTaken, getStarByKey, ownerIdExists, catalogTaken } from './cloud.js?v=20261035';
-import { initSkyMap } from './skymap.js?v=20261035';
-import { loadCatalog } from './catalog.js?v=20261035';
-import { t, getLang, setLang, applyI18n, initLangToggle } from './i18n.js?v=20261035';
-import { isMinted, getMint, connectWallet, mint, getAddress, mintAddress } from './mint.js?v=20261035';
+import { initQuiz } from './quiz.js?v=20261036';
+import { generateStar, starParamList } from './starData.js?v=20261036';
+import { initKingdom } from './kingdom.js?v=20261036';
+import { initCertificate } from './certificate.js?v=20261036';
+import { encodeStar, shareLink, copyText, parseCodeFromURL, decodeStar } from './share.js?v=20261036';
+import { starKey, pushStar, listStars, addMessage, listMessages, nameTaken, getStarByKey, ownerIdExists, catalogTaken } from './cloud.js?v=20261036';
+import { initSkyMap } from './skymap.js?v=20261036';
+import { loadCatalog } from './catalog.js?v=20261036';
+import { t, getLang, setLang, applyI18n, initLangToggle } from './i18n.js?v=20261036';
+import { isMinted, getMint, connectWallet, mint, getAddress, mintAddress } from './mint.js?v=20261036';
 
 const SESSION_KEY = 'star-sky-session-v1';
 const CLAIM_KEY = 'star-sky-claim-v1';   // 已认领星球（与问答进度分离，独立持久化，刷新/重开不丢失）
@@ -55,7 +55,7 @@ function getDeviceId(){
 // 3D 宇宙背景依赖 three.js（CDN）+ WebGL；若不可用则降级为空操作桩，绝不因此拖垮整站
 const NULL_UNIVERSE = { setStar(){}, showHero(){}, hideHero(){}, setControl(){}, setFocus(){}, setActive(){} };
 let universe = NULL_UNIVERSE;
-import('./universe.js?v=20261035').then(m => {
+import('./universe.js?v=20261036').then(m => {
   try { universe = m.initUniverse(document.getElementById('cosmos')); }
   catch (e) { console.warn('3D 宇宙背景初始化失败，已降级为静态背景', e); }
 }).catch(e => console.warn('3D 宇宙背景模块加载失败（CDN/WebGL），已降级为空操作', e));
@@ -64,7 +64,7 @@ const card = initCertificate();
 // 3D 星球视口依赖 three.js（CDN）；若不可用则降级为空操作桩，绝不拖垮整站
 const NULL_PLANET3D = { setStar(){}, show(){}, hide(){}, resize(){} };
 let planet3d = NULL_PLANET3D;
-import('./planet3d.js?v=20261035').then(m => {
+import('./planet3d.js?v=20261036').then(m => {
   try {
     planet3d = m.initPlanet3D(document.getElementById('planet-canvas'));
     if (currentStar && screens.universe && screens.universe.classList.contains('active')){
@@ -286,7 +286,9 @@ quizCtl = initQuiz({
 });
 
 function populateUniverse(star){
-  document.getElementById('uni-flavor').textContent = t(star.flavor);
+  const uf = document.getElementById('uni-flavor');
+  uf.setAttribute('data-i18n', star.flavor);   // 同步文案键，语言切换时由 applyI18n 重译
+  uf.textContent = t(star.flavor);
   const box = document.getElementById('star-params');
   const map = new Map(starParamList(star));
   // 三组呈现，清爽不挤：基础信息 / 物理参数 / 天体坐标
@@ -324,12 +326,23 @@ async function generateUniqueStar(answers){
 }
 
 // ---------- 认领 ----------
+// 认星页「认领星球」：直接认领（免费路径，无需钱包 / 不进建国页），立即生成证书与云端记录
 document.getElementById('btn-claim').addEventListener('click', ()=>{
   if (hasClaim()){ openMyStar(); return; }   // 已认领：不重复认领，直接打开自己的星
-  const saved = loadSession();
-  if (saved && saved.kingdom) kingdom.restore(saved.kingdom);
-  go('claim');
+  directClaim();
 });
+
+// 直接认领：以星体自动星名一键认领，跳过取名 / 立法 / 旗帜 / 铸造，证书照常生成
+async function directClaim(){
+  if (hasClaim()){ openMyStar(); return; }
+  let name = currentStar.name || currentStar.designation || t('我的星');
+  // 自动星名若与他人重名（数据库 lower(name) 唯一），用注册号后缀去重，避免卡死
+  try { if (await nameTaken(name)) name = name + ' ' + (currentStar.registry || '').replace(/\D/g, '').slice(-4); } catch(e){}
+  if (!(await claimAllowed(name))) return;
+  // 把星名写入王国名，使免费证书信息完整
+  const kn = document.getElementById('kingdom-name'); if (kn) kn.value = name;
+  await commitClaim(name);
+}
 
 // 认星页「命名并认领星球」：直达建国页（取名 / 立法 / 旗帜 / 铸造）
 document.getElementById('btn-name-claim').addEventListener('click', ()=>{

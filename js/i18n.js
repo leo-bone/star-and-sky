@@ -46,7 +46,7 @@ const EN = {
   '星核': 'Starcore', '极光带': 'Aurora Belt', '余烬': 'Ember', '冰晶': 'Ice',
   '旗帜铭文（如：光·秩序）': 'Flag inscription (e.g. Light·Order)',
   '命名并生成星图': 'Name & generate star chart',
-  '认领星球': 'Claim star',
+  '认领星球': 'Claim Star',
   '认领并命名星球': 'Claim & name star',
   '保存': 'Save',
   '开始创造你的星球吧': 'Start creating your planet',

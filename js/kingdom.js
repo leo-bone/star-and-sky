@@ -1,6 +1,6 @@
 // 认领与王国建造：旗帜设计器 + 律法 + 议会 + 本地存储
-import { hashString, mulberry32 } from './rng.js?v=20261035';
-import { t } from './i18n.js?v=20261035';
+import { hashString, mulberry32 } from './rng.js?v=20261036';
+import { t } from './i18n.js?v=20261036';
 
 const KEY = 'star-sky-claim-v1';
 
