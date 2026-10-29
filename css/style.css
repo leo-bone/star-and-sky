@@ -477,16 +477,25 @@ html[lang="en"] .opt .sub{display:none}
   .on-premium .bottom-nav{display:none}
   /* 移动端 toast 上移，避开底部导航 */
   .toast{bottom:calc(88px + env(safe-area-inset-bottom))}
-  /* 窄屏：云端提示允许换行，避免溢出 */
-  .sky-cloud-note{white-space:normal;max-width:90vw;text-align:center}
-  /* 移动端星空信息框：缩小尺寸，避免遮挡中心星球与参数 */
-  .sky-info{left:12px;bottom:16px;min-width:0;max-width:62vw;padding:10px 12px}
+  /* 移动端：顶部工具条收紧，避免与星空挤在一起 */
+  .sky-hud{gap:8px}
+  .sky-search{width:auto;padding:6px;gap:6px}
+  .sky-search input{width:min(260px,56vw);font-size:13px}
+  .sky-tools{gap:8px}
+  .sky-layers{padding:5px;gap:4px}
+  .sky-layers .layer-btn{padding:4px 8px;font-size:11px}
+  .sky-zoom .btn-mini{width:30px;height:30px}
+  /* 信息框上移并收窄，避开底部操作条，避免与按钮重叠挤压 */
+  .sky-info{left:10px;bottom:74px;min-width:0;max-width:72vw;padding:10px 12px}
   .si-name{font-size:16px;letter-spacing:.5px}
   .si-desig,.si-no,.si-coord{font-size:11px;margin-top:2px}
   .si-grid{margin-top:8px;gap:6px}
   .si-grid span{font-size:9px;letter-spacing:.5px}
   .si-grid b{font-size:13px}
   .si-msg{padding:8px 10px;margin-top:8px}
+  /* 底部操作条：安全区避让 + 居中，按钮不换行挤压 */
+  .explore-foot{bottom:calc(16px + env(safe-area-inset-bottom));gap:10px;padding:0 10px}
+  .explore-foot .btn{padding:9px 16px;font-size:13px}
 }
 
 @media (max-width:520px){
@@ -502,11 +511,13 @@ html[lang="en"] .opt .sub{display:none}
   #screen-share{padding-left:16px;padding-right:16px}
   .wall{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
   .home-title{letter-spacing:3px}
-  /* 小屏进一步压缩信息框，保证“视星等/距离”两格完整可见 */
-  .sky-info{max-width:58vw;padding:8px 10px;left:10px;bottom:12px}
+  /* 小屏进一步压缩信息框，并上移避开底部操作条，保证“视星等/距离”两格完整可见且不挤压 */
+  .sky-info{max-width:74vw;padding:8px 10px;left:10px;bottom:70px}
   .si-name{font-size:15px}
   .si-grid{gap:5px}
   .si-grid b{font-size:12px}
+  .explore-foot{gap:8px}
+  .explore-foot .btn{padding:8px 13px;font-size:12px}
 }
 
 /* ================= 电影开场 · 楚门的世界 · 一扇门 ================= */
@@ -636,8 +647,6 @@ body.cinema-mode .topbar{transition:opacity .6s ease}
 .notes-form .btn-primary[disabled]{opacity:.5;cursor:default}
 @media (max-width:680px){.notes-form{grid-template-columns:1fr}}
 
-/* ===== 探索页：云端星提示 ===== */
-.sky-cloud-note{position:absolute;left:50%;transform:translateX(-50%);bottom:86px;color:#ffd9a0;font-size:12.5px;letter-spacing:.4px;background:rgba(10,16,32,.55);padding:6px 14px;border-radius:20px;border:1px solid rgba(245,201,123,.25);z-index:12;pointer-events:none;white-space:nowrap}
 
 /* ===== 建国页：星球寄语 ===== */
 .km-msg{width:100%;min-height:74px;resize:vertical;padding:12px 14px;border-radius:12px;background:rgba(10,16,32,.7);border:1px solid rgba(120,150,210,.25);color:#eaf0ff;font-family:inherit;font-size:14px;line-height:1.6}

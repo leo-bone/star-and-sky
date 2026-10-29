@@ -1,9 +1,9 @@
 // 真实星空图：基于真实星表的全天交互星图（赤道坐标等距投影）
 // 能力：真实恒星/星座连线/星座名/银河带/行星/用户星与好友星高亮/按名或注册号搜索定位/
 //       平移缩放/图层开关/真实行星实时位置/点击好友星打开其星页
-import { planetPositions } from './planets.js?v=20261033';
-import { loadCatalog } from './catalog.js?v=20261033';
-import { t, getLang } from './i18n.js?v=20261033';
+import { planetPositions } from './planets.js?v=20261034';
+import { loadCatalog } from './catalog.js?v=20261034';
+import { t, getLang } from './i18n.js?v=20261034';
 
 const CON_NAMES = {
   And:'仙女座',Ant:'唧筒座',Aps:'天燕座',Aql:'天鹰座',Aqr:'宝瓶座',Ara:'天坛座',Ari:'白羊座',
@@ -380,7 +380,8 @@ export function initSkyMap(container, opts = {}){
       no: s.no || (s.desig || ''),
       coord: `RA ${raH}h${String(raM).padStart(2,'0')}m  Dec ${sign}${decD}°${String(decM).padStart(2,'0')}′`,
       mag: s.mag!=null?s.mag.toFixed(2):'—',
-      dist: s.d!=null? (s.dr? '' : '≈') + s.d + t('光年') : '—',
+      // 优先用数值距离（d）；若缺失（如旧版认领码未序列化 distLy），回退到已生成的 distance 文案，避免显示“—”
+      dist: s.d!=null? (s.dr? '' : '≈') + s.d + t('光年') : (s.distance || '—'),
       message: s.message || '',
       owner_name: s.owner_name || '',
       ra: s.ra, dec: s.dec
