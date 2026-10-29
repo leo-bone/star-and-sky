@@ -385,6 +385,20 @@ html[lang="en"] .opt .sub{display:none}
   transition:.3s;pointer-events:none;backdrop-filter:blur(8px)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
+/* ---------- 证书长按保存灯箱（移动端 / 微信）---------- */
+.cert-lightbox{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:14px;padding:20px;
+  background:rgba(3,5,12,.92);backdrop-filter:blur(6px);animation:clbFade .2s ease}
+@keyframes clbFade{from{opacity:0}to{opacity:1}}
+.cert-lightbox[hidden]{display:none}
+.clb-inner{display:flex;flex-direction:column;align-items:center;gap:14px;max-width:100%}
+#cert-lightbox-img{max-width:92vw;max-height:74vh;width:auto;height:auto;border-radius:10px;
+  box-shadow:0 18px 60px rgba(0,0,0,.6);background:#05070f}
+.clb-hint{margin:0;color:#dfe6ff;font-size:13px;letter-spacing:.5px;text-align:center;
+  background:rgba(10,14,36,.7);padding:9px 16px;border-radius:999px;border:1px solid var(--line)}
+.clb-close{align-self:center}
+
+
 /* ---------- 真实星空 ---------- */
 #screen-explore{padding:0 !important;min-height:100vh;align-items:stretch;justify-content:flex-start}
 .explore-layout{position:relative;width:100%;height:100vh;overflow:hidden}

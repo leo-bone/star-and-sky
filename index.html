@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Cormorant+Garamond:wght@400;500;600&display=swap" />
-  <link rel="stylesheet" href="css/style.css?v=20261038" />
+  <link rel="stylesheet" href="css/style.css?v=20261039" />
   <!-- 字体样式表异步加载：先渲染页面，字体就绪后自动生效 -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Cormorant+Garamond:wght@400;500;600&display=swap" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Cormorant+Garamond:wght@400;500;600&display=swap" /></noscript>
@@ -379,8 +379,17 @@
     <button class="bn-item bn-mine" id="bn-mine" type="button"><span class="bn-ico">⚑</span><span data-i18n="我的星">我的星</span></button>
   </nav>
 
+  <!-- 证书长按保存灯箱：移动端/微信内 a.download 被拦截，改为内联图片长按存到手机相册 -->
+  <div class="cert-lightbox" id="cert-lightbox" hidden>
+    <div class="clb-inner" id="clb-inner">
+      <img id="cert-lightbox-img" alt="星球认领证书" />
+      <p class="clb-hint" id="clb-hint" data-i18n="长按图片即可保存到手机相册">长按图片即可保存到手机相册 ✦</p>
+      <button class="btn btn-ghost btn-sm clb-close" id="clb-close" data-i18n="关闭">关闭</button>
+    </div>
+  </div>
+
   <div id="toast" class="toast"></div>
 
-  <script type="module" src="js/app.js?v=20261038"></script>
+  <script type="module" src="js/app.js?v=20261039"></script>
 </body>
 </html>

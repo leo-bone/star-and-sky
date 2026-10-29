@@ -1,11 +1,11 @@
 // 星球认领证书 —— 单张高分辨率 canvas 绘制（按《星球认领证书｜通用视觉规范》重构）
 // 版本：9:12 竖版 · 深空档案风 · 版式骨架锁死，仅星球/名称/注册信息可变
 // 中心星球与 3D 认星页共用同一套 bodyTexture 表面，保证证书星 == 网页「认领的星星」。
-import { hashString, mulberry32 } from './rng.js?v=20261038';
-import { shareLink, encodeStar, qrLinkForStar } from './share.js?v=20261038';
-import { getBodySurface, uvFromDir } from './bodyTexture.js?v=20261038';
-import { t } from './i18n.js?v=20261038';
-import { localizedSpecName } from './starData.js?v=20261038';
+import { hashString, mulberry32 } from './rng.js?v=20261039';
+import { shareLink, encodeStar, qrLinkForStar } from './share.js?v=20261039';
+import { getBodySurface, uvFromDir } from './bodyTexture.js?v=20261039';
+import { t } from './i18n.js?v=20261039';
+import { localizedSpecName } from './starData.js?v=20261039';
 
 // ===== 画布：9:12 竖版（3:4）=====
 const DW = 1240, DH = 1653;   // 设计尺寸（3:4）
@@ -73,16 +73,46 @@ export function initCertificate(){
 
   function download(star){
     if (!canvas) return;
+    let dataUrl;
+    try { dataUrl = canvas.toDataURL('image/png'); }
+    catch (e){ toast(t('生成失败，请重试')); console.error(e); return; }
+
+    // 移动端 / 微信：a.download 被拦截 → 内联图片，用户长按保存至相册
+    const ua = navigator.userAgent || '';
+    const isTouch = /Mobi|Android|iPhone|iPad|iPod|MicroMessenger/i.test(ua)
+      || (window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+    if (isTouch){
+      const lb = document.getElementById('cert-lightbox');
+      const img = document.getElementById('cert-lightbox-img');
+      if (lb && img){
+        img.src = dataUrl;
+        lb.hidden = false;
+        toast(t('长按图片即可保存到手机相册') + ' ✦');
+        return;
+      }
+    }
+
+    // 桌面端：传统文件下载
     try {
       const link = document.createElement('a');
       link.download = `星球认领证书_${star.name}.png`;
-      link.href = canvas.toDataURL('image/png');
+      link.href = dataUrl;
       link.click();
       toast(t('星图已保存，去分享吧 ✦'));
     } catch (e){
       toast(t('生成失败，请重试'));
       console.error(e);
     }
+  }
+
+  // 长按保存灯箱：关闭 / 点击遮罩关闭
+  const lb = document.getElementById('cert-lightbox');
+  const lbInner = document.getElementById('clb-inner');
+  const lbClose = document.getElementById('clb-close');
+  if (lb){
+    const closeLb = ()=>{ lb.hidden = true; const im = document.getElementById('cert-lightbox-img'); if (im) im.src = ''; };
+    if (lbClose) lbClose.addEventListener('click', closeLb);
+    lb.addEventListener('click', (e)=>{ if (!lbInner || !lbInner.contains(e.target)) closeLb(); });
   }
 
   return { build, download };

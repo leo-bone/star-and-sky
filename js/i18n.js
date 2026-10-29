@@ -26,6 +26,8 @@ const EN = {
   '返回': 'Back',
   '返回认星': 'Back to claim', '定位我的星': 'Locate my star', '认领并命名': 'Claim & name',
   '返回认领星球': 'Back to claim star',
+  '长按图片即可保存到手机相册': 'Long-press the image to save it to your phone album',
+  '关闭': 'Close',
   // ---- 建国页 ----
   '建立你的星辰王国': 'Build Your Star Kingdom',
   '认领之后，这片天体归你统治。命名、立法、组阁、设计旗帜。': 'Once claimed, this celestial body is yours to rule. Name it, legislate, appoint, design its flag.',
