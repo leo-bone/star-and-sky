@@ -1,7 +1,7 @@
 // 建国门禁：普通用户需连接钱包并铸造「王国凭证（Kingdom Pass）」才能解锁建国。
 // 采用钱包签名（personal_sign）生成不可伪造的凭证，存于本地 + 尽力同步云端；
 // 凭证通过后才解锁旗帜设计与建国表单。建国数据随 currentKingdom 进入证书 / 分享。
-import { t } from './i18n.js?v=20261040';
+import { t } from './i18n.js?v=20261041';
 
 const PFX = 'star-sky-mint-';          // 本地凭证键前缀（按星编号隔离）
 const KYC_NONE = '__none__';           // 未指定星时的全局键

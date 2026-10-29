@@ -1,15 +1,15 @@
 // 3D 宇宙背景依赖 three.js（CDN）+ WebGL；改为动态 import，
 // 即使 CDN 抽风或 WebGL 不可用，也只是降级为空操作，绝不拖垮整站（开门/问答/证书照常）
-import { initQuiz } from './quiz.js?v=20261040';
-import { generateStar, starParamList } from './starData.js?v=20261040';
-import { initKingdom } from './kingdom.js?v=20261040';
-import { initCertificate } from './certificate.js?v=20261040';
-import { encodeStar, shareLink, copyText, parseCodeFromURL, decodeStar } from './share.js?v=20261040';
-import { starKey, pushStar, updateStar, listStars, addMessage, listMessages, nameTaken, getStarByKey, ownerIdExists, catalogTaken } from './cloud.js?v=20261040';
-import { initSkyMap } from './skymap.js?v=20261040';
-import { loadCatalog } from './catalog.js?v=20261040';
-import { t, getLang, setLang, applyI18n, initLangToggle } from './i18n.js?v=20261040';
-import { isMinted, getMint, connectWallet, mint, getAddress, mintAddress } from './mint.js?v=20261040';
+import { initQuiz } from './quiz.js?v=20261041';
+import { generateStar, starParamList } from './starData.js?v=20261041';
+import { initKingdom } from './kingdom.js?v=20261041';
+import { initCertificate } from './certificate.js?v=20261041';
+import { encodeStar, shareLink, copyText, parseCodeFromURL, decodeStar } from './share.js?v=20261041';
+import { starKey, pushStar, updateStar, listStars, addMessage, listMessages, nameTaken, getStarByKey, ownerIdExists, catalogTaken } from './cloud.js?v=20261041';
+import { initSkyMap } from './skymap.js?v=20261041';
+import { loadCatalog } from './catalog.js?v=20261041';
+import { t, getLang, setLang, applyI18n, initLangToggle } from './i18n.js?v=20261041';
+import { isMinted, getMint, connectWallet, mint, getAddress, mintAddress } from './mint.js?v=20261041';
 
 const SESSION_KEY = 'star-sky-session-v1';
 const CLAIM_KEY = 'star-sky-claim-v1';   // 已认领星球（与问答进度分离，独立持久化，刷新/重开不丢失）
@@ -55,7 +55,7 @@ function getDeviceId(){
 // 3D 宇宙背景依赖 three.js（CDN）+ WebGL；若不可用则降级为空操作桩，绝不因此拖垮整站
 const NULL_UNIVERSE = { setStar(){}, showHero(){}, hideHero(){}, setControl(){}, setFocus(){}, setActive(){} };
 let universe = NULL_UNIVERSE;
-import('./universe.js?v=20261040').then(m => {
+import('./universe.js?v=20261041').then(m => {
   try { universe = m.initUniverse(document.getElementById('cosmos')); }
   catch (e) { console.warn('3D 宇宙背景初始化失败，已降级为静态背景', e); }
 }).catch(e => console.warn('3D 宇宙背景模块加载失败（CDN/WebGL），已降级为空操作', e));
@@ -64,7 +64,7 @@ const card = initCertificate();
 // 3D 星球视口依赖 three.js（CDN）；若不可用则降级为空操作桩，绝不拖垮整站
 const NULL_PLANET3D = { setStar(){}, show(){}, hide(){}, resize(){} };
 let planet3d = NULL_PLANET3D;
-import('./planet3d.js?v=20261040').then(m => {
+import('./planet3d.js?v=20261041').then(m => {
   try {
     planet3d = m.initPlanet3D(document.getElementById('planet-canvas'));
     if (currentStar && screens.universe && screens.universe.classList.contains('active')){
@@ -155,10 +155,11 @@ function go(name){
   }catch(e){ console.warn('[nav] 3D 场景切换失败', e); }
 
   try{
-    // 分享横幅仅在“浏览他人分享星图”时显示，自己认领/续看时务必隐藏，避免残留
+    // 分享横幅仅在“浏览他人分享星图”时显示；自己认领的星（即便经 #star= 链接打开）不显示，避免误标成“TA 的星”
     if (name === 'share'){
       const sb = document.getElementById('shared-banner');
-      if (sb) sb.style.display = isShared ? 'flex' : 'none';
+      const viewingOthers = isShared && !isViewingOwnStar();
+      if (sb) sb.style.display = viewingOthers ? 'flex' : 'none';
       const br = document.getElementById('btn-restart'); if (br) br.style.display = hasClaim() ? 'none' : '';
       refreshUpgradeBtn();
       loadNotes();
@@ -545,12 +546,27 @@ document.getElementById('btn-upgrade')?.addEventListener('click', ()=>{
   if (!currentStar){ go('quiz'); return; }
   go('claim');
 });
-// 升级按钮仅在“自己已认领、尚未铸造”时显示；分享他人星图或已铸造则隐藏
+// 当前浏览的星是否为“已认领的那颗星”（即便经 #star= 分享链接打开也识别为本人）
+function isViewingOwnStar(){
+  const myClaim = loadClaim();
+  return !!(hasClaim() && currentStar && myClaim && myClaim.star
+    && currentStar.catalogNo != null && myClaim.star.catalogNo === currentStar.catalogNo);
+}
+// 升级按钮：仅当“自己已认领、尚未铸造”时显示；浏览他人星图或已铸造则隐藏。
+// 文案动态：已设计城邦（有律法/寄语/旗帜文字）但未铸 → “完成铸造 NFT”，否则“建立城邦 · 铸造 NFT”。
 function refreshUpgradeBtn(){
   const b = document.getElementById('btn-upgrade');
   if (!b) return;
-  const eligible = !isShared && hasClaim() && !!currentStar && !isMinted(currentStarCode());
+  const own = isViewingOwnStar();
+  const eligible = own && !isMinted(currentStarCode());
   b.style.display = eligible ? '' : 'none';
+  if (eligible){
+    const kd = currentKingdom || (loadClaim() && loadClaim().kingdom) || {};
+    const designed = !!(kd.laws && kd.laws.length) || !!(kd.message) || !!(kd.flag && kd.flag.text);
+    const key = designed ? '完成铸造 NFT' : '建立城邦 · 铸造 NFT';
+    b.textContent = t(key) + ' ↗';
+    b.setAttribute('data-i18n', key);
+  }
 }
 
 // ---------- 下载 / 分享 / 重置 ----------
@@ -1013,6 +1029,6 @@ function refreshI18n(){
   else if (currentScreen === 'universe' && currentStar) populateUniverse(currentStar);
   else if (currentScreen === 'explore'){ if (lastSkyInfo) showSkyInfo(lastSkyInfo); }
   else if (currentScreen === 'claim'){ if (kingdom.applyFlag) kingdom.applyFlag(); if (kingdom.refreshTexts) kingdom.refreshTexts(); }
-  else if (currentScreen === 'share'){ if (currentStar && currentKingdom) card.build(currentStar, currentKingdom); renderWall(); }
+  else if (currentScreen === 'share'){ if (currentStar && currentKingdom) card.build(currentStar, currentKingdom); renderWall(); refreshUpgradeBtn(); }
 }
 window.__onLangChange = refreshI18n;
