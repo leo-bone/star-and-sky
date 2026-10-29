@@ -1,11 +1,11 @@
 // 星球认领证书 —— 单张高分辨率 canvas 绘制（按《星球认领证书｜通用视觉规范》重构）
 // 版本：9:12 竖版 · 深空档案风 · 版式骨架锁死，仅星球/名称/注册信息可变
 // 中心星球与 3D 认星页共用同一套 bodyTexture 表面，保证证书星 == 网页「认领的星星」。
-import { hashString, mulberry32 } from './rng.js?v=20261041';
-import { shareLink, encodeStar, qrLinkForStar } from './share.js?v=20261041';
-import { getBodySurface, uvFromDir } from './bodyTexture.js?v=20261041';
-import { t } from './i18n.js?v=20261041';
-import { localizedSpecName } from './starData.js?v=20261041';
+import { hashString, mulberry32 } from './rng.js?v=20261042';
+import { shareLink, encodeStar, qrLinkForStar } from './share.js?v=20261042';
+import { getBodySurface, uvFromDir } from './bodyTexture.js?v=20261042';
+import { t } from './i18n.js?v=20261042';
+import { localizedSpecName } from './starData.js?v=20261042';
 
 // ===== 画布：9:12 竖版（3:4）=====
 const DW = 1240, DH = 1653;   // 设计尺寸（3:4）
@@ -597,6 +597,30 @@ function drawInfoCard(ctx, card, star, kd){
 
   // 底部金色标签（证书编号短码），压在底边框上
   drawBottomLabel(ctx, cx, y0 + h, shortCode(star));
+
+  // 右下角：签发人英文手写签名（淡金、若隐若现、轻微旋转；中英版本一致保持英文）
+  drawSignature(ctx, card);
+
+  ctx.restore();
+}
+
+// 右下角签发人签名：President: Leo Win —— 英文潦草手写体，淡金低透明度，轻微旋转，不遮挡内容
+function drawSignature(ctx, card){
+  const { x0, y0, w, h } = card;
+  const xR = x0 + w - 66;     // 右对齐锚点（避开右下角 L 形金饰，距卡右 66px）
+  const yB = y0 + h - 46;     // 基线锚点（距卡底 46px）
+  ctx.save();
+  ctx.translate(xR, yB);
+  ctx.rotate(-6 * Math.PI / 180);
+  ctx.globalAlpha = 0.26;       // 若隐若现
+  ctx.textAlign = 'right'; ctx.textBaseline = 'alphabetic';
+  // 小字标签：President:
+  setFont(ctx, 'italic 500 15px "Cormorant Garamond", "Noto Serif SC", serif');
+  ctx.fillStyle = 'rgba(205,175,115,1)';
+  ctx.fillText('President:', 0, -8);
+  // 手写签名正文：Leo Win（Dancing Script，跨设备一致；Mac 回退 Snell Roundhand）
+  setFont(ctx, '600 42px "Dancing Script", "Snell Roundhand", "Brush Script MT", cursive');
+  ctx.fillText('Leo Win', 0, 26);
   ctx.restore();
 }
 
@@ -749,6 +773,12 @@ function drawFooter(ctx, star, kd){
   let link = '';
   try { if (star){ const code = encodeStar(star, kd || {}); link = qrLinkForStar(code); } } catch(e){ link = ''; }
   drawQR(ctx, 1012, 1563, 120, link);
+
+  // 页脚底部极小字免责声明（不显眼，避免冒充官方）：随语言切换中英
+  ctx.save(); ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+  setFont(ctx, '400 10px "Space Grotesk", sans-serif'); ctx.fillStyle = 'rgba(200,168,110,0.5)';
+  ctx.fillText(t('本证书为私人纪念档案，仅用于纪念，非国际天文学联合会官方颁发'), 620, 1640);
+  ctx.restore();
 }
 
 // 底部极淡星图线稿：低透明度星座连线 + 少量星点，压住页脚空白，不抢印章/二维码/标语

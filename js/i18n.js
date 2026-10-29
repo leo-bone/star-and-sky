@@ -29,6 +29,7 @@ const EN = {
   '建立城邦 · 铸造 NFT': 'Build kingdom · Mint NFT',
   '完成铸造 NFT': 'Finish minting NFT',
   '长按图片即可保存到手机相册': 'Long-press the image to save it to your phone album',
+  '本证书为私人纪念档案，仅用于纪念，非国际天文学联合会官方颁发': 'This certificate is a private commemorative archive for remembrance only, not officially issued by the International Astronomical Union.',
   '关闭': 'Close',
   // ---- 建国页 ----
   '建立你的星辰王国': 'Build Your Star Kingdom',
