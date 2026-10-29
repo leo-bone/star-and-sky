@@ -152,10 +152,6 @@ html[lang="en"] .opt .sub{display:none}
   background-clip:text;color:transparent}
 .uni-sub{color:var(--muted);margin-bottom:26px;font-weight:300}
 /* 认星页描述：与「进入真实星空」一致的描边风格（非按钮，仅提示语） */
-.uni-desc{display:inline-block;align-self:flex-start;max-width:420px;
-  margin:16px 0 2px;padding:11px 18px;border-radius:11px;
-  border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.04);
-  color:#dfe6ff;font-size:14px;font-weight:300;line-height:1.5;letter-spacing:.5px}
 .uni-left .btn{margin-top:12px}
 /* 分组参数：基础信息 / 物理参数 / 天体坐标，清爽两列 */
 .star-params{display:flex;flex-direction:column;gap:18px;margin-bottom:30px;

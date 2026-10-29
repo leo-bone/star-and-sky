@@ -49,7 +49,6 @@ const EN = {
   '认领星球': 'Claim Star',
   '认领并命名星球': 'Claim & name star',
   '保存': 'Save',
-  '开始创造你的星球吧': 'Start creating your planet',
   '不想取名？一键认领，星名用国际通用名，证书照常生成': 'Skip naming? One tap to claim — the star keeps its official designation; certificate still generated',
   '✦ 星名已锁定 · 查看我的星图': '✦ Star name locked · view my star',
   '认领者 · ': 'Claimed by · ',
