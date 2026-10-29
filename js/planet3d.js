@@ -6,7 +6,7 @@
 
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { getBodySurfaceAsync } from './bodyTexture.js?v=20261030';
+import { getBodySurfaceAsync } from './bodyTexture.js?v=20261031';
 
 // ---------- 光晕 ----------
 // ① 边缘辉光：球壳 + 菲涅尔。BackSide 渲染时球壳法线背对相机，

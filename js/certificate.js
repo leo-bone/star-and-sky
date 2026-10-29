@@ -1,11 +1,11 @@
 // 星球认领证书 —— 单张高分辨率 canvas 绘制（按《星球认领证书｜通用视觉规范》重构）
 // 版本：9:12 竖版 · 深空档案风 · 版式骨架锁死，仅星球/名称/注册信息可变
 // 中心星球与 3D 认星页共用同一套 bodyTexture 表面，保证证书星 == 网页「认领的星星」。
-import { hashString, mulberry32 } from './rng.js?v=20261030';
-import { shareLink, encodeStar, qrLinkForStar } from './share.js?v=20261030';
-import { getBodySurface, uvFromDir } from './bodyTexture.js?v=20261030';
-import { t } from './i18n.js?v=20261030';
-import { localizedSpecName } from './starData.js?v=20261030';
+import { hashString, mulberry32 } from './rng.js?v=20261031';
+import { shareLink, encodeStar, qrLinkForStar } from './share.js?v=20261031';
+import { getBodySurface, uvFromDir } from './bodyTexture.js?v=20261031';
+import { t } from './i18n.js?v=20261031';
+import { localizedSpecName } from './starData.js?v=20261031';
 
 // ===== 画布：9:12 竖版（3:4）=====
 const DW = 1240, DH = 1653;   // 设计尺寸（3:4）
@@ -197,7 +197,7 @@ function drawEyebrow(ctx){
   ctx.save();
   ctx.textAlign = 'center';
   ctx.fillStyle = C.gold; ctx.globalAlpha = 0.9;
-  setFont(ctx, '500 15px "Space Grotesk", monospace');
+  setFont(ctx, '400 16px "Space Grotesk", monospace');  // 英文小字：细字重，精致对比
   ctx.letterSpacing = '5px';
   ctx.fillText('STAR & SKY · PLANET CLAIM CERTIFICATE', DW/2, 86);
   ctx.letterSpacing = '0px';
@@ -208,14 +208,14 @@ function drawTitle(ctx){
   const cx = DW/2;
   ctx.save();
   ctx.textAlign = 'center';
-  // 主标题：放大（+约12%），思源宋体粗体，金色
-  setFont(ctx, '700 66px "Noto Serif SC", serif');
+  // 主标题：更有力量的宋体、字重加粗至 900；宽度收紧至约星球直径的 60%（比例协调，不压星球）
+  setFont(ctx, '900 38px "Noto Serif SC", serif');
   ctx.fillStyle = C.gold;
-  ctx.letterSpacing = '6px';
+  ctx.letterSpacing = '4px';
   ctx.fillText(t('星球认领证书'), cx, 170);
   ctx.letterSpacing = '0px';
-  // 英文副标题：微调放大
-  setFont(ctx, '400 20px "Cormorant Garamond", "Times New Roman", serif');
+  // 英文副标题：细字重，放大形成精致对比
+  setFont(ctx, '400 22px "Cormorant Garamond", "Times New Roman", serif');
   ctx.fillStyle = C.goldB; ctx.globalAlpha = 0.92;
   ctx.letterSpacing = '4px';
   ctx.fillText('PLANET CLAIM CERTIFICATE', cx, 208);
@@ -531,32 +531,32 @@ function drawInfoCard(ctx, card, star, kd){
   // —— 文案（居中，层级：证明语 → 名称 → 国际命名 → 注册人 → 参数 → 编号）——
   ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
   let y = y0 + 62;
-  setFont(ctx, '500 16px "Noto Serif SC", serif'); ctx.fillStyle = P.label; ctx.letterSpacing = '3px';
+  setFont(ctx, '700 17px "Noto Serif SC", serif'); ctx.fillStyle = P.label; ctx.letterSpacing = '3px';
   ctx.fillText(t('兹证明 · 此星已被正式认领'), cx, y); ctx.letterSpacing = '0px';
   y += 36;
-  setFont(ctx, '500 13px "Noto Serif SC", serif'); ctx.fillStyle = P.label; ctx.letterSpacing = '2px';
+  setFont(ctx, '700 14px "Noto Serif SC", serif'); ctx.fillStyle = P.label; ctx.letterSpacing = '2px';
   ctx.fillText(t('星球名称'), cx, y); ctx.letterSpacing = '0px';
-  y += 44;
-  setFont(ctx, '700 44px "Noto Serif SC", serif'); ctx.fillStyle = P.name;   // 核心：最大字号
+  y += 50;
+  setFont(ctx, '700 50px "Noto Serif SC", serif'); ctx.fillStyle = P.name;   // 核心：最大字号（放大）
   ctx.fillText(star.name || '—', cx, y);
   y += 18; drawDiamond(ctx, cx, y, 4, P.gold); y += 20;
   // 国际命名：星球真实天文编号（如 Sirius · α CMa / HD 48915）
   // 一键认领时星名即国际通用名，避免与「星球名称」重复显示
   const showDesig = star.designation && star.designation !== star.name;
   if (showDesig){
-    setFont(ctx, '500 12px "Noto Serif SC", serif'); ctx.fillStyle = P.label; ctx.letterSpacing = '2px';
+    setFont(ctx, '700 13px "Noto Serif SC", serif'); ctx.fillStyle = P.label; ctx.letterSpacing = '2px';
     ctx.fillText(t('国际命名'), cx, y); ctx.letterSpacing = '0px';
     y += 26;
-    setFont(ctx, '400 17px "Space Grotesk", monospace'); ctx.fillStyle = P.name;
+    setFont(ctx, '400 18px "Space Grotesk", monospace'); ctx.fillStyle = P.name;
     ctx.fillText(star.designation || star.catalogNo || '—', cx, y);
     y += 22;
   } else {
     y += 22;
   }
-  setFont(ctx, '500 13px "Noto Serif SC", serif'); ctx.fillStyle = P.label; ctx.letterSpacing = '2px';
+  setFont(ctx, '700 14px "Noto Serif SC", serif'); ctx.fillStyle = P.label; ctx.letterSpacing = '2px';
   ctx.fillText(t('注册人'), cx, y); ctx.letterSpacing = '0px';
-  y += 40;
-  setFont(ctx, '700 32px "Noto Serif SC", serif'); ctx.fillStyle = P.name;   // 第二层级
+  y += 46;
+  setFont(ctx, '700 36px "Noto Serif SC", serif'); ctx.fillStyle = P.name;   // 第二层级（放大）
   ctx.fillText((kd && kd.ruler) || t('星际公民'), cx, y);
   y += 18;
   ctx.strokeStyle = P.gold; ctx.lineWidth = 1;
@@ -677,10 +677,10 @@ function drawParamTable(ctx, card, y, star){
 
 function drawParamRow(ctx, x, y, k, v){
   ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-  setFont(ctx, '600 15px "Noto Serif SC", serif'); ctx.fillStyle = P.label;
+  setFont(ctx, '700 16px "Noto Serif SC", serif'); ctx.fillStyle = P.label;
   ctx.fillText(k, x, y);
   const kw = ctx.measureText(k).width;
-  setFont(ctx, '400 17px "Space Grotesk", monospace'); ctx.fillStyle = P.ink;
+  setFont(ctx, '400 18px "Space Grotesk", monospace'); ctx.fillStyle = P.ink;  // 英文数值：细字重
   ctx.fillText(v, x + kw + 10, y);
 }
 
@@ -695,17 +695,50 @@ function drawFooter(ctx, star, kd){
   ctx.strokeStyle = 'rgba(200,168,110,0.4)'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(160, 1470); ctx.lineTo(DW - 160, 1470); ctx.stroke();
 
+  // 底部极淡星图线稿：压住空白，不与印章/二维码/标语争视线
+  drawFaintBottomChart(ctx);
+
   drawSeal(ctx, 232, 1563, 78, star);
 
   ctx.save(); ctx.textAlign = 'center'; ctx.fillStyle = C.gold;
-  setFont(ctx, 'italic 400 20px "Noto Serif SC", serif');
+  setFont(ctx, 'italic 400 18px "Noto Serif SC", serif');  // 字号保持小
+  ctx.letterSpacing = '4px';                                // 字距放宽
   ctx.fillText(t('仰望星辰，不是为了拥有，'), 620, 1552);
   ctx.fillText(t('而是为了让记忆在宇宙中有坐标。'), 620, 1586);
+  ctx.letterSpacing = '0px';
   ctx.restore();
 
   let link = '';
   try { if (star){ const code = encodeStar(star, kd || {}); link = qrLinkForStar(code); } } catch(e){ link = ''; }
   drawQR(ctx, 1012, 1563, 120, link);
+}
+
+// 底部极淡星图线稿：低透明度星座连线 + 少量星点，压住页脚空白，不抢印章/二维码/标语
+function drawFaintBottomChart(ctx){
+  const rng = mulberry32(hashString('bottom-chart'));
+  const yTop = 1495, yBot = 1640;
+  ctx.save();
+  // 极淡星座连线（两侧与角落分布，避开中央标语区 470–770）
+  ctx.strokeStyle = 'rgba(200,168,110,0.10)'; ctx.lineWidth = 1;
+  for (let k = 0; k < 4; k++){
+    let px = 130 + rng() * (DW - 260), py = yTop + rng() * (yBot - yTop);
+    ctx.beginPath(); ctx.moveTo(px, py);
+    for (let s = 0; s < 4; s++){
+      px += (rng() - 0.5) * 300; py += (rng() - 0.5) * 110;
+      px = Math.max(115, Math.min(DW - 115, px));
+      py = Math.max(yTop, Math.min(yBot, py));
+      ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+  }
+  // 少量极淡星点（避开中央标语区）
+  ctx.fillStyle = 'rgba(220,232,255,0.12)';
+  for (let k = 0; k < 46; k++){
+    const px = 115 + rng() * (DW - 230), py = yTop + rng() * (yBot - yTop);
+    if (px > 460 && px < 780) continue;
+    ctx.beginPath(); ctx.arc(px, py, 1.2, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.restore();
 }
 
 function drawSeal(ctx, cx, cy, r, star){
