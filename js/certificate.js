@@ -1,11 +1,11 @@
 // 星球认领证书 —— 单张高分辨率 canvas 绘制（按《星球认领证书｜通用视觉规范》重构）
 // 版本：9:12 竖版 · 深空档案风 · 版式骨架锁死，仅星球/名称/注册信息可变
 // 中心星球与 3D 认星页共用同一套 bodyTexture 表面，保证证书星 == 网页「认领的星星」。
-import { hashString, mulberry32 } from './rng.js?v=20261029';
-import { shareLink, encodeStar, qrLinkForStar } from './share.js?v=20261029';
-import { getBodySurface, uvFromDir } from './bodyTexture.js?v=20261029';
-import { t } from './i18n.js?v=20261029';
-import { localizedSpecName } from './starData.js?v=20261029';
+import { hashString, mulberry32 } from './rng.js?v=20261030';
+import { shareLink, encodeStar, qrLinkForStar } from './share.js?v=20261030';
+import { getBodySurface, uvFromDir } from './bodyTexture.js?v=20261030';
+import { t } from './i18n.js?v=20261030';
+import { localizedSpecName } from './starData.js?v=20261030';
 
 // ===== 画布：9:12 竖版（3:4）=====
 const DW = 1240, DH = 1653;   // 设计尺寸（3:4）
@@ -143,9 +143,12 @@ function drawStarField(ctx, star){
   const cx = DW/2, cy = 636, R = 205, guard = R * 1.7;
   const rng = mulberry32(hashString((star && star.catalogNo || 'star') + 'stars'));
   const stars = [];
-  for (let i = 0; i < 320; i++) stars.push({ x: rng()*DW, y: rng()*DH, r: 0.4 + rng()*0.6, a: 0.10 + rng()*0.22, far: true });
-  for (let i = 0; i < 80;  i++) stars.push({ x: rng()*DW, y: rng()*DH, r: 1.0 + rng()*0.9, a: 0.35 + rng()*0.40, mid: true });
-  for (let i = 0; i < 16;  i++) stars.push({ x: rng()*DW, y: rng()*DH, r: 2.0 + rng()*1.6, a: 0.60 + rng()*0.35, near: true });
+  // 远景：极小、很暗、数量多 → 纵深底噪，不抢主体
+  for (let i = 0; i < 360; i++) stars.push({ x: rng()*DW, y: rng()*DH, r: 0.3 + rng()*0.5, a: 0.05 + rng()*0.13, far: true });
+  // 中景：为主体，适中亮度
+  for (let i = 0; i < 72;  i++) stars.push({ x: rng()*DW, y: rng()*DH, r: 0.9 + rng()*1.0, a: 0.34 + rng()*0.42, mid: true });
+  // 近景：极少、稍大、带柔和光晕，避免平均散点感
+  for (let i = 0; i < 10;  i++) stars.push({ x: rng()*DW, y: rng()*DH, r: 2.2 + rng()*1.8, a: 0.55 + rng()*0.35, near: true });
 
   stars.forEach(s => {
     const dxp = s.x - cx, dyp = s.y - cy;
@@ -303,6 +306,45 @@ function drawSaturnRing(ctx, cx, cy, R, pass){
     ctx.clip('evenodd');
   }
   rings.forEach(rg => drawRingBand(ctx, rg, pass));
+  rings.forEach(rg => drawRingDecorations(ctx, rg, pass));
+  ctx.restore();
+}
+
+// 星环刻度 / 坐标节点 / 短辅助线：让星环成为“宇宙坐标系统”的一部分
+// 后半（星球之后）更淡、被星球利落遮断；前半（星球之前）清晰
+function drawRingDecorations(ctx, rg, pass){
+  const { rx, ry, w, b } = rg;
+  const back = (pass === 'back');
+  const a0 = back ? Math.PI : 0, a1 = back ? Math.PI*2 : Math.PI;  // 后半=上半(在星球后)，前半=下半(在星球前)
+  const pa = back ? 0.30 : 1.0;
+  const N = 56;
+  ctx.save();
+  ctx.lineCap = 'round';
+  for (let i = 0; i <= N; i++){
+    const a = a0 + (a1 - a0) * i / N;
+    const ca = Math.cos(a), sa = Math.sin(a);
+    const ix = rx*ca, iy = ry*sa;                     // 椭圆上的点
+    // 椭圆法向（朝向环厚度方向，用于刻度内外延伸）
+    let nx = ry*ca, ny = rx*sa; const nl = Math.hypot(nx, ny) || 1; nx/=nl; ny/=nl;
+    const major = (i % 5 === 0);
+    const tlen = major ? 9 : 4;
+    const ox = ix + nx*(w/2 + tlen), oy = iy + ny*(w/2 + tlen);
+    const inx = ix - nx*(w/2 + tlen), iny = iy - ny*(w/2 + tlen);
+    ctx.strokeStyle = `rgba(222,198,140,${ (major?0.62:0.35) * b * pa })`;
+    ctx.lineWidth = major ? 1.1 : 0.6;
+    ctx.beginPath(); ctx.moveTo(inx, iny); ctx.lineTo(ox, oy); ctx.stroke();
+    if (major){
+      // 坐标节点（环上小圆点）
+      ctx.fillStyle = `rgba(255,238,202,${0.8*b*pa})`;
+      ctx.beginPath(); ctx.arc(ix, iy, 1.7, 0, Math.PI*2); ctx.fill();
+      // 短辅助线：沿环切线方向横跨带面
+      const ta = a + (a1-a0)/N * 2.4;
+      const tx = rx*Math.cos(ta), ty = ry*Math.sin(ta);
+      ctx.strokeStyle = `rgba(200,168,110,${0.26*b*pa})`;
+      ctx.lineWidth = 0.8;
+      ctx.beginPath(); ctx.moveTo(ix, iy); ctx.lineTo(tx, ty); ctx.stroke();
+    }
+  }
   ctx.restore();
 }
 
@@ -422,17 +464,19 @@ function drawLitSphere(ctx, cx, cy, r, surface){
       const base = colAt(u, v);
       const e = 0.0045;
       const hL = hAt(u-e, v), hR = hAt(u+e, v), hD = hAt(u, v-e), hU = hAt(u, v+e);
-      const sx = (hL - hR) * 2.4, sy = (hD - hU) * 2.4;
+      const sx = (hL - hR) * 3.0, sy = (hD - hU) * 3.0;
       let Nx = nx - sx, Ny = ny - sy, Nz = nz;
       const nl = Math.hypot(Nx, Ny, Nz) || 1; Nx/=nl; Ny/=nl; Nz/=nl;
       const ndl = Nx*Lx + Ny*Ly + Nz*Lz;
       const day = smoothstep(-0.15, 0.5, ndl);
       const lit = 0.12 + day * 0.95;                  // 暗部保留微弱反光，不死黑
       let R = base[0]*lit, G = base[1]*lit, B = base[2]*lit;
-      const fres = Math.pow(Math.max(0, 1 - nz), 2.2);  // 边缘冷调反光
-      R += atmo[0]*fres*0.55; G += atmo[1]*fres*0.55; B += atmo[2]*fres*0.55;
-      const spec = Math.pow(Math.max(0, ndl), 20) * 0.22;
-      R += 205*spec; G += 225*spec; B += 255*spec;     // 冷调高光（浅蓝白）
+      const fres = Math.pow(Math.max(0, 1 - nz), 2.2);  // 边缘冷调大气反光
+      R += atmo[0]*fres*0.60; G += atmo[1]*fres*0.60; B += atmo[2]*fres*0.60;
+      // 高光随星球色温：蓝星→冷蓝、红星→冷红，避免一律死白
+      const specCol = mix3(atmo, [255,255,255], 0.45);
+      const spec = Math.pow(Math.max(0, ndl), 18) * 0.26;
+      R += specCol[0]*spec; G += specCol[1]*spec; B += specCol[2]*spec;
       const aa = smoothstep(r+1.2, r-1.2, dist);
       data[o]=clamp255(R); data[o+1]=clamp255(G); data[o+2]=clamp255(B); data[o+3]=Math.round(255*aa);
     }
@@ -526,27 +570,39 @@ function drawInfoCard(ctx, card, star, kd){
   ctx.restore();
 }
 
-// 卡片内极低透明度星图线稿
+// 卡片内极低透明度“星图纸纹”：淡蓝坐标网格 + 淡金星座连线 + 少量星点
+// 像从深空截取的星图档案纸，而非普通奖状底纹
 function drawCardStarMap(ctx, x0, y0, w, h){
   const rng = mulberry32(hashString('card-starmap'));
   ctx.save();
   roundRectPath(ctx, x0 + 18, y0 + 18, w - 36, h - 36, 9); ctx.clip();
-  ctx.globalAlpha = 0.07; ctx.strokeStyle = P.gold; ctx.lineWidth = 1;
+  // 极淡星图网格（蓝调，坐标纸质感）
+  ctx.strokeStyle = 'rgba(120,150,190,0.06)'; ctx.lineWidth = 1;
+  const step = 44;
+  for (let gx = x0 + 18; gx < x0 + w - 18; gx += step){
+    ctx.beginPath(); ctx.moveTo(gx, y0 + 18); ctx.lineTo(gx, y0 + h - 18); ctx.stroke();
+  }
+  for (let gy = y0 + 18; gy < y0 + h - 18; gy += step){
+    ctx.beginPath(); ctx.moveTo(x0 + 18, gy); ctx.lineTo(x0 + w - 18, gy); ctx.stroke();
+  }
+  // 淡金星座连线（少量、很轻）
+  ctx.strokeStyle = 'rgba(200,168,110,0.10)'; ctx.lineWidth = 1;
   for (let k = 0; k < 3; k++){
-    let px = x0 + 60 + rng() * (w - 120), py = y0 + 60 + rng() * (h - 120);
+    let px = x0 + 50 + rng() * (w - 100), py = y0 + 60 + rng() * (h - 120);
     ctx.beginPath(); ctx.moveTo(px, py);
     for (let s = 0; s < 5; s++){
-      px += (rng() - 0.5) * 240; py += (rng() - 0.5) * 200;
+      px += (rng() - 0.5) * 220; py += (rng() - 0.5) * 170;
       px = Math.max(x0 + 30, Math.min(x0 + w - 30, px));
       py = Math.max(y0 + 30, Math.min(y0 + h - 30, py));
       ctx.lineTo(px, py);
     }
     ctx.stroke();
   }
-  ctx.globalAlpha = 0.10; ctx.fillStyle = P.gold;
-  for (let k = 0; k < 22; k++){
+  // 少量星点（淡金）
+  ctx.fillStyle = 'rgba(200,168,110,0.14)';
+  for (let k = 0; k < 26; k++){
     const px = x0 + 40 + rng() * (w - 80), py = y0 + 40 + rng() * (h - 80);
-    ctx.beginPath(); ctx.arc(px, py, 1.4, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(px, py, 1.3, 0, Math.PI*2); ctx.fill();
   }
   ctx.restore();
 }

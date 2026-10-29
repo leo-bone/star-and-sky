@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" />
-  <link rel="stylesheet" href="css/style.css?v=20261029" />
+  <link rel="stylesheet" href="css/style.css?v=20261030" />
   <!-- 字体样式表异步加载：先渲染页面，字体就绪后自动生效 -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" /></noscript>
@@ -44,6 +44,7 @@
         <span class="nav-step" data-step="explore" data-i18n="星空">星空</span>
         <span class="nav-step" data-step="claim" data-i18n="建国">建国</span>
         <span class="nav-step" data-step="share" data-i18n="星图">星图</span>
+        <span class="nav-step" data-step="premium" data-i18n="即将上线">即将上线</span>
       </nav>
       <button id="btn-mine" class="nav-mine" type="button" title="随时查看你认领的星球">我的星球 ✦</button>
       <button id="lang-toggle" class="lang-toggle" type="button" aria-label="切换语言">EN</button>
@@ -285,26 +286,19 @@
         <span data-i18n="你正在浏览一颗被分享的星辰 —— 它属于全世界，也属于此刻仰望它的你。">你正在浏览一颗被分享的星辰 —— 它属于全世界，也属于此刻仰望它的你。</span>
       </div>
       <div class="share-layout">
-        <div class="share-card-wrap">
-          <div id="star-card" class="star-card certificate">
-            <canvas id="cert-canvas"></canvas>
-          </div>
-        </div>
-        <div class="share-actions">
+        <div class="share-head">
           <h2 class="sec-title" data-i18n="你的星图已诞生">你的星图已诞生</h2>
           <p class="sec-sub" data-i18n="保存这张星图，分享给世界。这是你在这片宇宙中留下的坐标。">保存这张星图，分享给世界。这是你在这片宇宙中留下的坐标。</p>
+        </div>
+        <div class="share-actions">
           <button class="btn btn-primary btn-lg" id="btn-download" data-i18n="下载星图 PNG">下载星图 PNG</button>
           <button class="btn btn-ghost" id="btn-share-link" data-i18n="复制分享链接">复制分享链接 ↗</button>
           <button class="btn btn-ghost" id="btn-restart" data-i18n="重新认领一颗">重新认领一颗</button>
-          <p class="share-note" data-i18n="提示：图片含你的星名、坐标与王国信息，可自由传播。">提示：图片含你的星名、坐标与王国信息，可自由传播。</p>
-
-          <div class="premium-entry">
-            <div class="pe-ico">🚀</div>
-            <div class="pe-text">
-              <h3 data-i18n="高级版 · 星之周边">高级版 · 星之周边 <span class="premium-tag" data-i18n="即将上线">即将上线</span></h3>
-              <p data-i18n="正在筹备高清证书、实物星图卷轴与星球模型等，免费版功能不受影响。">正在筹备高清证书、实物星图卷轴与星球模型等，免费版功能不受影响。</p>
-            </div>
-            <button class="btn btn-ghost" data-go="premium" data-i18n="查看即将上线">查看即将上线 ↗</button>
+        </div>
+        <p class="share-note" data-i18n="提示：图片含你的星名、坐标与王国信息，可自由传播。">提示：图片含你的星名、坐标与王国信息，可自由传播。</p>
+        <div class="share-card-wrap">
+          <div id="star-card" class="star-card certificate">
+            <canvas id="cert-canvas"></canvas>
           </div>
         </div>
       </div>
@@ -371,11 +365,12 @@
     <button class="bn-item" data-go="universe" type="button"><span class="bn-ico">✶</span><span>认星</span></button>
     <button class="bn-item" data-go="explore" type="button"><span class="bn-ico">✺</span><span>星空</span></button>
     <button class="bn-item" data-go="share" type="button"><span class="bn-ico">❖</span><span>星图</span></button>
+    <button class="bn-item" data-go="premium" type="button"><span class="bn-ico">◈</span><span data-i18n="即将上线">即将上线</span></button>
     <button class="bn-item bn-mine" id="bn-mine" type="button"><span class="bn-ico">⚑</span><span>我的星</span></button>
   </nav>
 
   <div id="toast" class="toast"></div>
 
-  <script type="module" src="js/app.js?v=20261029"></script>
+  <script type="module" src="js/app.js?v=20261030"></script>
 </body>
 </html>
