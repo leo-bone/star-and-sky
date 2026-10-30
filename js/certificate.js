@@ -1,11 +1,11 @@
 // 星球认领证书 —— 单张高分辨率 canvas 绘制（按《星球认领证书｜通用视觉规范》重构）
 // 版本：9:12 竖版 · 深空档案风 · 版式骨架锁死，仅星球/名称/注册信息可变
 // 中心星球与 3D 认星页共用同一套 bodyTexture 表面，保证证书星 == 网页「认领的星星」。
-import { hashString, mulberry32 } from './rng.js?v=20261046';
-import { shareLink, encodeStar, qrLinkForStar } from './share.js?v=20261046';
-import { getBodySurface, uvFromDir } from './bodyTexture.js?v=20261046';
-import { t } from './i18n.js?v=20261046';
-import { localizedSpecName } from './starData.js?v=20261046';
+import { hashString, mulberry32 } from './rng.js?v=20261047';
+import { shareLink, encodeStar, qrLinkForStar } from './share.js?v=20261047';
+import { getBodySurface, uvFromDir } from './bodyTexture.js?v=20261047';
+import { t } from './i18n.js?v=20261047';
+import { localizedSpecName } from './starData.js?v=20261047';
 
 // ===== 画布：9:12 竖版（3:4）=====
 const DW = 1240, DH = 1653;   // 设计尺寸（3:4）
@@ -720,7 +720,7 @@ function drawParamTable(ctx, card, y, star){
   const colL = card.x0 + 90;
   const colR = cx + 60;
   const left = [[t('赤经 RA'), raStr(star)], [t('赤纬 Dec'), decStr(star)],
-                [t('视星等'), magStr(star)], [t('注册时间 UTC'), claimDateTime()]];
+                [t('视星等'), magStr(star)], [t('注册时间 UTC'), claimDateTime(star)]];
   const right = [[t('光谱类型'), specStr(star)], [t('距离地球'), distStr(star)],
                  [t('所属星座'), t(star.constellation || '—')], [t('证书编号'), star.registry || star.catalogNo || '—']];
   const rowH = 32;
@@ -924,11 +924,14 @@ function specStr(star){
 }
 function distStr(star){
   const d = star.distLy; if (d == null) return '—';
-  return (star.dr ? '' : '≈') + Number(d).toLocaleString('en-US') + ' ly';
+  const unit = t('光年');                       // 中文：光年；英文： ly
+  const unitStr = (unit === '光年') ? (' ' + unit) : unit;
+  return (star.dr ? '' : '≈') + Number(d).toLocaleString('en-US') + unitStr;
 }
 
-function claimDateTime(){
-  const d = new Date();
+function claimDateTime(star){
+  const ts = star && star.claimTs;
+  const d = ts ? new Date(ts) : new Date();   // 已认领星固化时间戳，避免每次打开都变；预览/分享无时间戳时回退当前时间
   const p = n => String(n).padStart(2, '0');
   return `${d.getUTCFullYear()}.${p(d.getUTCMonth()+1)}.${p(d.getUTCDate())} ${p(d.getUTCHours())}:${p(d.getUTCMinutes())} UTC`;
 }
