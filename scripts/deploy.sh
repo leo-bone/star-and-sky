@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Star & Sky — BSC 一键部署脚本
-# 自动完成：.env 校验 → npm install → 部署合约 → 回填合约地址到前端 → 版本号自增 → 本地提交
+# 自动完成：.env 校验 → 干净安装依赖 → 编译验证 → 部署合约 → 回填合约地址到前端 → 版本号自增 → 本地提交
 # 用法：
 #   bash scripts/deploy.sh            # 部署到主网 (bscMainnet)
 #   bash scripts/deploy.sh testnet    # 部署到测试网 (bscTestnet)
@@ -29,11 +29,17 @@ if grep -q "YOUR_DEPLOYER_PRIVATE_KEY_HERE" .env; then
   exit 1
 fi
 
-# 2) 依赖检查
-if [ ! -d node_modules ]; then
-  echo "📦 首次安装依赖（可能耗时 1-2 分钟）..."
+# 2) 干净安装依赖并先编译验证，避免残缺的 node_modules 被误判为可用
+if [ -f package-lock.json ]; then
+  echo "📦 按 package-lock.json 干净安装依赖..."
+  npm ci
+else
+  echo "📦 安装依赖..."
   npm install
 fi
+
+echo "🧪 编译验证..."
+npx hardhat compile
 
 # 3) 部署
 echo "🚀 部署 StarSkyBSC 到 $NETWORK ..."

@@ -9,18 +9,18 @@
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="星与星空 · STAR &amp; SKY" />
   <meta property="og:title" content="星与星空 · STAR &amp; SKY" />
-  <meta property="og:description" content="打开浩瀚宇宙，认领一颗属于自己的星星；设计你的星辰王国，并把它铸造成链上 NFT。" />
+  <meta property="og:description" content="打开浩瀚宇宙，认领一颗属于自己的星星；设计你的星辰王国，并把它做成永久的纪念凭证。" />
   <meta property="og:url" content="https://star.uichain.org/" />
   <meta property="og:image" content="https://star.uichain.org/assets/og-cover.png" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="星与星空 · STAR &amp; SKY" />
-  <meta name="twitter:description" content="认领属于你的星，建国、铸造链上 NFT，把记忆留在宇宙坐标里。" />
+  <meta name="twitter:description" content="认领属于你的星，建国、生成纪念凭证，把记忆留在宇宙坐标里。" />
   <meta name="twitter:image" content="https://star.uichain.org/assets/og-cover.png" />
   <!-- 首屏性能：字体、html2canvas 均改为非阻塞加载，避免阻塞首次内容绘制 -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Cormorant+Garamond:wght@400;500;600&display=swap" />
-  <link rel="stylesheet" href="css/style.css?v=20261045" />
+  <link rel="stylesheet" href="css/style.css?v=20261046" />
   <!-- 字体样式表异步加载：先渲染页面，字体就绪后自动生效 -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Cormorant+Garamond:wght@400;500;600&display=swap" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Cormorant+Garamond:wght@400;500;600&display=swap" /></noscript>
@@ -189,19 +189,14 @@
     <!-- ============ 认领 / 建国 ============ -->
     <section class="screen" id="screen-claim">
       <div class="mint-gate" id="mint-gate">
-        <div class="mg-ico">⛓</div>
+        <div class="mg-ico">✦</div>
         <div class="mg-text">
-          <h3 data-i18n="建国需先铸造王国凭证（链上 NFT）">建国需先铸造王国凭证（链上 NFT）</h3>
-          <p data-i18n="普通用户需连接钱包并把王国凭证真实铸造上链（BSC 或 Solana），才能解锁旗帜设计与建国。铸造后，王国数据随证书保存与分享，并可在区块链浏览器核验。">普通用户需连接钱包并把王国凭证真实铸造上链（BSC 或 Solana），才能解锁旗帜设计与建国。铸造后，王国数据随证书保存与分享，并可在区块链浏览器核验。</p>
-        </div>
-        <div class="mg-chain" id="mg-chain">
-          <span class="mg-chain-label" data-i18n="选择链">选择链</span>
-          <button class="chain-btn active" data-chain="bsc" type="button">BNB Chain</button>
-          <button class="chain-btn" data-chain="solana" type="button">Solana</button>
+          <h3 data-i18n="建国需先生成王国凭证">建国需先生成王国凭证</h3>
+          <p data-i18n="普通用户需连接账户并生成王国凭证，才能解锁旗帜设计与建国。生成后，王国数据随证书永久保存与分享，可随时核验。">普通用户需连接账户并生成王国凭证，才能解锁旗帜设计与建国。生成后，王国数据随证书永久保存与分享，可随时核验。</p>
         </div>
         <div class="mg-actions">
-          <button class="btn btn-outline btn-sm" id="btn-connect-wallet" data-i18n="连接钱包">连接钱包</button>
-          <button class="btn btn-primary btn-sm" id="btn-mint" data-i18n="铸造王国凭证 NFT" disabled>铸造王国凭证 NFT</button>
+          <button class="btn btn-outline btn-sm" id="btn-connect-wallet" data-i18n="连接账户">连接账户</button>
+          <button class="btn btn-primary btn-sm" id="btn-mint" data-i18n="生成王国凭证" disabled>生成王国凭证</button>
           <button class="btn btn-ghost btn-sm" id="btn-back-claim" data-i18n="返回认领星球">返回认领星球 ↩</button>
           <span class="mg-status" id="mg-status"></span>
         </div>
@@ -320,7 +315,7 @@
         <div class="share-actions">
           <button class="btn btn-primary btn-lg" id="btn-download" data-i18n="下载星图 PNG">下载星图 PNG</button>
           <button class="btn btn-ghost" id="btn-share-link" data-i18n="复制分享链接">复制分享链接 ↗</button>
-          <button class="btn btn-outline btn-upgrade" id="btn-upgrade" data-i18n="建立城邦 · 铸造 NFT">建立城邦 · 铸造 NFT ↗</button>
+          <button class="btn btn-outline btn-upgrade" id="btn-upgrade" data-i18n="建立城邦 · 生成凭证">建立城邦 · 生成凭证 ↗</button>
           <button class="btn btn-ghost" id="btn-restart" data-i18n="重新认领一颗">重新认领一颗</button>
         </div>
         <p class="share-note" data-i18n="提示：图片含你的星名、坐标与王国信息，可自由传播。">提示：图片含你的星名、坐标与王国信息，可自由传播。</p>
@@ -408,6 +403,6 @@
 
   <div id="toast" class="toast"></div>
 
-  <script type="module" src="js/app.js?v=20261045"></script>
+  <script type="module" src="js/app.js?v=20261046"></script>
 </body>
 </html>

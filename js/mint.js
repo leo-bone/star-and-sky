@@ -3,8 +3,8 @@
 //   · BSC（BNB Smart Chain）—— 自写 ERC-721 合约（contracts/StarSkyBSC.sol），ethers v6 调合约
 //   · Solana —— Metaplex Core（官方预部署程序，无需自部署合约），@solana/web3.js + UMI
 // 铸造流程：连钱包 → 上传证书 PNG + metadata 到 IPFS(Pinata) → 调链上铸造 → 本地存证 + 证书展示核验链接
-import { t } from './i18n.js?v=20261045';
-import { encodeStar } from './share.js?v=20261045';
+import { t } from './i18n.js?v=20261046';
+import { encodeStar } from './share.js?v=20261046';
 
 // ===== 部署后填入的配置 =====
 export const CONFIG = {
@@ -70,16 +70,16 @@ export async function getAddress(){
 export async function connectWallet(chain){
   if (chain === 'solana'){
     const w = window.solana;
-    if (!w) throw new Error(t('请安装 Phantom 等 Solana 钱包'));
+    if (!w) throw new Error(t('请安装 Phantom'));
     try { const acc = await w.connect(); return acc && acc.publicKey ? acc.publicKey.toBase58() : (w.publicKey && w.publicKey.toBase58()); }
-    catch(e){ throw new Error(t('钱包连接被取消')); }
+    catch(e){ throw new Error(t('连接已取消')); }
   }
   // 默认 / bsc → EVM
   if (typeof window === 'undefined' || !window.ethereum){
-    throw new Error(t('请安装 MetaMask 等钱包'));
+    throw new Error(t('请安装 MetaMask 等账户工具'));
   }
   const accts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-  if (!accts || !accts[0]) throw new Error(t('未获取到钱包账户'));
+  if (!accts || !accts[0]) throw new Error(t('未获取到账户'));
   return accts[0];
 }
 
@@ -139,12 +139,12 @@ function buildMetadata(star, kd, chainLabel, imageUri){
   const external = location.origin + location.pathname + (location.search || '') + '#star=' + share;
   return {
     name: (star.name || 'Star') + ' · Kingdom Pass',
-    description: 'Star & Sky 星辰王国凭证 NFT —— 纪念在浩瀚宇宙中认领的一颗星，并记录其王国、旗帜与寄语。',
+    description: 'Star & Sky 星辰王国凭证 —— 纪念在浩瀚宇宙中认领的一颗星，并记录其王国、旗帜与寄语。',
     image: imageUri,
     external_url: external,
     attributes: [
       { trait_type: 'Constellation', value: t(star.constellation || '—') },
-      { trait_type: 'Chain', value: chainLabel },
+      { trait_type: 'Collection', value: 'Star & Sky' },
       { trait_type: 'Registrant', value: (kd && (kd.ruler || kd.name)) || 'Star Citizen' },
       { trait_type: 'Registry', value: star.registry || star.catalogNo || '—' }
     ]
@@ -159,7 +159,7 @@ async function mintBSC(cfg, tokenURI, to){
   await ensureBscChain(cfg);
   const signer = await provider.getSigner();
   const abi = [ 'function mint(string uri) returns (uint256 tokenId)', 'event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)' ];
-  if (!cfg.contract) throw new Error(t('BSC 合约地址未配置（见 js/mint.js 的 CONFIG.chains.bsc.contract）'));
+  if (!cfg.contract) throw new Error(t('该方式暂未开放'));
   const contract = new Contract(cfg.contract, abi, signer);
   const tx = await contract.mint(tokenURI);
   const receipt = await tx.wait();
@@ -202,7 +202,7 @@ async function mintSolana(cfg, tokenURI, to){
   const web3 = await import('https://esm.sh/@solana/web3.js@1.95.3');
 
   const wallet = window.solana;
-  if (!wallet) throw new Error(t('请安装 Phantom 等 Solana 钱包'));
+  if (!wallet) throw new Error(t('请安装 Phantom'));
   if (!wallet.publicKey) await wallet.connect();
 
   const umi = createUmi(cfg.rpc || 'https://api.mainnet-beta.solana.com');
@@ -232,7 +232,7 @@ export function explorerTxUrl(chain, txHash){
 export async function mint(chain, starCode, star, kd){
   const code = starCode || KYC_NONE;
   const cfg = CONFIG.chains[chain];
-  if (!cfg) throw new Error(t('不支持的链'));
+  if (!cfg) throw new Error(t('不支持的方式'));
 
   // 1) 连钱包（已连则复用）
   const address = await connectWallet(chain);
@@ -250,7 +250,7 @@ export async function mint(chain, starCode, star, kd){
   let onChain;
   if (chain === 'bsc') onChain = await mintBSC(cfg, tokenURI, address);
   else if (chain === 'solana') onChain = await mintSolana(cfg, tokenURI, address);
-  else throw new Error(t('不支持的链'));
+  else throw new Error(t('不支持的方式'));
 
   const record = {
     chain, address, signature: onChain.txHash, txHash: onChain.txHash,
