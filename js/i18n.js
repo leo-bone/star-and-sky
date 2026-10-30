@@ -262,8 +262,14 @@ const EN = {
   '签名被取消或失败':'Signature cancelled or failed',
   '未获取到钱包账户':'No wallet account obtained',
   '请先连接钱包并铸造凭证':'Connect a wallet and mint the pass first',
-  '建国需先铸造王国凭证（钱包签名）':'Building a kingdom requires minting the Kingdom Pass (wallet signature)',
-  '普通用户需连接钱包并铸造 Kingdom Pass NFT，才能解锁旗帜设计与建国。铸造后，王国数据将随证书一同保存与分享。':'Regular users must connect a wallet and mint the Kingdom Pass NFT to unlock flag design and kingdom building. After minting, kingdom data is saved and shared together with the certificate.',
+  '建国需先铸造王国凭证（链上 NFT）':'Mint Kingdom Pass on-chain (NFT)',
+  '普通用户需连接钱包并把王国凭证真实铸造上链（BSC 或 Solana），才能解锁旗帜设计与建国。铸造后，王国数据随证书保存与分享，并可在区块链浏览器核验。':'Connect a wallet and mint the Kingdom Pass on-chain (BSC or Solana) to unlock flag design and kingdom building. After minting, the kingdom data is saved and shared with the certificate, and verifiable on a block explorer.',
+  '选择链':'Chain', '在浏览器核验':'verify on explorer', '已上链':'On-chain',
+  '请安装 Phantom 等 Solana 钱包':'Please install Phantom or another Solana wallet',
+  '钱包连接被取消':'Wallet connection cancelled',
+  'BSC 合约地址未配置（见 js/mint.js 的 CONFIG.chains.bsc.contract）':'BSC contract address not configured (see CONFIG.chains.bsc.contract in js/mint.js)',
+  '证书尚未生成，请稍候':'Certificate not ready yet, please wait',
+  '不支持的链':'Unsupported chain', '铸造失败':'Minting failed',
   '钱包已连接':'Wallet connected', '未连接':'Not connected',
 };
 

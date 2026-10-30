@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Cormorant+Garamond:wght@400;500;600&display=swap" />
-  <link rel="stylesheet" href="css/style.css?v=20261044" />
+  <link rel="stylesheet" href="css/style.css?v=20261045" />
   <!-- 字体样式表异步加载：先渲染页面，字体就绪后自动生效 -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Cormorant+Garamond:wght@400;500;600&display=swap" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Cormorant+Garamond:wght@400;500;600&display=swap" /></noscript>
@@ -191,8 +191,13 @@
       <div class="mint-gate" id="mint-gate">
         <div class="mg-ico">⛓</div>
         <div class="mg-text">
-          <h3 data-i18n="建国需先铸造王国凭证（钱包签名）">建国需先铸造王国凭证（钱包签名）</h3>
-          <p data-i18n="普通用户需连接钱包并铸造 Kingdom Pass NFT，才能解锁旗帜设计与建国。铸造后，王国数据将随证书一同保存与分享。">普通用户需连接钱包并铸造 Kingdom Pass NFT，才能解锁旗帜设计与建国。铸造后，王国数据将随证书一同保存与分享。</p>
+          <h3 data-i18n="建国需先铸造王国凭证（链上 NFT）">建国需先铸造王国凭证（链上 NFT）</h3>
+          <p data-i18n="普通用户需连接钱包并把王国凭证真实铸造上链（BSC 或 Solana），才能解锁旗帜设计与建国。铸造后，王国数据随证书保存与分享，并可在区块链浏览器核验。">普通用户需连接钱包并把王国凭证真实铸造上链（BSC 或 Solana），才能解锁旗帜设计与建国。铸造后，王国数据随证书保存与分享，并可在区块链浏览器核验。</p>
+        </div>
+        <div class="mg-chain" id="mg-chain">
+          <span class="mg-chain-label" data-i18n="选择链">选择链</span>
+          <button class="chain-btn active" data-chain="bsc" type="button">BNB Chain</button>
+          <button class="chain-btn" data-chain="solana" type="button">Solana</button>
         </div>
         <div class="mg-actions">
           <button class="btn btn-outline btn-sm" id="btn-connect-wallet" data-i18n="连接钱包">连接钱包</button>
@@ -200,6 +205,7 @@
           <button class="btn btn-ghost btn-sm" id="btn-back-claim" data-i18n="返回认领星球">返回认领星球 ↩</button>
           <span class="mg-status" id="mg-status"></span>
         </div>
+        <div class="mg-result" id="mg-result"></div>
       </div>
       <div class="claim-layout">
         <div class="claim-col">
@@ -402,6 +408,6 @@
 
   <div id="toast" class="toast"></div>
 
-  <script type="module" src="js/app.js?v=20261044"></script>
+  <script type="module" src="js/app.js?v=20261045"></script>
 </body>
 </html>

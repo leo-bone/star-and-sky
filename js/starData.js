@@ -1,6 +1,6 @@
-import { hashString, mulberry32, rand, randInt, pick } from './rng.js?v=20261044';
-import { pickRealStar } from './catalog.js?v=20261044';
-import { t } from './i18n.js?v=20261044';
+import { hashString, mulberry32, rand, randInt, pick } from './rng.js?v=20261045';
+import { pickRealStar } from './catalog.js?v=20261045';
+import { t } from './i18n.js?v=20261045';
 
 // 光谱类型：颜色、温度区间、权重（恒星形态）
 const SPECTRAL = {

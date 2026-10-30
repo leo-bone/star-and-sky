@@ -1,15 +1,15 @@
 // 3D 宇宙背景依赖 three.js（CDN）+ WebGL；改为动态 import，
 // 即使 CDN 抽风或 WebGL 不可用，也只是降级为空操作，绝不拖垮整站（开门/问答/证书照常）
-import { initQuiz } from './quiz.js?v=20261044';
-import { generateStar, starParamList } from './starData.js?v=20261044';
-import { initKingdom } from './kingdom.js?v=20261044';
-import { initCertificate } from './certificate.js?v=20261044';
-import { encodeStar, shareLink, copyText, parseCodeFromURL, decodeStar } from './share.js?v=20261044';
-import { starKey, pushStar, updateStar, listStars, addMessage, listMessages, nameTaken, getStarByKey, ownerIdExists, catalogTaken } from './cloud.js?v=20261044';
-import { initSkyMap } from './skymap.js?v=20261044';
-import { loadCatalog } from './catalog.js?v=20261044';
-import { t, getLang, setLang, applyI18n, initLangToggle } from './i18n.js?v=20261044';
-import { isMinted, getMint, connectWallet, mint, getAddress, mintAddress } from './mint.js?v=20261044';
+import { initQuiz } from './quiz.js?v=20261045';
+import { generateStar, starParamList } from './starData.js?v=20261045';
+import { initKingdom } from './kingdom.js?v=20261045';
+import { initCertificate } from './certificate.js?v=20261045';
+import { encodeStar, shareLink, copyText, parseCodeFromURL, decodeStar } from './share.js?v=20261045';
+import { starKey, pushStar, updateStar, listStars, addMessage, listMessages, nameTaken, getStarByKey, ownerIdExists, catalogTaken } from './cloud.js?v=20261045';
+import { initSkyMap } from './skymap.js?v=20261045';
+import { loadCatalog } from './catalog.js?v=20261045';
+import { t, getLang, setLang, applyI18n, initLangToggle } from './i18n.js?v=20261045';
+import { isMinted, getMint, connectWallet, mint, getAddress, mintAddress, explorerTxUrl } from './mint.js?v=20261045';
 
 const SESSION_KEY = 'star-sky-session-v1';
 const CLAIM_KEY = 'star-sky-claim-v1';   // 已认领星球（与问答进度分离，独立持久化，刷新/重开不丢失）
@@ -55,7 +55,7 @@ function getDeviceId(){
 // 3D 宇宙背景依赖 three.js（CDN）+ WebGL；若不可用则降级为空操作桩，绝不因此拖垮整站
 const NULL_UNIVERSE = { setStar(){}, showHero(){}, hideHero(){}, setControl(){}, setFocus(){}, setActive(){} };
 let universe = NULL_UNIVERSE;
-import('./universe.js?v=20261044').then(m => {
+import('./universe.js?v=20261045').then(m => {
   try { universe = m.initUniverse(document.getElementById('cosmos')); }
   catch (e) { console.warn('3D 宇宙背景初始化失败，已降级为静态背景', e); }
 }).catch(e => console.warn('3D 宇宙背景模块加载失败（CDN/WebGL），已降级为空操作', e));
@@ -64,7 +64,7 @@ const card = initCertificate();
 // 3D 星球视口依赖 three.js（CDN）；若不可用则降级为空操作桩，绝不拖垮整站
 const NULL_PLANET3D = { setStar(){}, show(){}, hide(){}, resize(){} };
 let planet3d = NULL_PLANET3D;
-import('./planet3d.js?v=20261044').then(m => {
+import('./planet3d.js?v=20261045').then(m => {
   try {
     planet3d = m.initPlanet3D(document.getElementById('planet-canvas'));
     if (currentStar && screens.universe && screens.universe.classList.contains('active')){
@@ -389,7 +389,10 @@ async function commitClaim(name){
   if (currentStar) currentStar.name = name;
   const state = kingdom.getState();
   state.flagSVG = kingdom.buildFlagSVG();
-  state.minter = mintAddress(currentStarCode());   // 铸造者钱包地址随王国数据一同保存/分享
+  const mrec = getMint(currentStarCode());          // 铸造者钱包地址 + 链 + Tx 随王国数据一同保存/分享
+  state.minter = mrec ? mrec.address : null;
+  state.mintChain = mrec ? mrec.chain : null;
+  state.mintTx = mrec ? mrec.txHash : null;
   currentKingdom = state;
   kingdom.save();
   saveSession('share');
@@ -479,6 +482,11 @@ function currentStarCode(){
   if (!currentStar) return null;
   return currentStar.catalogNo || currentStar.designation || null;
 }
+// 读取门禁当前选中的链（默认 bsc）
+function currentMintChain(){
+  const el = document.querySelector('#mg-chain .chain-btn.active');
+  return (el && el.dataset.chain) || 'bsc';
+}
 // 依据是否已铸造，显示/隐藏门禁并锁定或解锁建国表单
 function updateMintGate(){
   const gate = document.getElementById('mint-gate');
@@ -492,12 +500,26 @@ function updateMintGate(){
       if (el.id === 'btn-connect-wallet' || el.id === 'btn-mint') return;
       el.disabled = !minted;
     });
-  gate.style.display = minted ? 'none' : 'flex';
+  gate.style.display = 'flex';
+  gate.classList.toggle('minted', minted);
   const st = document.getElementById('mg-status');
   if (st){
     const m = getMint(code);
     st.textContent = minted ? (t('已铸造 · 解锁建国') + (m ? ' · ' + shortAddr(m.address) : '')) : '';
     st.classList.toggle('ok', minted);
+  }
+  // 铸造结果：交易哈希 + 区块链浏览器核验链接（铸造后展示在门禁下方）
+  const res = document.getElementById('mg-result');
+  if (res){
+    const m = getMint(code);
+    if (m && m.txHash){
+      const url = explorerTxUrl(m.chain, m.txHash);
+      const chainName = m.chain === 'bsc' ? 'BNB Chain' : 'Solana';
+      const linkHtml = url ? ` · <a href="${url}" target="_blank" rel="noopener">${t('在浏览器核验')}</a>` : '';
+      res.innerHTML = `<span class="mg-r-ok">✓ ${t('已上链')} · ${chainName}${linkHtml}</span>`;
+    } else {
+      res.innerHTML = '';
+    }
   }
   const mintBtn = document.getElementById('btn-mint');
   if (mintBtn) mintBtn.disabled = minted;   // 已铸造则无需再铸
@@ -507,8 +529,9 @@ function shortAddr(a){ return a ? (a.slice(0,6) + '…' + a.slice(-4)) : ''; }
 
 document.getElementById('btn-connect-wallet').addEventListener('click', async ()=>{
   const st = document.getElementById('mg-status');
+  const chain = currentMintChain();
   try {
-    const addr = await connectWallet();
+    const addr = await connectWallet(chain);
     if (st){ st.textContent = t('钱包已连接') + ' · ' + shortAddr(addr); st.classList.add('ok'); }
     const mb = document.getElementById('btn-mint'); if (mb) mb.disabled = false;
   } catch(e){
@@ -519,20 +542,31 @@ document.getElementById('btn-connect-wallet').addEventListener('click', async ()
 document.getElementById('btn-mint').addEventListener('click', async ()=>{
   const st = document.getElementById('mg-status');
   const mb = document.getElementById('btn-mint');
+  const chain = currentMintChain();
   const code = currentStarCode();
   if (!code){ toast(t('请先在「认星」页认领一颗星')); return; }
   if (mb){ mb.disabled = true; mb.textContent = t('铸造中…'); }
   try {
-    await mint(code, currentStar && currentStar.name);
+    // 铸造前先把当前星/王国渲染进证书 canvas，作为 NFT 图片
+    if (currentStar && currentKingdom) try { card.build(currentStar, currentKingdom); } catch(e){}
+    await mint(chain, code, currentStar, currentKingdom);
     if (st){ st.textContent = t('已铸造 · 解锁建国'); st.classList.add('ok'); }
     updateMintGate();
   } catch(e){
-    if (st){ st.textContent = (e && e.message) || t('签名被取消或失败'); st.classList.remove('ok'); }
+    if (st){ st.textContent = (e && e.message) || t('铸造失败'); st.classList.remove('ok'); }
   } finally {
     if (mb){ mb.textContent = t('铸造王国凭证 NFT'); }
     updateMintGate();
     refreshUpgradeBtn();
   }
+});
+
+// 链选择：切换 BSC / Solana（仅影响本次铸造目标链）
+document.querySelectorAll('#mg-chain .chain-btn').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    document.querySelectorAll('#mg-chain .chain-btn').forEach(x=> x.classList.remove('active'));
+    b.classList.add('active');
+  });
 });
 
 // 门禁卡：「返回认领星球」—— 放弃建国/铸造，回到认星页走免费直接认领

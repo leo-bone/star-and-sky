@@ -34,16 +34,18 @@ realistically textured 3D planets, browse a real star catalog, and generate a sh
 建国门禁的「王国凭证（Kingdom Pass）」可真实铸造上链，目前支持两条链：
 
 - **BSC（BNB Smart Chain）** — 标准 ERC-721 合约（`contracts/StarSkyBSC.sol`），用 ethers v6 调用。
-  部署：`npx hardhat run scripts/deploy-bsc.js --network bscTestnet`（或 `bscMainnet`）。
+  部署：`npx hardhat run scripts/deploy-bsc.js --network bscMainnet`（或先用 `bscTestnet` 试水）。
   铸造时用户支付极少量 BNB 作为 gas。
 - **Solana** — 通过 Metaplex Core 程序铸造（无需自部署合约），用 `@solana/web3.js` + UMI。
   铸造时用户支付极少量 SOL。
 
-铸造流程：连接钱包 →（BSC 自动切到对应网络）→ 上传证书图片与 metadata 到 IPFS → 调用合约铸造 →
-证书展示 `Minted by <地址>`、`tx <哈希>` 与区块链浏览器核验链接。
+铸造流程：在门禁选链（BNB Chain / Solana）→ 连接钱包 →（BSC 自动切到对应网络）→
+上传证书图片与 metadata 到 IPFS（Pinata，未配 key 时自动回退 data-URI）→ 调用链上铸造 →
+证书与门禁展示 `Minted on <链> · <地址>`、`tx <哈希>` 与区块链浏览器核验链接。
 
-> 配置项集中在 `js/mint.js` 顶部的 `CHAINS`：各链的合约地址（BSC）、RPC、浏览器前缀。
-> 测试网通过后，把合约部署到主网并把地址填入 `CHAINS` 即可切到主网。
+> 配置项集中在 `js/mint.js` 顶部的 `CONFIG`：各链的合约地址（BSC）、RPC、浏览器前缀、Pinata JWT。
+> 把 BSC 主网合约地址填入 `CONFIG.chains.bsc.contract` 即可启用主网铸造。
+> `contracts/`、`scripts/`、`hardhat.config.js`、`package.json` 仅为本地部署工具，不属于静态站点本身。
 
 > 免责：本证书与 NFT 为私人纪念藏品，非国际天文学联合会（IAU）官方命名；星体坐标引自真实星表，但「认领」仅为纪念性质，不代表任何天体权属。
 

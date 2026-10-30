@@ -321,6 +321,20 @@ html[lang="en"] .opt .sub{display:none}
 .mint-gate .mg-status{font-size:12px;color:var(--muted)}
 .mint-gate .mg-status.ok{color:var(--gold)}
 .mint-gate .btn:disabled{opacity:.45;cursor:not-allowed}
+/* 链选择器 */
+.mint-gate .mg-chain{display:flex;align-items:center;gap:8px;width:100%;margin-top:2px}
+.mint-gate .mg-chain-label{font-size:12px;color:var(--muted);margin-right:2px}
+.mint-gate .chain-btn{font-size:12px;padding:6px 14px;border-radius:999px;cursor:pointer;
+  border:1px solid rgba(207,168,106,.4);background:transparent;color:var(--ink);transition:all .2s}
+.mint-gate .chain-btn:hover{border-color:var(--gold)}
+.mint-gate .chain-btn.active{background:var(--gold);color:#1a1306;border-color:var(--gold);font-weight:600}
+/* 铸造结果（交易哈希 + 浏览器核验链接） */
+.mint-gate .mg-result{width:100%;font-size:12px;margin-top:2px}
+.mint-gate .mg-result .mg-r-ok{color:var(--gold)}
+.mint-gate .mg-result a{color:#9ec5ff;text-decoration:underline}
+/* 已铸造：门禁转为成功条，弱化边框、提示可继续建国 */
+.mint-gate.minted{border-color:rgba(120,200,140,.4);
+  background:linear-gradient(135deg, rgba(120,200,140,.08), rgba(207,168,106,.05))}
 /* 门禁生效时，建国表单整体降透明度，提示“已锁定” */
 .screen.kingdom-locked .claim-col,
 .screen.kingdom-locked .flag-col{opacity:.5;pointer-events:none;filter:grayscale(.3)}
