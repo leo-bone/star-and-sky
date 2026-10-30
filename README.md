@@ -6,24 +6,46 @@ A pure front-end, immersive stargazing experience. Claim your own star, roam amo
 realistically textured 3D planets, browse a real star catalog, and generate a shareable
 "Certificate of Star" — all in the browser, no build step required.
 
-> 在线体验 / Live demo: https://star-and-sky.app.workbuddy.host/?sharecode=O6SHDCEYS2
+> 在线体验 / Live demo: https://star.uichain.org/
 
 ## 功能特性 / Features
 
 - **真 3D 可旋转星球** — Three.js 程序化生成的火星 / 木星 / 金星等级地表质感，支持鼠标拖拽旋转、缩放。
 - **建国留言（云端保存）** — 认领星球、设计旗帜、撰写铭文，数据通过 WorkBuddy Cloud Service 持久化，名称去重。
 - **Find Your Star** — 依据问答生成专属星辰，展示编号、距离、个性化寄语，并可一键分享（base64 载荷链接）。
-- **真实星表** — 内置 656 KB 真实恒星数据（`data/stars.json`）与星座连线（`data/constellations.lines.json`），世界星图墙支持云端共享。
-- **星辰证书** — 球面重投影渲染证书，含坐标、参数表、议会铭文，支持下载与链接分享。
+- **真实星表** — 内置真实恒星数据（`data/stars.json`，约 5000 颗亮星，含 HIP/HD 编号、拜耳/佛兰斯蒂德命名、真实坐标）与星座连线（`data/constellations.lines.json`），世界星图墙支持云端共享。
+- **星辰证书** — 球面重投影渲染证书，含坐标、参数表、签发签名与免责声明，支持下载与链接分享。
 - **中英文切换** — 顶部 `EN / 中文` 按钮一键国际化，未翻译文案自动回退中文，保证界面不破。
 - **零构建** — 原生 ES Modules + importmap 从 CDN 加载 Three.js，直接静态托管即可运行。
+- **区块链铸造（NFT）** — 建国门禁的「王国凭证」可真实铸造上链：BSC（ERC-721）与 Solana（Metaplex Core），铸造后证书展示交易哈希与浏览器核验链接。详见下方「NFT 铸造」。
 
 ## 技术栈 / Tech
 
 - 原生 ES Modules（无打包工具）
 - [Three.js](https://threejs.org/) 0.160.0 + OrbitControls（importmap / CDN）
+- [ethers.js](https://docs.ethers.org/) v6（BSC / EVM 链上铸造，动态 import）
+- [@solana/web3.js](https://solana-labs.github.io/solana-web3.js/) + Metaplex Core UMI（Solana 铸造，动态 import）
 - WorkBuddy Cloud Service（PostgreSQL + PostgREST 风格 SDK）实现云端星图墙与建国留言
 - Canvas 程序化等距柱状贴图、SVG 旗帜渐变
+- IPFS（Pinata）持久化 NFT 元数据与证书图片
+
+## NFT 铸造 / On-chain Minting
+
+建国门禁的「王国凭证（Kingdom Pass）」可真实铸造上链，目前支持两条链：
+
+- **BSC（BNB Smart Chain）** — 标准 ERC-721 合约（`contracts/StarSkyBSC.sol`），用 ethers v6 调用。
+  部署：`npx hardhat run scripts/deploy-bsc.js --network bscTestnet`（或 `bscMainnet`）。
+  铸造时用户支付极少量 BNB 作为 gas。
+- **Solana** — 通过 Metaplex Core 程序铸造（无需自部署合约），用 `@solana/web3.js` + UMI。
+  铸造时用户支付极少量 SOL。
+
+铸造流程：连接钱包 →（BSC 自动切到对应网络）→ 上传证书图片与 metadata 到 IPFS → 调用合约铸造 →
+证书展示 `Minted by <地址>`、`tx <哈希>` 与区块链浏览器核验链接。
+
+> 配置项集中在 `js/mint.js` 顶部的 `CHAINS`：各链的合约地址（BSC）、RPC、浏览器前缀。
+> 测试网通过后，把合约部署到主网并把地址填入 `CHAINS` 即可切到主网。
+
+> 免责：本证书与 NFT 为私人纪念藏品，非国际天文学联合会（IAU）官方命名；星体坐标引自真实星表，但「认领」仅为纪念性质，不代表任何天体权属。
 
 ## 目录结构 / Structure
 
@@ -36,8 +58,9 @@ js/
   quiz.js             问答生成专属星辰
   starData.js         星辰数据 / 光谱名 / 星系
   kingdom.js          建国 + 旗帜设计（含 XSS 白名单防御）
-  card.js             星辰证书渲染与下载
-  skymap.js           世界星图墙（3D 星点）
+  certificate.js      星辰证书渲染与下载
+  skymap.js           真实星空（3D 星图墙 · 找星）
+  mint.js             区块链铸造（BSC ERC-721 / Solana Metaplex Core）
   cloud.js / share.js / universe.js / ...
   bodyTexture.js      程序化星球贴图
   planet3d.js         3D 星球渲染
@@ -45,6 +68,10 @@ data/
   stars.json                   真实恒星数据
   constellations.lines.json    星座连线
 assets/                       背景与行星贴图
+contracts/
+  StarSkyBSC.sol              BSC 上发行的 ERC-721 合约（铸造王国凭证）
+scripts/
+  deploy-bsc.js               Hardhat 部署脚本（BSC 测试网/主网）
 ```
 
 ## 本地运行 / Run locally
@@ -62,7 +89,7 @@ npx serve .
 ## 部署 / Deploy
 
 静态站点，可托管于任意静态空间（GitHub Pages / uichain.org / Nginx 等）。
-当前线上地址：`https://star-and-sky.app.workbuddy.host/?sharecode=O6SHDCEYS2`
+当前线上地址：`https://star.uichain.org/`
 
 ## 许可 / License
 

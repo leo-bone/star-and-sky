@@ -325,14 +325,6 @@ html[lang="en"] .opt .sub{display:none}
 .screen.kingdom-locked .claim-col,
 .screen.kingdom-locked .flag-col{opacity:.5;pointer-events:none;filter:grayscale(.3)}
 
-/* 星图页：即将上线入口卡（点击进入独立页） */
-.premium-entry{display:flex;align-items:center;gap:14px;margin-top:22px;padding:14px 16px;border-radius:12px;
-  background:rgba(255,255,255,.03);border:1px solid rgba(200,168,110,.25)}
-.premium-entry .pe-ico{font-size:26px;line-height:1}
-.premium-entry .pe-text{flex:1;min-width:0}
-.premium-entry .pe-text h3{font-family:"Noto Serif SC",serif;font-size:15px;margin-bottom:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.premium-entry .pe-text p{color:var(--muted);font-size:12px;line-height:1.6}
-
 /* 即将上线独立页 */
 .premium-page{max-width:680px;margin:0 auto;width:100%}
 .premium-back{margin-bottom:14px}
@@ -631,7 +623,6 @@ html[lang="en"] .opt .sub{display:none}
 .cinema.opening .flash{opacity:1;transition:opacity .35s ease .9s}
 
 @media (max-width:520px){
-  .gate-scene{height:min(520px,66vh)}
   .cinema-text{top:12vh}
   .cinema-cta{bottom:11vh}
 }
