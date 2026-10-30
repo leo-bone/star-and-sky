@@ -1,11 +1,11 @@
 // 星球认领证书 —— 单张高分辨率 canvas 绘制（按《星球认领证书｜通用视觉规范》重构）
 // 版本：9:12 竖版 · 深空档案风 · 版式骨架锁死，仅星球/名称/注册信息可变
 // 中心星球与 3D 认星页共用同一套 bodyTexture 表面，保证证书星 == 网页「认领的星星」。
-import { hashString, mulberry32 } from './rng.js?v=20261042';
-import { shareLink, encodeStar, qrLinkForStar } from './share.js?v=20261042';
-import { getBodySurface, uvFromDir } from './bodyTexture.js?v=20261042';
-import { t } from './i18n.js?v=20261042';
-import { localizedSpecName } from './starData.js?v=20261042';
+import { hashString, mulberry32 } from './rng.js?v=20261043';
+import { shareLink, encodeStar, qrLinkForStar } from './share.js?v=20261043';
+import { getBodySurface, uvFromDir } from './bodyTexture.js?v=20261043';
+import { t } from './i18n.js?v=20261043';
+import { localizedSpecName } from './starData.js?v=20261043';
 
 // ===== 画布：9:12 竖版（3:4）=====
 const DW = 1240, DH = 1653;   // 设计尺寸（3:4）
@@ -604,7 +604,8 @@ function drawInfoCard(ctx, card, star, kd){
   ctx.restore();
 }
 
-// 右下角签发人签名：President: Leo Win —— 英文潦草手写体，淡金低透明度，轻微旋转，不遮挡内容
+// 右下角签发人签名：President: Leo Win —— 英文潦草手写体，深古铜金墨色清晰可读，轻微旋转
+// 与卡片主名称同色系（#7c5e22），在象牙底上醒目但不刺眼；中英文版本均固定英文
 function drawSignature(ctx, card){
   const { x0, y0, w, h } = card;
   const xR = x0 + w - 66;     // 右对齐锚点（避开右下角 L 形金饰，距卡右 66px）
@@ -612,15 +613,17 @@ function drawSignature(ctx, card){
   ctx.save();
   ctx.translate(xR, yB);
   ctx.rotate(-6 * Math.PI / 180);
-  ctx.globalAlpha = 0.26;       // 若隐若现
+  ctx.globalAlpha = 0.72;       // 清晰可辨：签名是认证标记，应能被辨认，仍保留手写墨迹的轻微通透
   ctx.textAlign = 'right'; ctx.textBaseline = 'alphabetic';
+  // 签名墨色：深古铜金（与卡片主名称同色系，象牙底上清晰可读）
+  const ink = 'rgba(124,94,34,1)';   // #7c5e22 深青铜金
   // 小字标签：President:
-  setFont(ctx, 'italic 500 15px "Cormorant Garamond", "Noto Serif SC", serif');
-  ctx.fillStyle = 'rgba(205,175,115,1)';
+  setFont(ctx, 'italic 600 15px "Cormorant Garamond", "Noto Serif SC", serif');
+  ctx.fillStyle = ink;
   ctx.fillText('President:', 0, -8);
   // 手写签名正文：Leo Win（Dancing Script，跨设备一致；Mac 回退 Snell Roundhand）
-  setFont(ctx, '600 42px "Dancing Script", "Snell Roundhand", "Brush Script MT", cursive');
-  ctx.fillText('Leo Win', 0, 26);
+  setFont(ctx, '600 46px "Dancing Script", "Snell Roundhand", "Brush Script MT", cursive');
+  ctx.fillText('Leo Win', 0, 28);
   ctx.restore();
 }
 
