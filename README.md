@@ -47,6 +47,20 @@ realistically textured 3D planets, browse a real star catalog, and generate a sh
 > 把 BSC 主网合约地址填入 `CONFIG.chains.bsc.contract` 即可启用主网铸造。
 > `contracts/`、`scripts/`、`hardhat.config.js`、`package.json` 仅为本地部署工具，不属于静态站点本身。
 
+### 一键部署（推荐）
+
+本地已提供 `scripts/deploy.sh` 与 `.env.example`，把部署步骤打包，降低手动出错：
+
+```bash
+cp .env.example .env          # 填入 PRIVATE_KEY（部署钱包需含 BNB 付 gas）
+bash scripts/deploy.sh        # 主网；末尾加 testnet 参数走 BSC 测试网
+```
+
+脚本会自动：校验 `.env` → 安装依赖 → 部署合约 → 把地址回填到 `js/mint.js` →
+版本号自增（强制浏览器刷新缓存的 mint.js）→ 本地 `git commit`。
+**推送需你手动执行** `git push origin main`，约 1–3 分钟后 `star.uichain.org` 生效，即可在 BSC 链铸造。
+Solana 无需部署合约（用官方 Metaplex Core 程序），只需在 `js/mint.js` 配好 Pinata 即可。
+
 > 免责：本证书与 NFT 为私人纪念藏品，非国际天文学联合会（IAU）官方命名；星体坐标引自真实星表，但「认领」仅为纪念性质，不代表任何天体权属。
 
 ## 目录结构 / Structure
@@ -74,6 +88,7 @@ contracts/
   StarSkyBSC.sol              BSC 上发行的 ERC-721 合约（铸造王国凭证）
 scripts/
   deploy-bsc.js               Hardhat 部署脚本（BSC 测试网/主网）
+  deploy.sh                   一键部署（校验 .env → 装依赖 → 部署 → 回填地址 → 版本号自增 → 本地提交）
 ```
 
 ## 本地运行 / Run locally

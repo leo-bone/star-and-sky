@@ -2,13 +2,13 @@
 pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 /// @title Star & Sky Kingdom Pass
 /// @notice 用户将其「星辰王国凭证」铸造为 ERC-721 上 BNB Smart Chain。
 ///         任何人可铸造到自己的地址；管理员可代铸给指定地址。
-contract StarSkyBSC is ERC721, ERC721URIStorage, Ownable {
+/// @dev OpenZeppelin Contracts v5：ERC721 已内建 URI 存储（无需 ERC721URIStorage）。
+contract StarSkyBSC is ERC721, Ownable {
     uint256 private _nextId;
     string private _base;
 
@@ -44,7 +44,7 @@ contract StarSkyBSC is ERC721, ERC721URIStorage, Ownable {
     function tokenURI(uint256 id)
         public
         view
-        override(ERC721, ERC721URIStorage)
+        override(ERC721)
         returns (string memory)
     {
         return super.tokenURI(id);
@@ -53,7 +53,7 @@ contract StarSkyBSC is ERC721, ERC721URIStorage, Ownable {
     function supportsInterface(bytes4 id)
         public
         view
-        override(ERC721, ERC721URIStorage)
+        override(ERC721)
         returns (bool)
     {
         return super.supportsInterface(id);

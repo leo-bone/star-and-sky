@@ -20,6 +20,10 @@ async function main() {
   console.log("✅ StarSkyBSC deployed at:", addr);
   console.log("→ 把它填入 js/mint.js 的 CONFIG.chains.bsc.contract");
   console.log("→ 铸造手续费：用户支付极少 BNB 作为 gas（合约本身免费铸造）");
+
+  // 供 deploy.sh 一键回填：把地址写到一个临时文件
+  require("fs").writeFileSync(".bsc-contract-address", addr);
+  console.log("📝 合约地址已写入 .bsc-contract-address");
 }
 
 main().catch((e) => {
