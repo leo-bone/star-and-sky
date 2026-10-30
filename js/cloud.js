@@ -87,8 +87,8 @@ export async function catalogTaken(catalogNo){
 // 把一颗认领的星同步到云端。
 //  · code 重复 → 视为幂等成功（同一颗星重复推送，不报错）
 //  · name 重复 → 抛出 e.code='23505_name'，由上层拦截、提示用户换名
-//  · owner_id 重复 → 一人一星硬限制（stars 表需对 owner_id 建唯一索引，见下方说明）
-// 注：stars 表对 lower(name) 建有唯一索引，是并发撞名的最终兜底。
+//  · owner_id 重复 → 一人一星硬限制（已由 stars_owner_id_unique 唯一索引在数据库层兜底，前端误吞逻辑已修复）
+// 注：stars_name_unique(lower(name)) / stars_catalog_no_unique / stars_owner_id_unique 三个唯一索引均已落地，是并发撞名/撞星/一人一星的最终兜底。
 export async function pushStar(record){
   const cloud = await getCloud();
   const row = {
@@ -109,8 +109,11 @@ export async function pushStar(record){
     const { error } = await cloud.database.from(T_STARS).insert(row);
     if (error) throw error;
   } catch(e){
-    // 后端尚未给 stars 表加 owner_id 列时，降级为不含该列重试，避免认领被卡死（加列后自动启用硬限制）
-    if (/owner_id/.test((e.message || '') + ' ' + (e.code || ''))){
+    // 仅当 owner_id 列确实不存在（迁移未就绪，Postgres 错误码 42703 “column does not exist”）时，
+    // 才剥除该列重试，避免认领被卡死。
+    // 重要：owner_id 唯一冲突（23505 / stars_owner_id_unique）绝对不能在此剥除——否则会绕过“一人一星”硬约束。
+    const em = (e.message || '') + ' ' + (e.code || '');
+    if (/owner_id/.test(em) && /does not exist|42703/.test(em)){
       delete row.owner_id;
       const r2 = await cloud.database.from(T_STARS).insert(row);
       if (r2.error){ if (r2.error.code === '23505') return handle23505(r2.error); throw r2.error; }
@@ -128,6 +131,9 @@ function handle23505(error){
   }
   if (/stars_catalog_no_unique/.test(msg)){
     const e = new Error('这颗星刚刚被别人认领了'); e.code = '23505_catalog'; throw e;
+  }
+  if (/stars_owner_id_unique/.test(msg)){
+    const e = new Error('你已在宇宙中点亮过一颗星，无法重复认领'); e.code = '23505_owner'; throw e;
   }
   return true; // code 重复：幂等成功
 }
@@ -147,7 +153,7 @@ export async function updateStar(catalogNo, fields){
   }
 }
 
-// 一人一星：查该设备/身份是否已认领过（stars 表需建 owner_id 唯一列才生效）
+// 一人一星：查该设备/身份是否已认领过（数据库 stars_owner_id_unique 唯一索引已兜底；此处为应用层提前拦截，减少无效请求）
 export async function ownerIdExists(ownerId){
   if (!ownerId || ownerId === 'anon') return false;
   try {
