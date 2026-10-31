@@ -22,7 +22,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
 body{
-  font-family:"Noto Sans SC","Space Grotesk",system-ui,sans-serif;
+  font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans CJK SC","Space Grotesk",system-ui,sans-serif;
   /* 深空虚空底色：顶部用较深的暗蓝紫（非灰蓝），中/底一路沉到近黑，还原宇宙纵深 */
   background:radial-gradient(135% 120% at 50% -15%, #0a0c1e 0%, #05060f 48%, #00010a 100%);
   color:var(--ink);
@@ -39,7 +39,7 @@ body{
   background:linear-gradient(180deg, rgba(5,6,15,.6), transparent)}
 .brand{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
 .brand-mark{color:var(--gold);font-size:20px;filter:drop-shadow(0 0 8px var(--gold))}
-.brand-name{font-family:"Noto Serif SC",serif;font-weight:700;font-size:19px;letter-spacing:2px}
+.brand-name{font-family:"Songti SC","SimSun","Noto Serif CJK SC",serif;font-weight:700;font-size:19px;letter-spacing:2px}
 .brand-sub{color:var(--muted);font-size:11px;letter-spacing:3px;font-family:"Space Grotesk"}
 /* 英文模式下：Logo 副标题（STAR & SKY）与问答英文小注已冗余，隐藏，避免与英文主名/主标签重复 */
 html[lang="en"] .brand-sub{display:none}
@@ -91,7 +91,7 @@ html[lang="en"] .opt .sub{display:none}
 
 /* ---------- 首页 ---------- */
 .home-inner{max-width:880px;text-align:center;margin:auto}
-.home-title{font-family:"Noto Serif SC",serif;font-weight:700;
+.home-title{font-family:"Songti SC","SimSun","Noto Serif CJK SC",serif;font-weight:700;
   font-size:clamp(56px,12vw,140px);line-height:1;letter-spacing:6px;
   background:linear-gradient(180deg,#fff, #b9c6ff 60%, #6f7bff);
   -webkit-background-clip:text;background-clip:text;color:transparent;
@@ -124,7 +124,7 @@ html[lang="en"] .opt .sub{display:none}
 .q-card{background:var(--glass);border:1px solid var(--gold-line);border-radius:var(--r);
   padding:clamp(20px,3.4vw,34px);box-shadow:0 16px 44px rgba(0,0,0,.42);backdrop-filter:blur(10px);
   animation:fade .5s ease}
-.q-title{font-family:"Noto Serif SC",serif;font-size:clamp(24px,4vw,34px);margin-bottom:8px}
+.q-title{font-family:"Songti SC","SimSun","Noto Serif CJK SC",serif;font-size:clamp(24px,4vw,34px);margin-bottom:8px}
 .q-desc{color:#aeb6d8;font-size:14.5px;margin-bottom:26px;font-weight:300;
   text-shadow:0 1px 8px rgba(0,0,0,.5);line-height:1.7}
 .q-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
@@ -147,7 +147,7 @@ html[lang="en"] .opt .sub{display:none}
 /* ---------- 宇宙 / 认星 ---------- */
 .uni-layout{width:min(1180px,100%);margin:auto;display:grid;
   grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:40px;align-items:center}
-.uni-title{font-family:"Noto Serif SC",serif;font-size:clamp(30px,5vw,46px);margin-bottom:10px;
+.uni-title{font-family:"Songti SC","SimSun","Noto Serif CJK SC",serif;font-size:clamp(30px,5vw,46px);margin-bottom:10px;
   background:linear-gradient(120deg,#fff,#9fb4ff);-webkit-background-clip:text;
   background-clip:text;color:transparent}
 .uni-sub{color:var(--muted);margin-bottom:26px;font-weight:300}
@@ -179,7 +179,7 @@ html[lang="en"] .opt .sub{display:none}
 /* ---------- 认领 / 建国 ---------- */
 .claim-layout{width:min(1180px,100%);margin:auto;display:grid;
   grid-template-columns:1fr 1fr;gap:40px}
-.sec-title{font-family:"Noto Serif SC",serif;font-size:clamp(26px,4vw,38px);margin-bottom:10px}
+.sec-title{font-family:"Songti SC","SimSun","Noto Serif CJK SC",serif;font-size:clamp(26px,4vw,38px);margin-bottom:10px}
 .sec-sub{color:var(--muted);font-weight:300;margin-bottom:26px;font-size:14px}
 .field{margin-bottom:22px}
 .field label{display:block;font-size:13px;color:var(--muted);margin-bottom:9px;letter-spacing:.5px}
@@ -285,7 +285,7 @@ html[lang="en"] .opt .sub{display:none}
 .premium-head{margin-bottom:18px}
 .cs-eyebrow{display:inline-block;font-family:"Space Grotesk",sans-serif;font-size:11px;letter-spacing:4px;font-weight:700;
   color:#08101f;background:linear-gradient(120deg,var(--gold),#ffe9b0);padding:5px 16px;border-radius:999px;margin-bottom:12px}
-.premium-head h3{font-family:"Noto Serif SC",serif;font-size:22px;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;color:#f3e9d2}
+.premium-head h3{font-family:"Songti SC","SimSun","Noto Serif CJK SC",serif;font-size:22px;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;color:#f3e9d2}
 .premium-tag{font-family:"Space Grotesk";font-size:10px;letter-spacing:1px;color:#08101f;font-weight:700;
   background:linear-gradient(120deg,var(--gold),#ffe9b0);padding:3px 9px;border-radius:999px}
 .premium-head p{color:var(--muted);font-size:13px;line-height:1.7;margin-bottom:0;max-width:520px;margin-left:auto;margin-right:auto}
@@ -315,7 +315,7 @@ html[lang="en"] .opt .sub{display:none}
   background:linear-gradient(135deg, rgba(207,168,106,.07), rgba(138,107,255,.05))}
 .mint-gate .mg-ico{font-size:26px;line-height:1;color:var(--gold);flex:none}
 .mint-gate .mg-text{flex:1;min-width:220px}
-.mint-gate .mg-text h3{font-family:"Noto Serif SC",serif;font-size:15px;margin-bottom:4px;color:#fff}
+.mint-gate .mg-text h3{font-family:"Songti SC","SimSun","Noto Serif CJK SC",serif;font-size:15px;margin-bottom:4px;color:#fff}
 .mint-gate .mg-text p{color:var(--muted);font-size:12.5px;line-height:1.6}
 .mint-gate .mg-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .mint-gate .mg-status{font-size:12px;color:var(--muted)}
@@ -355,7 +355,7 @@ html[lang="en"] .opt .sub{display:none}
 .wall-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px;
   border-bottom:1px solid var(--line);padding-bottom:10px}
 .wall-desc{color:var(--muted);font-size:12px;margin-top:5px;font-weight:300;line-height:1.6;max-width:60ch}
-.wall-title{font-family:"Noto Serif SC",serif;font-size:22px}
+.wall-title{font-family:"Songti SC","SimSun","Noto Serif CJK SC",serif;font-size:22px}
 .wall-sub{font-family:"Space Grotesk";font-size:12px;color:var(--cyan);letter-spacing:1px}
 .wall{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;
   background:
@@ -376,7 +376,7 @@ html[lang="en"] .opt .sub{display:none}
   background:linear-gradient(120deg,var(--gold),var(--cyan));padding:3px 8px;border-radius:999px;z-index:2}
 .wall-tile .wt-orb{width:54px;height:54px;border-radius:50%;margin:0 auto 10px;
   box-shadow:0 0 22px currentColor}
-.wall-tile .wt-name{font-family:"Noto Serif SC",serif;font-size:16px;text-align:center;color:var(--ink)}
+.wall-tile .wt-name{font-family:"Songti SC","SimSun","Noto Serif CJK SC",serif;font-size:16px;text-align:center;color:var(--ink)}
 .wall-tile .wt-desig{font-family:"Space Grotesk";font-size:10.5px;text-align:center;color:var(--gold);
   margin-top:3px;letter-spacing:.5px}
 .wall-tile .wt-meta{font-size:11px;color:var(--muted);text-align:center;margin-top:3px}
@@ -413,7 +413,7 @@ html[lang="en"] .opt .sub{display:none}
 .sky-search{pointer-events:auto;display:flex;gap:8px;background:rgba(8,12,28,.66);padding:8px;border-radius:14px;
   border:1px solid var(--line);box-shadow:var(--shadow);backdrop-filter:blur(10px)}
 .sky-search input{width:min(440px,60vw);background:transparent;border:none;outline:none;color:var(--ink);
-  font-family:"Space Grotesk","Noto Sans SC";font-size:13px;padding:6px 8px}
+  font-family:"Space Grotesk","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans CJK SC";font-size:13px;padding:6px 8px}
 .sky-search input::placeholder{color:var(--muted)}
 .sky-tools{pointer-events:auto;display:flex;gap:14px;flex-wrap:wrap;justify-content:center;align-items:center;
   background:rgba(8,12,28,.5);padding:6px 12px;border-radius:16px;border:1px solid rgba(120,150,210,.15);backdrop-filter:blur(8px)}
@@ -425,7 +425,7 @@ html[lang="en"] .opt .sub{display:none}
 .sky-info{position:absolute;left:20px;bottom:96px;z-index:5;min-width:230px;max-width:78vw;
   background:rgba(8,12,28,.78);border:1px solid var(--line);border-radius:14px;padding:14px 16px;
   backdrop-filter:blur(12px);box-shadow:var(--shadow)}
-.si-name{font-family:"Noto Serif SC",serif;font-size:20px;font-weight:700;color:var(--cyan);letter-spacing:1px}
+.si-name{font-family:"Songti SC","SimSun","Noto Serif CJK SC",serif;font-size:20px;font-weight:700;color:var(--cyan);letter-spacing:1px}
 .si-desig{font-size:12px;color:var(--muted);margin-top:2px;font-family:"Space Grotesk"}
 .si-coord{font-size:12px;color:var(--ink);margin-top:6px;font-family:"Space Grotesk";opacity:.85}
 .si-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
@@ -614,7 +614,7 @@ html[lang="en"] .opt .sub{display:none}
 .cinema-text{position:absolute;top:38vh;left:0;right:0;text-align:center;z-index:25;padding:14px 24px;pointer-events:none;
   background:linear-gradient(90deg, transparent, rgba(6,10,26,.52) 14%, rgba(6,10,26,.52) 86%, transparent);
   border-radius:12px}
-.ct-line{font-family:"Noto Serif SC",serif;font-size:clamp(15px,2.5vw,23px);line-height:2.35;
+.ct-line{font-family:"Songti SC","SimSun","Noto Serif CJK SC",serif;font-size:clamp(15px,2.5vw,23px);line-height:2.35;
   color:#eef3ff;opacity:0;transform:translateY(16px);margin:15px 0;letter-spacing:1px;
   text-shadow:0 2px 16px rgba(0,0,0,.9)}
 .ct-line.show{opacity:1;transform:none;transition:opacity 1.2s ease, transform 1.2s ease}

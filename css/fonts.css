@@ -1,0 +1,11 @@
+/* 本地自托管字体 —— 零外链，国内外均稳定加载（仅 latin 子集，设计感字体仅用于拉丁字母/数字；中文走系统字体栈） */
+@font-face{font-family:'Space Grotesk';font-style:normal;font-weight:400;font-display:swap;src:url('../assets/fonts/SpaceGrotesk-400.woff2') format('woff2');}
+@font-face{font-family:'Space Grotesk';font-style:normal;font-weight:500;font-display:swap;src:url('../assets/fonts/SpaceGrotesk-500.woff2') format('woff2');}
+@font-face{font-family:'Space Grotesk';font-style:normal;font-weight:600;font-display:swap;src:url('../assets/fonts/SpaceGrotesk-600.woff2') format('woff2');}
+@font-face{font-family:'Space Grotesk';font-style:normal;font-weight:700;font-display:swap;src:url('../assets/fonts/SpaceGrotesk-700.woff2') format('woff2');}
+@font-face{font-family:'Dancing Script';font-style:normal;font-weight:500;font-display:swap;src:url('../assets/fonts/DancingScript-500.woff2') format('woff2');}
+@font-face{font-family:'Dancing Script';font-style:normal;font-weight:600;font-display:swap;src:url('../assets/fonts/DancingScript-600.woff2') format('woff2');}
+@font-face{font-family:'Dancing Script';font-style:normal;font-weight:700;font-display:swap;src:url('../assets/fonts/DancingScript-700.woff2') format('woff2');}
+@font-face{font-family:'Cormorant Garamond';font-style:normal;font-weight:400;font-display:swap;src:url('../assets/fonts/CormorantGaramond-400.woff2') format('woff2');}
+@font-face{font-family:'Cormorant Garamond';font-style:normal;font-weight:500;font-display:swap;src:url('../assets/fonts/CormorantGaramond-500.woff2') format('woff2');}
+@font-face{font-family:'Cormorant Garamond';font-style:normal;font-weight:600;font-display:swap;src:url('../assets/fonts/CormorantGaramond-600.woff2') format('woff2');}

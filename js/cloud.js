@@ -11,11 +11,8 @@ const PUBLIC_CONFIG = {
   oauthRelayBaseUrl: 'https://www.workbuddy.cn/v2/as/genie-baas/oauth'
 };
 
-// 云端 SDK 自托管到本地（js/vendor/），彻底摆脱对境外 CDN（jsdelivr）的依赖——
-// 国内网络常访问不到 jsdelivr，会导致 SDK 加载失败、所有云端功能（星图墙/留言/信箱）静默失效。
-// 本地优先，本地若因部署异常缺失再回退 CDN（@latest 稳定版），双保险。
-const SDK_LOCAL = 'js/vendor/workbuddy-cloud-sdk.global.js?v=20261054';
-const SDK_CDN  = 'https://cdn.jsdelivr.net/npm/@tencent-ai/workbuddy-cloud-sdk@0.1.4/lib/index.global.js';
+// 云端 SDK 自托管到本地（js/vendor/），零外链，国内/国外均稳定加载。
+const SDK_LOCAL = 'js/vendor/workbuddy-cloud-sdk.global.js?v=20261055';
 
 let _cloud = null;
 let _sdkPromise = null;
@@ -31,16 +28,12 @@ function loadScript(src){
   });
 }
 
+// 云端 SDK 本地自托管优先（同源，必可达）；不再回退任何境外 CDN，确保零外链。
 function loadSdk(){
   if (_sdkPromise) return _sdkPromise;
   _sdkPromise = (async () => {
     if (window.WorkBuddyCloud) return window.WorkBuddyCloud;
-    try {
-      return await loadScript(SDK_LOCAL);          // ① 本地优先（同源，国内必可达）
-    } catch(e){
-      console.warn('[cloud] 本地 SDK 加载失败，回退 CDN', e);
-      return await loadScript(SDK_CDN);            // ② 兜底 CDN
-    }
+    return await loadScript(SDK_LOCAL);
   })();
   return _sdkPromise;
 }

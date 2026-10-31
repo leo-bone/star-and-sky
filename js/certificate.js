@@ -1,11 +1,11 @@
 // 星球认领证书 —— 单张高分辨率 canvas 绘制（按《星球认领证书｜通用视觉规范》重构）
 // 版本：9:12 竖版 · 深空档案风 · 版式骨架锁死，仅星球/名称/注册信息可变
 // 中心星球与 3D 认星页共用同一套 bodyTexture 表面，保证证书星 == 网页「认领的星星」。
-import { hashString, mulberry32 } from './rng.js?v=20261054';
-import { shareLink, encodeStar, qrLinkForStar } from './share.js?v=20261054';
-import { getBodySurface, uvFromDir } from './bodyTexture.js?v=20261054';
-import { t, getLang } from './i18n.js?v=20261054';
-import { localizedSpecName } from './starData.js?v=20261054';
+import { hashString, mulberry32 } from './rng.js?v=20261055';
+import { shareLink, encodeStar, qrLinkForStar } from './share.js?v=20261055';
+import { getBodySurface, uvFromDir } from './bodyTexture.js?v=20261055';
+import { t, getLang } from './i18n.js?v=20261055';
+import { localizedSpecName } from './starData.js?v=20261055';
 
 // ===== 画布：9:12 竖版（3:4）=====
 const DW = 1240, DH = 1653;   // 设计尺寸（3:4）
@@ -239,7 +239,7 @@ function drawTitle(ctx){
   ctx.save();
   ctx.textAlign = 'center';
   // 主标题：更有力量的宋体、字重加粗至 900；宽度收紧至约星球直径的 60%（比例协调，不压星球）
-  setFont(ctx, '900 38px "Noto Serif SC", serif');
+  setFont(ctx, '900 38px "Songti SC","SimSun","Noto Serif CJK SC", serif');
   ctx.fillStyle = C.gold;
   ctx.letterSpacing = '4px';
   ctx.fillText(t('星球认领证书'), cx, 170);
@@ -564,20 +564,20 @@ function drawInfoCard(ctx, card, star, kd){
   // —— 文案（居中，层级：证明语 → 名称 → 国际命名 → 注册人 → 参数 → 编号）——
   ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
   let y = y0 + 62;
-  setFont(ctx, '700 17px "Noto Serif SC", serif'); ctx.fillStyle = P.label; ctx.letterSpacing = '3px';
+  setFont(ctx, '700 17px "Songti SC","SimSun","Noto Serif CJK SC", serif'); ctx.fillStyle = P.label; ctx.letterSpacing = '3px';
   ctx.fillText(t('兹证明 · 此星已被正式认领'), cx, y); ctx.letterSpacing = '0px';
   y += 36;
-  setFont(ctx, '700 14px "Noto Serif SC", serif'); ctx.fillStyle = P.label; ctx.letterSpacing = '2px';
+  setFont(ctx, '700 14px "Songti SC","SimSun","Noto Serif CJK SC", serif'); ctx.fillStyle = P.label; ctx.letterSpacing = '2px';
   ctx.fillText(t('星球名称'), cx, y); ctx.letterSpacing = '0px';
   y += 50;
-  setFont(ctx, '700 50px "Noto Serif SC", serif'); ctx.fillStyle = P.name;   // 核心：最大字号（放大）
+  setFont(ctx, '700 50px "Songti SC","SimSun","Noto Serif CJK SC", serif'); ctx.fillStyle = P.name;   // 核心：最大字号（放大）
   ctx.fillText(star.name || '—', cx, y);
   y += 18; drawDiamond(ctx, cx, y, 4, P.gold); y += 20;
   // 国际命名：星球真实天文编号（如 Sirius · α CMa / HD 48915）
   // 一键认领时星名即国际通用名，避免与「星球名称」重复显示
   const showDesig = star.designation && star.designation !== star.name;
   if (showDesig){
-    setFont(ctx, '700 13px "Noto Serif SC", serif'); ctx.fillStyle = P.label; ctx.letterSpacing = '2px';
+    setFont(ctx, '700 13px "Songti SC","SimSun","Noto Serif CJK SC", serif'); ctx.fillStyle = P.label; ctx.letterSpacing = '2px';
     ctx.fillText(t('国际命名'), cx, y); ctx.letterSpacing = '0px';
     y += 26;
     setFont(ctx, '400 18px "Space Grotesk", monospace'); ctx.fillStyle = P.name;
@@ -586,10 +586,10 @@ function drawInfoCard(ctx, card, star, kd){
   } else {
     y += 22;
   }
-  setFont(ctx, '700 14px "Noto Serif SC", serif'); ctx.fillStyle = P.label; ctx.letterSpacing = '2px';
+  setFont(ctx, '700 14px "Songti SC","SimSun","Noto Serif CJK SC", serif'); ctx.fillStyle = P.label; ctx.letterSpacing = '2px';
   ctx.fillText(t('注册人'), cx, y); ctx.letterSpacing = '0px';
   y += 46;
-  setFont(ctx, '700 36px "Noto Serif SC", serif'); ctx.fillStyle = P.name;   // 第二层级（放大）
+  setFont(ctx, '700 36px "Songti SC","SimSun","Noto Serif CJK SC", serif'); ctx.fillStyle = P.name;   // 第二层级（放大）
   ctx.fillText((kd && kd.ruler) || t('星际公民'), cx, y);
   y += 18;
   ctx.strokeStyle = P.gold; ctx.lineWidth = 1;
@@ -621,7 +621,7 @@ function drawSignature(ctx, card){
   // 签名墨色：深古铜金（与卡片主名称同色系，象牙底上清晰可读）
   const ink = 'rgba(124,94,34,1)';   // #7c5e22 深青铜金
   // 小字标签：President:
-  setFont(ctx, 'italic 600 15px "Cormorant Garamond", "Noto Serif SC", serif');
+  setFont(ctx, 'italic 600 15px "Cormorant Garamond", "Songti SC","SimSun","Noto Serif CJK SC", serif');
   ctx.fillStyle = ink;
   ctx.fillText('President:', 0, -8);
   // 手写签名正文：Leo Win（Dancing Script，跨设备一致；Mac 回退 Snell Roundhand）
@@ -737,7 +737,7 @@ function drawParamTable(ctx, card, y, star){
 
 function drawParamRow(ctx, x, y, k, v){
   ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-  setFont(ctx, '700 16px "Noto Serif SC", serif'); ctx.fillStyle = P.label;
+  setFont(ctx, '700 16px "Songti SC","SimSun","Noto Serif CJK SC", serif'); ctx.fillStyle = P.label;
   ctx.fillText(k, x, y);
   const kw = ctx.measureText(k).width;
   setFont(ctx, '400 18px "Space Grotesk", monospace'); ctx.fillStyle = P.ink;  // 英文数值：细字重
@@ -761,7 +761,7 @@ function drawFooter(ctx, star, kd){
   drawSeal(ctx, 232, 1563, 78, star);
 
   ctx.save(); ctx.textAlign = 'center'; ctx.fillStyle = C.gold;
-  setFont(ctx, 'italic 400 18px "Noto Serif SC", serif');  // 字号保持小
+  setFont(ctx, 'italic 400 18px "Songti SC","SimSun","Noto Serif CJK SC", serif');  // 字号保持小
   ctx.letterSpacing = '4px';                                // 字距放宽
   ctx.fillText(t('仰望星辰，不是为了拥有，'), 620, 1552);
   ctx.fillText(t('而是为了让记忆在宇宙中有坐标。'), 620, 1586);
@@ -863,7 +863,7 @@ function drawQR(ctx, cx, cy, size, link){
     decorativeQR(ctx, x0, y0, size);
   }
   ctx.save(); ctx.textAlign = 'center'; ctx.fillStyle = C.gold; ctx.globalAlpha = 0.9;
-  setFont(ctx, '400 13px "Noto Serif SC", serif');
+  setFont(ctx, '400 13px "Songti SC","SimSun","Noto Serif CJK SC", serif');
   ctx.fillText(t('扫码分享这颗星球记录'), cx, cy + size / 2 + 22);
   ctx.restore();
 }
@@ -892,7 +892,7 @@ function drawDiamond(ctx, cx, cy, r, col){
 
 function drawArcText(ctx, text, cx, cy, r, a0, a1, flip){
   const n = text.length;
-  setFont(ctx, '500 12px "Noto Serif SC", serif');
+  setFont(ctx, '500 12px "Songti SC","SimSun","Noto Serif CJK SC", serif');
   ctx.fillStyle = C.gold; ctx.globalAlpha = 0.9;
   for (let i = 0; i < n; i++){
     const a = a0 + (a1 - a0) * (i + 0.5) / n;
