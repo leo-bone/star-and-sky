@@ -3,8 +3,8 @@
 //   · BSC（BNB Smart Chain）—— 自写 ERC-721 合约（contracts/StarSkyBSC.sol），ethers v6 调合约
 //   · Solana —— Metaplex Core（官方预部署程序，无需自部署合约），@solana/web3.js + UMI
 // 铸造流程：连钱包 → 上传证书 PNG + metadata 到 IPFS(Pinata) → 调链上铸造 → 本地存证 + 证书展示核验链接
-import { t } from './i18n.js?v=20261052';
-import { encodeStar } from './share.js?v=20261052';
+import { t } from './i18n.js?v=20261053';
+import { encodeStar } from './share.js?v=20261053';
 
 // ===== 部署后填入的配置 =====
 export const CONFIG = {

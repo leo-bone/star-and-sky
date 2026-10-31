@@ -11,18 +11,19 @@ addEventListener('fetch', event => {
   event.respondWith(handleRequest(event.request));
 });
 
-const ORIGIN  = "star-and-sky.app.workbuddy.host"; // WorkBuddy 云端（API + 部署网关）
-const GATEWAY = "O6SHDCEYS2";                      // 部署网关访问令牌（缺它源站 403）
+const ORIGIN  = "star-and-sky.app.workbuddy.host"; // WorkBuddy 云端（PostgREST 数据面）
 const PAGES   = "https://leo-bone.github.io/star-and-sky"; // GitHub Pages 静态前端
 
 async function handleRequest(request) {
   const src = new URL(request.url);
 
-  // —— 云端数据/认证 API：反代到 WorkBuddy，注入网关令牌 + 抹掉微信 UA + 补 CORS ——
+  // —— 云端数据/认证 API：反代到 WorkBuddy，+ 抹掉微信 UA + 补 CORS ——
+  // 注意：绝不能把 GATEWAY 当作 URL 查询参数注入！WorkBuddy Cloud 是 PostgREST 封装，
+  // 未知查询参数会被当成“列过滤条件”解析，导致 400 (DATABASE_PGRST100) 使全部云端读写失败。
+  // 实测：仅用前端 publishableKey（x-wb-webapp-access-key 头）即可完成匿名读/写，无需 sharecode。
   if (src.pathname.startsWith("/.cloud/")) {
     const target = new URL(src);
     target.hostname = ORIGIN;
-    if (!target.searchParams.has('sharecode')) target.searchParams.set('sharecode', GATEWAY);
 
     const headers = new Headers(request.headers);
     headers.set("Host", ORIGIN);

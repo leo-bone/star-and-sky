@@ -668,7 +668,7 @@ body.cinema-mode .topbar{transition:opacity .6s ease}
 .contact-head p{color:#9fb0d0;font-size:14px;margin:0 0 16px;line-height:1.6}
 .contact-form{background:rgba(18,26,48,.5);border:1px solid rgba(120,150,210,.18);border-radius:14px;padding:18px;backdrop-filter:blur(6px)}
 .contact-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
-.contact-name,.contact-way,.contact-msg{background:rgba(10,16,32,.7);border:1px solid rgba(120,150,210,.25);border-radius:10px;color:#eaf0ff;padding:10px 12px;font-family:inherit;font-size:14px}
+.contact-name,.contact-way,.contact-msg{background:rgba(10,16,32,.7);border:1px solid rgba(120,150,210,.25);border-radius:10px;color:#eaf0ff;padding:10px 12px;font-family:inherit;font-size:14px;min-width:0;width:100%}
 .contact-msg{width:100%;resize:vertical;min-height:70px;line-height:1.6;margin-bottom:12px}
 .contact-name:focus,.contact-way:focus,.contact-msg:focus{outline:none;border-color:var(--gold-line-2);box-shadow:0 0 0 2px rgba(245,201,123,.12)}
 .contact-foot{display:flex;align-items:center;justify-content:space-between;gap:12px}
