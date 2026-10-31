@@ -1,6 +1,6 @@
 // 认领与王国建造：旗帜设计器 + 律法 + 议会 + 本地存储
-import { hashString, mulberry32 } from './rng.js?v=20261049';
-import { t } from './i18n.js?v=20261049';
+import { hashString, mulberry32 } from './rng.js?v=20261050';
+import { t } from './i18n.js?v=20261050';
 
 const KEY = 'star-sky-kingdom-draft-v1';   // 建国草稿独立键，切勿与 app.js 的 CLAIM_KEY('star-sky-claim-v1') 共用，否则会覆盖认领记录导致丢星
 

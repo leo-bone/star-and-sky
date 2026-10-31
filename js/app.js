@@ -1,15 +1,15 @@
 // 3D 宇宙背景依赖 three.js（CDN）+ WebGL；改为动态 import，
 // 即使 CDN 抽风或 WebGL 不可用，也只是降级为空操作，绝不拖垮整站（开门/问答/证书照常）
-import { initQuiz } from './quiz.js?v=20261049';
-import { generateStar, starParamList } from './starData.js?v=20261049';
-import { initKingdom } from './kingdom.js?v=20261049';
-import { initCertificate } from './certificate.js?v=20261049';
-import { encodeStar, shareLink, copyText, parseCodeFromURL, decodeStar } from './share.js?v=20261049';
-import { starKey, pushStar, updateStar, listStars, addMessage, listMessages, nameTaken, getStarByKey, ownerIdExists, catalogTaken } from './cloud.js?v=20261049';
-import { initSkyMap } from './skymap.js?v=20261049';
-import { loadCatalog } from './catalog.js?v=20261049';
-import { t, getLang, setLang, applyI18n, initLangToggle } from './i18n.js?v=20261049';
-import { isMinted, getMint, connectWallet, mint, getAddress, mintAddress, explorerTxUrl } from './mint.js?v=20261049';
+import { initQuiz } from './quiz.js?v=20261050';
+import { generateStar, starParamList } from './starData.js?v=20261050';
+import { initKingdom } from './kingdom.js?v=20261050';
+import { initCertificate } from './certificate.js?v=20261050';
+import { encodeStar, shareLink, copyText, parseCodeFromURL, decodeStar } from './share.js?v=20261050';
+import { starKey, pushStar, updateStar, listStars, addMessage, listMessages, nameTaken, getStarByKey, ownerIdExists, catalogTaken } from './cloud.js?v=20261050';
+import { initSkyMap } from './skymap.js?v=20261050';
+import { loadCatalog } from './catalog.js?v=20261050';
+import { t, getLang, setLang, applyI18n, initLangToggle } from './i18n.js?v=20261050';
+import { isMinted, getMint, connectWallet, mint, getAddress, mintAddress, explorerTxUrl } from './mint.js?v=20261050';
 
 const SESSION_KEY = 'star-sky-session-v1';
 const CLAIM_KEY = 'star-sky-claim-v1';   // 已认领星球（与问答进度分离，独立持久化，刷新/重开不丢失）
@@ -56,7 +56,7 @@ function getDeviceId(){
 // 3D 宇宙背景依赖 three.js（CDN）+ WebGL；若不可用则降级为空操作桩，绝不因此拖垮整站
 const NULL_UNIVERSE = { setStar(){}, showHero(){}, hideHero(){}, setControl(){}, setFocus(){}, setActive(){} };
 let universe = NULL_UNIVERSE;
-import('./universe.js?v=20261049').then(m => {
+import('./universe.js?v=20261050').then(m => {
   try { universe = m.initUniverse(document.getElementById('cosmos')); }
   catch (e) { console.warn('3D 宇宙背景初始化失败，已降级为静态背景', e); }
 }).catch(e => console.warn('3D 宇宙背景模块加载失败（CDN/WebGL），已降级为空操作', e));
@@ -65,7 +65,7 @@ const card = initCertificate();
 // 3D 星球视口依赖 three.js（CDN）；若不可用则降级为空操作桩，绝不拖垮整站
 const NULL_PLANET3D = { setStar(){}, show(){}, hide(){}, resize(){} };
 let planet3d = NULL_PLANET3D;
-import('./planet3d.js?v=20261049').then(m => {
+import('./planet3d.js?v=20261050').then(m => {
   try {
     planet3d = m.initPlanet3D(document.getElementById('planet-canvas'));
     if (currentStar && screens.universe && screens.universe.classList.contains('active')){
@@ -253,7 +253,7 @@ function openMyStar(){
   if (!c){ toast(t('你还没有认领星球，先去认领一颗吧 ✦')); go('quiz'); return; }
   currentStar = c.star; currentKingdom = c.kingdom; isShared = false;
   card.build(currentStar, currentKingdom);
-  renderWall();
+  renderCloudWall();
   go('share');
 }
 
@@ -415,7 +415,6 @@ async function commitClaim(name){
   kingdom.save();
   saveSession('share');
   card.build(currentStar, currentKingdom);
-  pushWall(currentStar, currentKingdom);
   // 同步到云端共享星图（与好友一起看）。极罕见的并发撞星（同一颗空闲星被两人同时认领）时，
   // 重新解出一颗空闲星并重试一次，保证“每人一颗、互不相同”。
   const deviceId = getDeviceId();
@@ -456,7 +455,6 @@ async function commitClaim(name){
         currentStar = await generateUniqueStar(currentAnswers || {});
         currentStar.name = name;
         card.build(currentStar, currentKingdom);
-        pushWall(currentStar, currentKingdom);
         continue;
       }
       if (e && e.code === '23505_name'){
@@ -475,7 +473,7 @@ async function commitClaim(name){
   const od = document.getElementById('btn-open-door');
   if (od){ od.textContent = t('查看我的星球 ✦'); od.setAttribute('data-i18n', '查看我的星球 ✦'); }
   const mh = document.getElementById('btn-mine-home'); if (mh) mh.style.display = '';
-  renderWall();
+  renderCloudWall();
   go('share');
   return true;
 }
@@ -675,51 +673,6 @@ function loadSession(){
   catch(e){ return null; }
 }
 
-// ---------- 世界星图墙（本地累积，演示“全世界的星”） ----------
-const WALL_KEY = 'star-sky-wall-v1';
-function loadWall(){
-  try { return JSON.parse(localStorage.getItem(WALL_KEY) || '[]'); }
-  catch(e){ return []; }
-}
-function pushWall(star, kd){
-  try {
-    const wall = loadWall().filter(w => w.star.catalogNo !== star.catalogNo);
-    wall.unshift({ star, kingdom: kd, ts: Date.now() });
-    localStorage.setItem(WALL_KEY, JSON.stringify(wall.slice(0, 80)));
-  } catch(e){}
-}
-function renderWall(){
-  const wall = loadWall();
-  const box = document.getElementById('world-wall');
-  const count = document.getElementById('wall-count');
-  count.textContent = t('已被认领') + ' ' + wall.length + ' ' + t('颗星辰');
-  if (!wall.length){ box.innerHTML = '<div class="wall-empty">' + t('还没有星辰被点亮。认领你的第一颗，让世界星图墙亮起来。') + '</div>'; return; }
-  box.innerHTML = wall.map((w, i)=>{
-    const s = w.star, k = w.kingdom || {};
-    const kname = k.name || s.name + t(' 王国');
-    const desig = s.desig || '';
-    // 星球寄语：认领者留下的心意，在星图墙上也要看得见
-    const msg = (k.message || s.message || '').trim();
-    const msgHtml = msg ? `<div class="wt-msg">“${escapeHtml(msg)}”</div>` : '';
-    return `<div class="wall-tile" data-i="${i}" style="color:${s.color1};animation-delay:${(i*0.37).toFixed(2)}s">
-      <div class="wt-orb" style="background:radial-gradient(circle at 35% 30%, #fff, ${s.color1} 45%, ${s.color2} 82%, #2a0f00)"></div>
-      <div class="wt-name">${escapeHtml(s.name)}</div>
-      <div class="wt-desig">${escapeHtml(desig)}</div>
-      <div class="wt-meta">${escapeHtml(kname)} · ${s.constellation}</div>
-      <div class="wt-coord">${escapeHtml(s.coordShort || '')}</div>
-      ${msgHtml}
-    </div>`;
-  }).join('');
-  box.querySelectorAll('.wall-tile').forEach(t=>{
-    t.onclick = ()=>{
-      const w = wall[+t.dataset.i];
-      currentStar = w.star; currentKingdom = w.kingdom;
-      card.build(currentStar, currentKingdom);
-      window.scrollTo({ top:0, behavior:'smooth' });
-      toast(t('已调阅 ') + w.star.name);
-    };
-  });
-}
 function escapeHtml(s){
   return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
@@ -995,7 +948,7 @@ btnResume.addEventListener('click', ()=>{
     currentKingdom = s.kingdom;
     if (s.flagSVG) currentKingdom.flagSVG = s.flagSVG;
     card.build(currentStar, currentKingdom);
-    renderWall();
+    renderCloudWall();
     go('share');
   } else if (s.progress === 'claim'){
     go('claim');
@@ -1072,6 +1025,6 @@ function refreshI18n(){
   else if (currentScreen === 'universe' && currentStar) populateUniverse(currentStar);
   else if (currentScreen === 'explore'){ if (lastSkyInfo) showSkyInfo(lastSkyInfo); }
   else if (currentScreen === 'claim'){ if (kingdom.applyFlag) kingdom.applyFlag(); if (kingdom.refreshTexts) kingdom.refreshTexts(); }
-  else if (currentScreen === 'share'){ if (currentStar && currentKingdom) card.build(currentStar, currentKingdom); renderWall(); refreshUpgradeBtn(); }
+  else if (currentScreen === 'share'){ if (currentStar && currentKingdom) card.build(currentStar, currentKingdom); renderCloudWall(); refreshUpgradeBtn(); }
 }
 window.__onLangChange = refreshI18n;
