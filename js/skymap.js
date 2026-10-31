@@ -1,9 +1,9 @@
 // 真实星空图：基于真实星表的全天交互星图（赤道坐标等距投影）
 // 能力：真实恒星/星座连线/星座名/银河带/行星/用户星与好友星高亮/按名或注册号搜索定位/
 //       平移缩放/图层开关/真实行星实时位置/点击好友星打开其星页
-import { planetPositions } from './planets.js?v=20261055';
-import { loadCatalog } from './catalog.js?v=20261055';
-import { t, getLang } from './i18n.js?v=20261055';
+import { planetPositions } from './planets.js?v=20261056';
+import { loadCatalog } from './catalog.js?v=20261056';
+import { t, getLang } from './i18n.js?v=20261056';
 
 const CON_NAMES = {
   And:'仙女座',Ant:'唧筒座',Aps:'天燕座',Aql:'天鹰座',Aqr:'宝瓶座',Ara:'天坛座',Ari:'白羊座',
@@ -240,7 +240,8 @@ export function initSkyMap(container, opts = {}){
       if (p.x<-30||p.x>W+30||p.y<-30||p.y>H+30) continue;
       drawMarker(bctx, p.x, p.y, m);
     }
-    wake();   // 基础图层已重绘：唤醒渲染循环（空闲时自动停，省电不掉帧）
+    dirty = true;   // 基础图层已重绘：标记待合成，确保 frame() 把离屏 base 贴到可见 canvas（否则按钮点击后画面不更新、看似失灵）
+    wake();         // 唤醒渲染循环（空闲时自动停，省电不掉帧）
   }
 
   function drawMarker(c, x, y, m){
@@ -410,7 +411,7 @@ export function initSkyMap(container, opts = {}){
     // 3) 真实星表
     // 早期版本让星表先匹配，会出现"我命名的 88 搜出来却是 HD 号含 88 的真星"，
     // 自己的星与留言根本找不到。
-    const myName = (mine && (mine.label||mine.name||'')).toLowerCase();
+    const myName = ((mine && (mine.label||mine.name)) || '').toLowerCase();
     if (myName){
       if (myName === q) hit = { ...mine, n: mine.label||mine.name };
       else if (myName.includes(q)) hit = { ...mine, n: mine.label||mine.name };
@@ -463,23 +464,54 @@ export function initSkyMap(container, opts = {}){
   function zoomBy(f){ cam.zoom=Math.max(1,Math.min(12,cam.zoom*f)); renderBase(); }
   function recenter(){ cam.ra=180; cam.dec=0; cam.zoom=1; foundActive=false; selected=null; renderBase(); }
 
-  async function init(){
+  // 数据加载失败时在星图容器上显示可见提示（不再静默吞掉，便于定位问题）
+  function showSkyError(msg){
     try{
-      const [sd, cd] = await Promise.all([
-        loadCatalog(),
-        fetch('data/constellations.lines.json').then(r=>r.json())
-      ]);
-      stars = sd; constellations = cd;
-      for (const feat of constellations.features){
-        let sy=0,n=0;
-        for (const seg of feat.geometry.coordinates) for (const pt of seg){ sy+=pt[1]; n++; }
-        feat._avgdec = sy/n;
+      let d = container.querySelector('.sky-loaderr');
+      if (!d){
+        d = document.createElement('div');
+        d.className = 'sky-loaderr';
+        d.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;'
+          + 'color:#ffd27a;font-size:14px;text-align:center;padding:24px;pointer-events:none;z-index:6';
+        container.appendChild(d);
       }
-      buildMW();
-      planets = planetPositions(new Date());
-    }catch(e){ console.warn('星空数据加载失败', e); }
+      d.textContent = msg;
+    }catch(e){ console.warn('星图错误提示渲染失败', e); }
+  }
+
+  async function init(){
+    // 双数据源【独立】加载：任一失败都不拖垮另一个，避免出现“整片星空空白、按钮看似全部失灵”的假象
+    let sd = null, cd = null;
+    try { sd = await loadCatalog(); }
+    catch(e){ console.warn('星表加载失败（stars.json）', e); }
+    try {
+      const r = await fetch('data/constellations.lines.json');
+      cd = await r.json();
+    } catch(e){ console.warn('星座连线数据加载失败（constellations.lines.json）', e); }
+
+    if (sd) stars = sd;
+    if (cd && cd.features){
+      constellations = cd;
+      for (const feat of constellations.features){
+        try{
+          let sy=0,n=0;
+          for (const seg of feat.geometry.coordinates) for (const pt of seg){ sy+=pt[1]; n++; }
+          feat._avgdec = sy/n;
+        }catch(e){ /* 单条星座几何异常忽略，不影响其余 */ }
+      }
+    }
+    buildMW();
+    try { planets = planetPositions(new Date()); } catch(e){ console.warn('行星位置计算失败', e); planets = []; }
+
     resize();
     frame();
+
+    // 可见化上报：核心数据缺失时明确提示，而不是静默空白让按钮“看起来失灵”
+    if (!stars.length && !constellations){
+      showSkyError(t('星图数据加载失败，请刷新页面或检查网络'));
+    } else if (container && container.querySelector){
+      const d = container.querySelector('.sky-loaderr'); if (d) d.remove();
+    }
   }
   init();
   window.addEventListener('resize', resize);
