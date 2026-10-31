@@ -662,6 +662,19 @@ body.cinema-mode .topbar{transition:opacity .6s ease}
 .notes-form .btn-primary[disabled]{opacity:.5;cursor:default}
 @media (max-width:680px){.notes-form{grid-template-columns:1fr}}
 
+/* ===== 联系站长 · 留言信箱 ===== */
+.contact-wrap{max-width:880px;margin:56px auto 40px;padding:0 24px}
+.contact-head h3{font-family:'Noto Serif SC',serif;font-size:22px;color:#f3e6c8;margin:0 0 6px}
+.contact-head p{color:#9fb0d0;font-size:14px;margin:0 0 16px;line-height:1.6}
+.contact-form{background:rgba(18,26,48,.5);border:1px solid rgba(120,150,210,.18);border-radius:14px;padding:18px;backdrop-filter:blur(6px)}
+.contact-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.contact-name,.contact-way,.contact-msg{background:rgba(10,16,32,.7);border:1px solid rgba(120,150,210,.25);border-radius:10px;color:#eaf0ff;padding:10px 12px;font-family:inherit;font-size:14px}
+.contact-msg{width:100%;resize:vertical;min-height:70px;line-height:1.6;margin-bottom:12px}
+.contact-name:focus,.contact-way:focus,.contact-msg:focus{outline:none;border-color:var(--gold-line-2);box-shadow:0 0 0 2px rgba(245,201,123,.12)}
+.contact-foot{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.contact-hint{color:#7d8db0;font-size:12px}
+@media (max-width:680px){.contact-row{grid-template-columns:1fr}.contact-foot{flex-direction:column;align-items:stretch}.contact-hint{text-align:center}}
+
 
 /* ===== 建国页：星球寄语 ===== */
 .km-msg{width:100%;min-height:74px;resize:vertical;padding:12px 14px;border-radius:12px;background:rgba(10,16,32,.7);border:1px solid rgba(120,150,210,.25);color:#eaf0ff;font-family:inherit;font-size:14px;line-height:1.6}

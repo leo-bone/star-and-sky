@@ -226,3 +226,66 @@ export async function getStarByKey(key){
     return null;
   }
 }
+
+// ---------- 联系站长 · 全局留言信箱 ----------
+// 复用 star_messages 表，以专用 star_code='SITE_CONTACT' 区分“给站长的全局留言”与“按星留言（星语）”。
+// 匿名写入/读取已验证可用（与“星语”同表同权），无需新建表、零 DDL 风险。
+// 字段约定：nick = 昵称；text = JSON{name,contact,message}（旧/plain 文本整段作为留言，兼容降级）。
+const SITE_CONTACT_CODE = 'SITE_CONTACT';
+
+export async function addContact({ name, contact, message }){
+  const cleanName = (name || '').trim() || '匿名访客';
+  const cloud = await getCloud();
+  const { data, error } = await cloud.database.from(T_MSGS)
+    .insert({
+      star_code: SITE_CONTACT_CODE,
+      nick: cleanName,
+      text: JSON.stringify({
+        name: cleanName,
+        contact: (contact || '').trim(),
+        message: (message || '').trim()
+      })
+    })
+    .select();
+  if (error) throw error;
+  return (data && data[0]) || null;
+}
+
+export async function listContacts(limit = 500){
+  try {
+    const cloud = await getCloud();
+    const { data, error } = await cloud.database.from(T_MSGS)
+      .select('id,nick,text,created_at')
+      .eq('star_code', SITE_CONTACT_CODE)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+    if (error) throw error;
+    return (data || []).map(r => {
+      let name = r.nick || '匿名访客', contact = '', message = r.text || '';
+      try {
+        const o = JSON.parse(r.text);
+        if (o && typeof o === 'object'){
+          name = o.name || r.nick || '匿名访客';
+          contact = o.contact || '';
+          message = o.message || '';
+        }
+      } catch(e){ /* 旧/plain 文本：整段作为留言 */ }
+      return { id: r.id, name, contact, message, created_at: r.created_at };
+    });
+  } catch(e){
+    console.warn('[cloud] listContacts 失败', e);
+    return [];
+  }
+}
+
+export async function deleteContact(id){
+  try {
+    const cloud = await getCloud();
+    const { error } = await cloud.database.from(T_MSGS).delete().eq('id', id);
+    if (error) throw error;
+    return true;
+  } catch(e){
+    console.warn('[cloud] deleteContact 失败', e);
+    return false;
+  }
+}

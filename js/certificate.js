@@ -1,11 +1,11 @@
 // 星球认领证书 —— 单张高分辨率 canvas 绘制（按《星球认领证书｜通用视觉规范》重构）
 // 版本：9:12 竖版 · 深空档案风 · 版式骨架锁死，仅星球/名称/注册信息可变
 // 中心星球与 3D 认星页共用同一套 bodyTexture 表面，保证证书星 == 网页「认领的星星」。
-import { hashString, mulberry32 } from './rng.js?v=20261050';
-import { shareLink, encodeStar, qrLinkForStar } from './share.js?v=20261050';
-import { getBodySurface, uvFromDir } from './bodyTexture.js?v=20261050';
-import { t, getLang } from './i18n.js?v=20261050';
-import { localizedSpecName } from './starData.js?v=20261050';
+import { hashString, mulberry32 } from './rng.js?v=20261051';
+import { shareLink, encodeStar, qrLinkForStar } from './share.js?v=20261051';
+import { getBodySurface, uvFromDir } from './bodyTexture.js?v=20261051';
+import { t, getLang } from './i18n.js?v=20261051';
+import { localizedSpecName } from './starData.js?v=20261051';
 
 // ===== 画布：9:12 竖版（3:4）=====
 const DW = 1240, DH = 1653;   // 设计尺寸（3:4）

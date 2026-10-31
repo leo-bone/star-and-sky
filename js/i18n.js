@@ -271,6 +271,18 @@ const EN = {
   '证书尚未生成，请稍候':'Certificate not ready yet, please wait',
   '不支持的方式':'Unsupported method', '生成失败':'Creation failed',
   '账户已连接':'Account connected', '未连接':'Not connected',
+  // ---- 联系站长 · 留言信箱 ----
+  '联系站长 · 留言信箱':'Contact the Curator · Message Box',
+  '想对站长说点什么，或留下你的联系方式？写在下面，站长会在后台收到。':'Want to say something to the curator, or leave your contact? Write below — the curator will see it in the backend.',
+  '昵称（可选）':'Nickname (optional)',
+  '联系方式：邮箱 / 微信 / QQ（可选）':'Contact: email / WeChat / QQ (optional)',
+  '写点什么给站长…（必填）':'Write something for the curator… (required)',
+  '仅站长可见，不会公开展示':'Visible to the curator only, never shown publicly',
+  '发送给站长':'Send to curator',
+  '留言不能为空':'Message cannot be empty',
+  '正在发送…':'Sending…',
+  '已发送，感谢你的留言 ✦':'Sent — thank you for your message ✦',
+  '发送失败，请稍后再试':'Failed to send — please try again later',
 };
 
 let currentLang = (typeof localStorage !== 'undefined' && localStorage.getItem('star-sky-lang')) || 'zh';

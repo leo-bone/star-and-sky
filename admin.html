@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>站长后台 · 留言信箱</title>
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;font-family:'Noto Sans SC',system-ui,-apple-system,sans-serif;background:#0a0e1a;color:#eaf0ff;min-height:100vh}
+    .wrap{max-width:920px;margin:0 auto;padding:32px 20px 60px}
+    h1{font-family:'Noto Serif SC',serif;color:#f5c97b;font-size:24px;margin:0 0 4px}
+    .sub{color:#9fb0d0;font-size:13px;margin:0 0 24px;line-height:1.6}
+    .gate{background:rgba(18,26,48,.6);border:1px solid rgba(120,150,210,.2);border-radius:14px;padding:24px;max-width:360px;margin:90px auto}
+    .gate h1{margin-bottom:6px}
+    .gate input{width:100%;padding:11px 12px;border-radius:10px;background:rgba(10,16,32,.8);border:1px solid rgba(120,150,210,.25);color:#eaf0ff;font-size:15px;margin:12px 0}
+    .gate button{width:100%;padding:11px;border:none;border-radius:10px;background:#f5c97b;color:#1a1206;font-weight:700;font-size:15px;cursor:pointer}
+    .gate .err{color:#ff9a9a;font-size:13px;min-height:18px;margin-top:8px}
+    .toolbar{display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+    .toolbar button{padding:9px 14px;border-radius:10px;border:1px solid rgba(120,150,210,.25);background:rgba(18,26,48,.6);color:#eaf0ff;cursor:pointer;font-size:14px}
+    .toolbar .count{color:#9fb0d0;font-size:13px;margin-left:auto}
+    .item{background:rgba(18,26,48,.6);border:1px solid rgba(120,150,210,.2);border-radius:12px;padding:14px 16px;margin-bottom:12px}
+    .item .meta{display:flex;justify-content:space-between;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+    .item .name{color:#cdeaff;font-weight:700;font-size:14px}
+    .item .time{color:#9fb0d0;font-size:12px}
+    .item .contact{color:#f5c97b;font-size:13px;margin-bottom:8px}
+    .item .msg{color:#eaf0ff;font-size:14px;line-height:1.6;white-space:pre-wrap;word-break:break-word}
+    .item .del{padding:5px 10px;border-radius:8px;border:1px solid rgba(255,120,120,.4);background:transparent;color:#ff9a9a;cursor:pointer;font-size:12px;margin-top:10px}
+    .empty{color:#9fb0d0;text-align:center;padding:40px 0}
+    .loading{color:#9fb0d0;text-align:center;padding:40px 0}
+    .note{color:#7d8db0;font-size:12px;margin-top:24px;line-height:1.7}
+  </style>
+</head>
+<body>
+  <div class="gate" id="gate">
+    <h1>站长后台</h1>
+    <p class="sub">输入后台口令查看「联系站长」留言</p>
+    <input id="pass" type="password" placeholder="后台口令" autocomplete="off" />
+    <button id="enter">进入</button>
+    <div class="err" id="gate-err"></div>
+  </div>
+
+  <div class="wrap" id="panel" style="display:none">
+    <h1>留言信箱</h1>
+    <p class="sub">访客在星图页「联系站长 · 留言信箱」提交的内容（不含按星留言的星语）。</p>
+    <div class="toolbar">
+      <button id="refresh">刷新</button>
+      <span class="count" id="count"></span>
+    </div>
+    <div id="list"><div class="loading">加载中…</div></div>
+    <p class="note">说明：本页口令仅作「挡君子」的轻量门禁，写在客户端代码里，并非真安全。若需严格私密，应接入后端登录鉴权。请勿把本页链接公开。</p>
+  </div>
+
+  <script type="module">
+    // 复用主站云端客户端（与「星语」同表 star_messages，专用键 SITE_CONTACT）
+    import { getCloud, listContacts, deleteContact } from './js/cloud.js';
+
+    // ↓↓↓ 改这里：换成你自己的口令。注意前端口令只是挡君子，非真安全。
+    const ADMIN_PASS = 'starcurator2026';
+
+    const gate = document.getElementById('gate');
+    const panel = document.getElementById('panel');
+    const passInput = document.getElementById('pass');
+    const gateErr = document.getElementById('gate-err');
+    const listEl = document.getElementById('list');
+    const countEl = document.getElementById('count');
+
+    document.getElementById('enter').addEventListener('click', ()=>{
+      if (passInput.value === ADMIN_PASS){ gate.style.display='none'; panel.style.display='block'; load(); }
+      else { gateErr.textContent='口令错误'; }
+    });
+    passInput.addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('enter').click(); });
+
+    document.getElementById('refresh').addEventListener('click', load);
+
+    async function load(){
+      listEl.innerHTML = '<div class="loading">加载中…</div>';
+      let rows = [];
+      try { rows = await listContacts(500); }
+      catch(e){ listEl.innerHTML = '<div class="empty">加载失败：' + escapeHtml(e.message || e) + '</div>'; return; }
+      if (!rows.length){ listEl.innerHTML = '<div class="empty">暂无留言</div>'; countEl.textContent=''; return; }
+      countEl.textContent = '共 ' + rows.length + ' 条';
+      listEl.innerHTML = rows.map(r=>{
+        const time = r.created_at ? new Date(r.created_at).toLocaleString('zh-CN') : '';
+        const contact = r.contact ? '📮 ' + escapeHtml(r.contact) : '';
+        return '<div class="item" data-id="' + r.id + '">'
+          + '<div class="meta"><span class="name">' + escapeHtml(r.name) + '</span><span class="time">' + time + '</span></div>'
+          + (contact ? '<div class="contact">' + contact + '</div>' : '')
+          + '<div class="msg">' + escapeHtml(r.message) + '</div>'
+          + '<button class="del" data-id="' + r.id + '">删除</button>'
+          + '</div>';
+      }).join('');
+      listEl.querySelectorAll('.del').forEach(b=>{
+        b.addEventListener('click', async ()=>{
+          if (!confirm('确定删除这条留言？')) return;
+          const ok = await deleteContact(b.dataset.id);
+          if (ok) load(); else alert('删除失败，请重试');
+        });
+      });
+    }
+
+    function escapeHtml(s){
+      return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+  </script>
+</body>
+</html>
