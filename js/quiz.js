@@ -1,5 +1,5 @@
 // 沉浸问答：爱好 / 星座 / 性格 / 人生信念
-import { t } from './i18n.js?v=20261056';
+import { t } from './i18n.js?v=20261057';
 const HOBBIES = [
   { id:'艺术 / 音乐', ico:'🎨', sub:'Art & Music' },
   { id:'科学 / 探索', ico:'🔭', sub:'Science' },
