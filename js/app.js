@@ -1,15 +1,15 @@
 // 3D 宇宙背景依赖 three.js（CDN）+ WebGL；改为动态 import，
 // 即使 CDN 抽风或 WebGL 不可用，也只是降级为空操作，绝不拖垮整站（开门/问答/证书照常）
-import { initQuiz } from './quiz.js?v=20261059';
-import { generateStar, starParamList } from './starData.js?v=20261059';
-import { initKingdom } from './kingdom.js?v=20261059';
-import { initCertificate } from './certificate.js?v=20261059';
-import { encodeStar, shareLink, copyText, parseCodeFromURL, decodeStar } from './share.js?v=20261059';
-import { starKey, pushStar, updateStar, listStars, addMessage, listMessages, nameTaken, getStarByKey, ownerIdExists, catalogTaken, addContact } from './cloud.js?v=20261059';
-import { initSkyMap } from './skymap.js?v=20261059';
-import { loadCatalog } from './catalog.js?v=20261059';
-import { t, getLang, setLang, applyI18n, initLangToggle } from './i18n.js?v=20261059';
-import { isMinted, getMint, connectWallet, mint, getAddress, mintAddress, explorerTxUrl } from './mint.js?v=20261059';
+import { initQuiz } from './quiz.js?v=20261060';
+import { generateStar, starParamList } from './starData.js?v=20261060';
+import { initKingdom } from './kingdom.js?v=20261060';
+import { initCertificate } from './certificate.js?v=20261060';
+import { encodeStar, shareLink, copyText, parseCodeFromURL, decodeStar } from './share.js?v=20261060';
+import { starKey, pushStar, updateStar, listStars, addMessage, listMessages, nameTaken, getStarByKey, ownerIdExists, catalogTaken, addContact } from './cloud.js?v=20261060';
+import { initSkyMap } from './skymap.js?v=20261060';
+import { loadCatalog } from './catalog.js?v=20261060';
+import { t, getLang, setLang, applyI18n, initLangToggle } from './i18n.js?v=20261060';
+import { isMinted, getMint, connectWallet, mint, getAddress, mintAddress, explorerTxUrl } from './mint.js?v=20261060';
 
 const SESSION_KEY = 'star-sky-session-v1';
 const CLAIM_KEY = 'star-sky-claim-v1';   // 已认领星球（与问答进度分离，独立持久化，刷新/重开不丢失）
@@ -56,7 +56,7 @@ function getDeviceId(){
 // 3D 宇宙背景依赖本地 three.js（相对路径导入）+ WebGL；若不可用则降级为空操作桩，绝不因此拖垮整站
 const NULL_UNIVERSE = { setStar(){}, showHero(){}, hideHero(){}, setControl(){}, setFocus(){}, setActive(){} };
 let universe = NULL_UNIVERSE;
-import('./universe.js?v=20261059').then(m => {
+import('./universe.js?v=20261060').then(m => {
   try { universe = m.initUniverse(document.getElementById('cosmos')); }
   catch (e) { console.warn('3D 宇宙背景初始化失败，已降级为静态背景', e); }
 }).catch(e => console.warn('3D 宇宙背景模块加载失败（CDN/WebGL），已降级为空操作', e));
@@ -76,7 +76,7 @@ function planet3dFallback(reason){
     box.appendChild(n);
   }
 }
-import('./planet3d.js?v=20261059').then(m => {
+import('./planet3d.js?v=20261060').then(m => {
   try {
     planet3d = m.initPlanet3D(document.getElementById('planet-canvas'));
     if (currentStar && screens.universe && screens.universe.classList.contains('active')){
@@ -142,6 +142,14 @@ const screens = {
 const navSteps = [...document.querySelectorAll('.nav-step')];
 
 function go(name){
+  // 已认领星球后，禁止重新进入问答页生成新星（每人限一颗星）。
+  // 所有进入问答的入口（顶栏“问答”步骤 / 首页开门 / 程序内 go('quiz')）
+  // 都改到“我的星球”，与“一人一星 + 重名唯一 + 命名锁定”共同守住约束。
+  if (name === 'quiz' && hasClaim()){
+    toast(t('你已认领星球，每人限一颗 ✦ 去查看你的星'));
+    openMyStar();
+    return;
+  }
   currentScreen = name;
   document.body.classList.toggle('on-explore', name === 'explore');
   document.body.classList.toggle('on-premium', name === 'premium');
@@ -284,6 +292,26 @@ function syncClaimLock(){
   } else {
     input.readOnly = false; input.disabled = false;
     if (gen.dataset.locked){ gen.textContent = t('认领并命名星球') + ' ↝'; delete gen.dataset.locked; }
+  }
+}
+
+// 已认领后，顶栏“问答”步骤置灰并禁用，避免用户误入重新生成新星（破坏一人一星）。
+// 与 go() 内的功能守卫（已认领则改去“我的星球”）双保险。
+function updateQuizGate(){
+  const q = document.querySelector('.nav-step[data-step="quiz"]');
+  if (!q) return;
+  if (hasClaim()){
+    q.classList.add('nav-locked');
+    q.style.opacity = '0.4';
+    q.style.pointerEvents = 'none';
+    q.style.cursor = 'not-allowed';
+    q.setAttribute('title', t('你已认领星球，每人限一颗 ✦'));
+  } else {
+    q.classList.remove('nav-locked');
+    q.style.opacity = '';
+    q.style.pointerEvents = '';
+    q.style.cursor = '';
+    q.removeAttribute('title');
   }
 }
 
@@ -487,6 +515,7 @@ async function commitClaim(name){
   const od = document.getElementById('btn-open-door');
   if (od){ od.textContent = t('查看我的星球 ✦'); od.setAttribute('data-i18n', '查看我的星球 ✦'); }
   const mh = document.getElementById('btn-mine-home'); if (mh) mh.style.display = '';
+  updateQuizGate();   // 认领完成后立即锁问答，守住一人一星
   renderCloudWall();
   go('share');
   return true;
@@ -1040,6 +1069,7 @@ if (hasClaim()){
   const od = document.getElementById('btn-open-door');
   if (od){ od.textContent = t('查看我的星球 ✦'); od.setAttribute('data-i18n', '查看我的星球 ✦'); }
   if (btnMineHome) btnMineHome.style.display = '';
+  updateQuizGate();   // 已认领：加载时即锁问答入口
 }
 
 // ---------- 启动 ----------
