@@ -12,7 +12,7 @@ const PUBLIC_CONFIG = {
 };
 
 // 云端 SDK 自托管到本地（js/vendor/），零外链，国内/国外均稳定加载。
-const SDK_LOCAL = 'js/vendor/workbuddy-cloud-sdk.global.js?v=20261061';
+const SDK_LOCAL = 'js/vendor/workbuddy-cloud-sdk.global.js?v=20261062';
 
 let _cloud = null;
 let _sdkPromise = null;

@@ -1,15 +1,15 @@
 // 3D 宇宙背景依赖 three.js（CDN）+ WebGL；改为动态 import，
 // 即使 CDN 抽风或 WebGL 不可用，也只是降级为空操作，绝不拖垮整站（开门/问答/证书照常）
-import { initQuiz } from './quiz.js?v=20261061';
-import { generateStar, starParamList } from './starData.js?v=20261061';
-import { initKingdom } from './kingdom.js?v=20261061';
-import { initCertificate } from './certificate.js?v=20261061';
-import { encodeStar, shareLink, copyText, parseCodeFromURL, decodeStar } from './share.js?v=20261061';
-import { starKey, pushStar, updateStar, listStars, addMessage, listMessages, nameTaken, getStarByKey, ownerIdExists, catalogTaken, addContact } from './cloud.js?v=20261061';
-import { initSkyMap } from './skymap.js?v=20261061';
-import { loadCatalog } from './catalog.js?v=20261061';
-import { t, getLang, setLang, applyI18n, initLangToggle } from './i18n.js?v=20261061';
-import { isMinted, getMint, connectWallet, mint, getAddress, mintAddress, explorerTxUrl } from './mint.js?v=20261061';
+import { initQuiz } from './quiz.js?v=20261062';
+import { generateStar, starParamList } from './starData.js?v=20261062';
+import { initKingdom } from './kingdom.js?v=20261062';
+import { initCertificate } from './certificate.js?v=20261062';
+import { encodeStar, shareLink, copyText, parseCodeFromURL, decodeStar } from './share.js?v=20261062';
+import { starKey, pushStar, updateStar, listStars, addMessage, listMessages, nameTaken, getStarByKey, ownerIdExists, catalogTaken, addContact } from './cloud.js?v=20261062';
+import { initSkyMap } from './skymap.js?v=20261062';
+import { loadCatalog } from './catalog.js?v=20261062';
+import { t, getLang, setLang, applyI18n, initLangToggle } from './i18n.js?v=20261062';
+import { isMinted, getMint, connectWallet, mint, getAddress, mintAddress, explorerTxUrl } from './mint.js?v=20261062';
 
 const SESSION_KEY = 'star-sky-session-v1';
 const CLAIM_KEY = 'star-sky-claim-v1';   // 已认领星球（与问答进度分离，独立持久化，刷新/重开不丢失）
@@ -56,7 +56,7 @@ function getDeviceId(){
 // 3D 宇宙背景依赖本地 three.js（相对路径导入）+ WebGL；若不可用则降级为空操作桩，绝不因此拖垮整站
 const NULL_UNIVERSE = { setStar(){}, showHero(){}, hideHero(){}, setControl(){}, setFocus(){}, setActive(){} };
 let universe = NULL_UNIVERSE;
-import('./universe.js?v=20261061').then(m => {
+import('./universe.js?v=20261062').then(m => {
   try { universe = m.initUniverse(document.getElementById('cosmos')); }
   catch (e) { console.warn('3D 宇宙背景初始化失败，已降级为静态背景', e); }
 }).catch(e => console.warn('3D 宇宙背景模块加载失败（CDN/WebGL），已降级为空操作', e));
@@ -76,7 +76,7 @@ function planet3dFallback(reason){
     box.appendChild(n);
   }
 }
-import('./planet3d.js?v=20261061').then(m => {
+import('./planet3d.js?v=20261062').then(m => {
   try {
     planet3d = m.initPlanet3D(document.getElementById('planet-canvas'));
     if (currentStar && screens.universe && screens.universe.classList.contains('active')){
@@ -195,6 +195,7 @@ function go(name){
       toast(t('先完成问答，认领一颗属于你的星')); go('quiz'); return;
     }
     try { updateMintGate(); } catch(e){ console.warn('[nav] 门禁刷新失败', e); }
+    try { syncKingdomLock(); } catch(e){ console.warn('[nav] 王国锁定刷新失败', e); }
   }
   try{
     // 真实星空：可独立探索（无需先认领），直接对标 ISR 的静态纸星图
@@ -292,6 +293,43 @@ function syncClaimLock(){
   } else {
     input.readOnly = false; input.disabled = false;
     if (gen.dataset.locked){ gen.textContent = t('认领并命名星球') + ' ↝'; delete gen.dataset.locked; }
+  }
+}
+
+// 认领后王国锁定：星名 + 称号 + 寄语 + 律法 + 议会 + 旗帜 全部锁定（认领即最终态）。
+// 铸造按钮（#btn-mint）位于 .mint-gate 内，不在锁定列中，仍可生成凭证（可选升级）。
+// 一次性宽限：若该星为「免费认领但从未设计过」（无律法/议会/寄语），保留一次完善机会，
+// 用户保存/认领后立刻锁定，避免把免费认领的星永远留在无旗帜状态。
+function isKingdomDesigned(kd){
+  if (!kd) return false;
+  const laws = kd.laws || [];
+  const council = kd.council || [];
+  const msg = (kd.message || '').trim();
+  return laws.length > 0 || council.length > 0 || msg.length > 0;
+}
+function syncKingdomLock(){
+  const zone = document.getElementById('screen-claim');
+  if (!zone) return;
+  const claimed = hasClaim();
+  const kd = claimed ? (loadClaim() && loadClaim().kingdom) : null;
+  const finalized = claimed && isKingdomDesigned(kd);   // 已认领且有设计内容 → 锁定
+  zone.classList.toggle('kingdom-locked', finalized);
+  const gen = document.getElementById('btn-generate');
+  const save = document.getElementById('btn-save');
+  const banner = document.getElementById('kingdom-lock-banner');
+  if (finalized){
+    if (gen) gen.style.display = 'none';
+    if (save) save.style.display = 'none';
+    if (banner){ banner.style.display = 'flex'; banner.classList.add('locked'); banner.textContent = t('✦ 星名与王国已锁定 · 认领即最终态'); }
+  } else if (claimed){
+    // 免费认领未设计：保留一次完善机会
+    if (gen){ gen.style.display = ''; gen.textContent = t('完成并锁定我的王国 ✦'); }
+    if (save) save.style.display = '';
+    if (banner){ banner.style.display = 'flex'; banner.classList.remove('locked'); banner.textContent = t('你已免费认领此星，可完善一次王国设计；点「完成并锁定」后即永久锁定 ✦'); }
+  } else {
+    if (gen){ gen.style.display = ''; gen.textContent = t('认领并命名星球') + ' ↝'; }
+    if (save) save.style.display = '';
+    if (banner) banner.style.display = 'none';
   }
 }
 
@@ -508,6 +546,7 @@ async function commitClaim(name){
     }
   }
   saveClaim(currentStar, currentKingdom);   // 落盘“已认领”记录（与问答进度分离，刷新/重开不丢）
+  syncKingdomLock();   // 认领完成后立即锁定王国设计（认领即最终态）
   // 把分享码写进地址栏：微信/手机浏览器与桌面浏览器存储不互通，
   // 用户拷贝该链接到任意浏览器打开即可恢复自己的星、下载证书，无需重做问答（仍遵守一人一星）。
   try { history.replaceState(null, '', shareLink(encodeStar(currentStar, currentKingdom))); } catch(e){}
@@ -574,9 +613,7 @@ function updateMintGate(){
   }
   const mintBtn = document.getElementById('btn-mint');
   if (mintBtn) mintBtn.disabled = minted;   // 已铸造则无需再铸
-  // 建国表单始终可编辑（不再因未铸造而锁定），让“认领并命名星球”对所有人可用
-  const zone = document.getElementById('screen-claim');
-  if (zone) zone.classList.remove('kingdom-locked');
+  // 注：建国表单的锁定态由 syncKingdomLock() 统一管控（认领即最终态），此处不再强制解锁
 }
 function shortAddr(a){ return a ? (a.slice(0,6) + '…' + a.slice(-4)) : ''; }
 
@@ -1078,6 +1115,7 @@ if (hasClaim()){
   if (od){ od.textContent = t('查看我的星球 ✦'); od.setAttribute('data-i18n', '查看我的星球 ✦'); }
   if (btnMineHome) btnMineHome.style.display = '';
   updateQuizGate();   // 已认领：加载时即锁问答入口
+  syncKingdomLock();  // 已认领：加载时即锁定王国设计
 }
 
 // ---------- 启动 ----------

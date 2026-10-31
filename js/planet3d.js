@@ -4,9 +4,9 @@
 // 光照：方向光 + 法线贴图 → 昼夜终止线与浮雕凹凸，转动时能明确看出球面体积。
 // 交互：OrbitControls 允许相机环绕（拖拽旋转 / 滚轮缩放），星体自身缓慢自转。
 
-import * as THREE from './vendor/three/build/three.module.js?v=20261061';
-import { OrbitControls } from './vendor/three/examples/jsm/controls/OrbitControls.js?v=20261061';
-import { getBodySurfaceAsync } from './bodyTexture.js?v=20261061';
+import * as THREE from './vendor/three/build/three.module.js?v=20261062';
+import { OrbitControls } from './vendor/three/examples/jsm/controls/OrbitControls.js?v=20261062';
+import { getBodySurfaceAsync } from './bodyTexture.js?v=20261062';
 
 // ---------- 光晕 ----------
 // ① 边缘辉光：球壳 + 菲涅尔。BackSide 渲染时球壳法线背对相机，
