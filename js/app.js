@@ -1,15 +1,15 @@
 // 3D 宇宙背景依赖 three.js（CDN）+ WebGL；改为动态 import，
 // 即使 CDN 抽风或 WebGL 不可用，也只是降级为空操作，绝不拖垮整站（开门/问答/证书照常）
-import { initQuiz } from './quiz.js?v=20261057';
-import { generateStar, starParamList } from './starData.js?v=20261057';
-import { initKingdom } from './kingdom.js?v=20261057';
-import { initCertificate } from './certificate.js?v=20261057';
-import { encodeStar, shareLink, copyText, parseCodeFromURL, decodeStar } from './share.js?v=20261057';
-import { starKey, pushStar, updateStar, listStars, addMessage, listMessages, nameTaken, getStarByKey, ownerIdExists, catalogTaken, addContact } from './cloud.js?v=20261057';
-import { initSkyMap } from './skymap.js?v=20261057';
-import { loadCatalog } from './catalog.js?v=20261057';
-import { t, getLang, setLang, applyI18n, initLangToggle } from './i18n.js?v=20261057';
-import { isMinted, getMint, connectWallet, mint, getAddress, mintAddress, explorerTxUrl } from './mint.js?v=20261057';
+import { initQuiz } from './quiz.js?v=20261058';
+import { generateStar, starParamList } from './starData.js?v=20261058';
+import { initKingdom } from './kingdom.js?v=20261058';
+import { initCertificate } from './certificate.js?v=20261058';
+import { encodeStar, shareLink, copyText, parseCodeFromURL, decodeStar } from './share.js?v=20261058';
+import { starKey, pushStar, updateStar, listStars, addMessage, listMessages, nameTaken, getStarByKey, ownerIdExists, catalogTaken, addContact } from './cloud.js?v=20261058';
+import { initSkyMap } from './skymap.js?v=20261058';
+import { loadCatalog } from './catalog.js?v=20261058';
+import { t, getLang, setLang, applyI18n, initLangToggle } from './i18n.js?v=20261058';
+import { isMinted, getMint, connectWallet, mint, getAddress, mintAddress, explorerTxUrl } from './mint.js?v=20261058';
 
 const SESSION_KEY = 'star-sky-session-v1';
 const CLAIM_KEY = 'star-sky-claim-v1';   // 已认领星球（与问答进度分离，独立持久化，刷新/重开不丢失）
@@ -56,7 +56,7 @@ function getDeviceId(){
 // 3D 宇宙背景依赖本地 three.js（相对路径导入）+ WebGL；若不可用则降级为空操作桩，绝不因此拖垮整站
 const NULL_UNIVERSE = { setStar(){}, showHero(){}, hideHero(){}, setControl(){}, setFocus(){}, setActive(){} };
 let universe = NULL_UNIVERSE;
-import('./universe.js?v=20261057').then(m => {
+import('./universe.js?v=20261058').then(m => {
   try { universe = m.initUniverse(document.getElementById('cosmos')); }
   catch (e) { console.warn('3D 宇宙背景初始化失败，已降级为静态背景', e); }
 }).catch(e => console.warn('3D 宇宙背景模块加载失败（CDN/WebGL），已降级为空操作', e));
@@ -76,7 +76,7 @@ function planet3dFallback(reason){
     box.appendChild(n);
   }
 }
-import('./planet3d.js?v=20261057').then(m => {
+import('./planet3d.js?v=20261058').then(m => {
   try {
     planet3d = m.initPlanet3D(document.getElementById('planet-canvas'));
     if (currentStar && screens.universe && screens.universe.classList.contains('active')){
@@ -513,19 +513,13 @@ function currentStarCode(){
 function currentMintChain(){
   return 'solana';
 }
-// 依据是否已铸造，显示/隐藏门禁并锁定或解锁建国表单
+// 依据是否已铸造，显示门禁状态；但建国表单始终可编辑——
+// 命名 / 立法 / 组阁 / 旗帜全部免费可用，“生成王国凭证”（铸造）仅为可选升级，不再强制拦截。
 function updateMintGate(){
   const gate = document.getElementById('mint-gate');
   if (!gate) return;
   const code = currentStarCode();
   const minted = isMinted(code);
-  // 锁定：禁用建国表单内所有输入与按钮（门禁卡本身除外）
-  const zone = document.getElementById('screen-claim');
-  zone.querySelectorAll('.claim-col input, .claim-col textarea, .claim-col button, .flag-controls input, .flag-controls button')
-    .forEach(el=>{
-      if (el.id === 'btn-connect-wallet' || el.id === 'btn-mint') return;
-      el.disabled = !minted;
-    });
   gate.style.display = 'flex';
   gate.classList.toggle('minted', minted);
   const st = document.getElementById('mg-status');
@@ -548,7 +542,9 @@ function updateMintGate(){
   }
   const mintBtn = document.getElementById('btn-mint');
   if (mintBtn) mintBtn.disabled = minted;   // 已铸造则无需再铸
-  zone.classList.toggle('kingdom-locked', !minted);
+  // 建国表单始终可编辑（不再因未铸造而锁定），让“认领并命名星球”对所有人可用
+  const zone = document.getElementById('screen-claim');
+  if (zone) zone.classList.remove('kingdom-locked');
 }
 function shortAddr(a){ return a ? (a.slice(0,6) + '…' + a.slice(-4)) : ''; }
 
@@ -813,15 +809,52 @@ async function ensureCloudSeed(){
   }
 }
 
+// 本地演示星辰：云端不可达 / 无数据时，作为世界星图墙的“打底”，保证墙永不空白。
+// 仅作展示（share 为空，点击不打开）；真实认领记录由云端 listStars 提供，可点击打开。
+const LOCAL_DEMO_WALL = [
+  { name:'织梦者', designation:'GROOMBRIDGE 34 A', constellation:'仙后座', owner_name:'微光联邦', color1:'#ffd27a', message:'愿每个仰望你的人，都被温柔以待。', share:'' },
+  { name:'远帆',   designation:'HD 219134',        constellation:'仙王座', owner_name:'银帆共和国', color1:'#8ad0ff', message:'把烦恼留给地球，把目光交给星海。', share:'' },
+  { name:'Aether', designation:'VEGA',             constellation:'天琴座', owner_name:'以太协约', color1:'#c9a6ff', message:'在群星之间，你从不渺小。', share:'' },
+  { name:'北辰',   designation:'POLARIS',          constellation:'小熊座', owner_name:'不眠守望', color1:'#9fe6c0', message:'我守着这里，等你也亮起来。', share:'' },
+  { name:'余烬',   designation:'BETELGEUSE',       constellation:'猎户座', owner_name:'灰烬王朝', color1:'#ff9a6b', message:'熄灭之前，再烧旺一点。', share:'' },
+  { name:'Lumen',  designation:'CAPELLA',          constellation:'御夫座', owner_name:'流明城邦', color1:'#ffe6a3', message:'光不为被看见而存在，却因你而动人。', share:'' },
+  { name:'潮音',   designation:'ALPHARD',          constellation:'长蛇座', owner_name:'潮汐议会', color1:'#7fc8ff', message:'宇宙很低语，只有安静的人听见。', share:'' },
+  { name:'炽心',   designation:'HAMAL',            constellation:'白羊座', owner_name:'赤心联邦', color1:'#ff8f9c', message:'燃烧是星的本分，温柔是选的。', share:'' },
+  { name:'Nyx',    designation:'RASALHAGUE',       constellation:'武仙座', owner_name:'夜幕同盟', color1:'#b39dff', message:'夜越深，星越亮。', share:'' },
+  { name:'归航',   designation:'ALMAK',            constellation:'仙女座', owner_name:'归航灯塔', color1:'#8be0d0', message:'无论走多远，总有一颗星等你回头。', share:'' },
+];
+
 async function renderCloudWall(){
   const box = document.getElementById('world-wall');
   const count = document.getElementById('wall-count');
   await ensureCloudSeed();
-  const arr = await listStars(120);
-  // 标记“我的星”：当前认领/正在查看的星也展示在墙上，并标“我的星 ✦”，不再被排除
+  let arr = [];
+  let cloudOk = true;
+  try { arr = await listStars(120); } catch(e){ cloudOk = false; arr = []; }
+  if (!arr) arr = [];
+  const hadCloud = arr.length > 0;
+  // 云端无数据 / 不可达：以本地演示星辰打底，并置顶“我的星”（若已认领），墙永不空白
+  if (!hadCloud){
+    if (currentStar && currentKingdom){
+      let myShare = '';
+      try { myShare = encodeStar(currentStar, currentKingdom); } catch(e){}
+      arr.unshift({
+        name: currentStar.name, designation: currentStar.designation || '',
+        constellation: currentStar.constellation || '', owner_name: currentKingdom.name,
+        color1: currentStar.color1 || '#ffd27a', message: currentKingdom.message || '',
+        share: myShare, _mine: true
+      });
+    }
+    arr = arr.concat(LOCAL_DEMO_WALL.slice());
+  }
+  // 标记“我的星”：当前认领/正在查看的星也展示在墙上，并标“我的星 ✦”
   let curCode = null;
   if (currentStar && currentKingdom){ try { curCode = encodeStar(currentStar, currentKingdom); } catch(e){} }
-  if (count) count.textContent = t('云端已点亮') + ' ' + arr.length + ' ' + t('颗星辰');
+  if (count){
+    count.textContent = (cloudOk && hadCloud)
+      ? t('云端已点亮') + ' ' + arr.length + ' ' + t('颗星辰')
+      : t('演示星辰（云端暂不可达，认领后在此点亮你的星）');
+  }
   if (!box) return;
   if (!arr.length){
     box.innerHTML = '<div class="wall-empty">' + t('还没有星辰被点亮。认领你的第一颗，让世界星图墙亮起来。') + '</div>';
@@ -829,14 +862,15 @@ async function renderCloudWall(){
   }
   box.innerHTML = arr.map((s,i)=>{
     const col = s.color1 || '#ffd27a';
-    const isMine = !!(curCode && s.share === curCode);
+    const isMine = !!(s._mine || (curCode && s.share === curCode));
     const kname = s.owner_name ? escapeHtml(s.owner_name) + t(' 的星') : (escapeHtml(s.name) + t(' 王国'));
     const desig = s.designation || '';
     // 星球寄语：来自云端 stars.message，让全世界的留言在星图墙上可见
     const msg = (s.message || '').trim();
     const msgHtml = msg ? `<div class="wt-msg">“${escapeHtml(msg)}”</div>` : '';
     const badge = isMine ? `<div class="wt-badge">${t('我的星 ✦')}</div>` : '';
-    return `<div class="wall-tile${isMine?' mine':''}" data-share="${encodeURIComponent(s.share)}" style="color:${col};animation-delay:${(i*0.37).toFixed(2)}s">
+    const dataShare = s.share ? encodeURIComponent(s.share) : '';
+    return `<div class="wall-tile${isMine?' mine':''}" data-share="${dataShare}" style="color:${col};animation-delay:${(i*0.37).toFixed(2)}s">
       ${badge}
       <div class="wt-orb" style="background:radial-gradient(circle at 35% 30%, #fff, ${col} 45%, ${col} 82%, #2a0f00)"></div>
       <div class="wt-name">${escapeHtml(s.name)}</div>
@@ -846,7 +880,8 @@ async function renderCloudWall(){
     </div>`;
   }).join('');
   box.querySelectorAll('.wall-tile').forEach(t=>{
-    t.onclick = ()=> openSharedStar({ share: decodeURIComponent(t.dataset.share) });
+    const sh = t.dataset.share;
+    t.onclick = ()=>{ if (sh) openSharedStar({ share: decodeURIComponent(sh) }); };
   });
 }
 

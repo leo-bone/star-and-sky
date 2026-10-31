@@ -470,6 +470,11 @@ html[lang="en"] .opt .sub{display:none}
   .uni-right{height:46vh;min-height:340px;order:-1}
   .star-params{max-height:none}
   .topnav{display:none}
+  /* 移动端顶栏：品牌靠左，操作入口靠右，避免“我的星球”被挤到中间 */
+  .topbar{justify-content:flex-start;gap:12px}
+  .nav-mine{margin-left:auto}
+  .brand{flex:0 1 auto;min-width:0}
+  .brand-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   /* 顶栏随刘海/挖孔屏留出安全区；内容底部让出底栏空间 */
   .topbar{padding-top:calc(16px + env(safe-area-inset-top));padding-bottom:14px}
   .screen{padding-top:80px;padding-bottom:calc(76px + env(safe-area-inset-bottom))}
@@ -493,8 +498,8 @@ html[lang="en"] .opt .sub{display:none}
   .on-premium .bottom-nav{display:none}
   /* 移动端 toast 上移，避开底部导航 */
   .toast{bottom:calc(88px + env(safe-area-inset-bottom))}
-  /* 移动端：顶部工具条收紧，避免与星空挤在一起 */
-  .sky-hud{gap:8px}
+  /* 移动端：顶部工具条收紧，并避让刘海/挖孔屏顶栏，避免与顶栏重叠 */
+  .sky-hud{gap:8px;top:calc(68px + env(safe-area-inset-top))}
   .sky-search{width:auto;padding:6px;gap:6px}
   .sky-search input{width:min(260px,56vw);font-size:13px}
   .sky-tools{gap:8px}
@@ -525,6 +530,13 @@ html[lang="en"] .opt .sub{display:none}
   .premium-items{grid-template-columns:repeat(2,1fr)}
   .screen{padding-left:16px;padding-right:16px}
   #screen-share{padding-left:16px;padding-right:16px}
+  /* 小屏：分享 / 建国 / 门禁主操作按钮全宽堆叠，提升点按区与可读性 */
+  .share-actions{flex-direction:column;width:100%}
+  .share-actions .btn{width:100%;min-width:0}
+  .claim-actions{flex-direction:column}
+  .claim-actions .btn{width:100%}
+  .mint-gate .mg-actions{width:100%;justify-content:flex-start}
+  .mint-gate .mg-actions .btn{flex:1;min-width:120px}
   .wall{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
   .home-title{letter-spacing:3px}
   /* 小屏进一步压缩信息框，并上移避开底部操作条，保证“视星等/距离”两格完整可见且不挤压 */
