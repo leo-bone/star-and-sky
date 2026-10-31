@@ -7,7 +7,7 @@ echo "== 提交并推送 Star & Sky 改动 =="
 rm -f .git/index.lock
 # 暂存本次改动（.env / node_modules / generated-images 已被 .gitignore 忽略，不会入库）
 git add index.html js/ DEPLOY-BSC.command PUSH.command package-lock.json
-git commit -m "修复丢星bug(分离localStorage键)+证书距离/时间本地化+清理链选择器死代码+SEO补全(canonical/theme-color/json-ld)；版本20261047" || echo "（无新改动或已提交，继续推送）"
+git commit -m "v20261049：星空页空闲停重绘(掉帧优化)+首页序章仅首播+证书装饰星座名本地化+nameTaken大小写归一" || echo "（无新改动或已提交，继续推送）"
 git push origin main
 echo ""
 echo "== 完成！若上面没有红字报错，star.uichain.org 约 1-3 分钟后更新 =="

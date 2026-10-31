@@ -1,15 +1,15 @@
 // 3D 宇宙背景依赖 three.js（CDN）+ WebGL；改为动态 import，
 // 即使 CDN 抽风或 WebGL 不可用，也只是降级为空操作，绝不拖垮整站（开门/问答/证书照常）
-import { initQuiz } from './quiz.js?v=20261048';
-import { generateStar, starParamList } from './starData.js?v=20261048';
-import { initKingdom } from './kingdom.js?v=20261048';
-import { initCertificate } from './certificate.js?v=20261048';
-import { encodeStar, shareLink, copyText, parseCodeFromURL, decodeStar } from './share.js?v=20261048';
-import { starKey, pushStar, updateStar, listStars, addMessage, listMessages, nameTaken, getStarByKey, ownerIdExists, catalogTaken } from './cloud.js?v=20261048';
-import { initSkyMap } from './skymap.js?v=20261048';
-import { loadCatalog } from './catalog.js?v=20261048';
-import { t, getLang, setLang, applyI18n, initLangToggle } from './i18n.js?v=20261048';
-import { isMinted, getMint, connectWallet, mint, getAddress, mintAddress, explorerTxUrl } from './mint.js?v=20261048';
+import { initQuiz } from './quiz.js?v=20261049';
+import { generateStar, starParamList } from './starData.js?v=20261049';
+import { initKingdom } from './kingdom.js?v=20261049';
+import { initCertificate } from './certificate.js?v=20261049';
+import { encodeStar, shareLink, copyText, parseCodeFromURL, decodeStar } from './share.js?v=20261049';
+import { starKey, pushStar, updateStar, listStars, addMessage, listMessages, nameTaken, getStarByKey, ownerIdExists, catalogTaken } from './cloud.js?v=20261049';
+import { initSkyMap } from './skymap.js?v=20261049';
+import { loadCatalog } from './catalog.js?v=20261049';
+import { t, getLang, setLang, applyI18n, initLangToggle } from './i18n.js?v=20261049';
+import { isMinted, getMint, connectWallet, mint, getAddress, mintAddress, explorerTxUrl } from './mint.js?v=20261049';
 
 const SESSION_KEY = 'star-sky-session-v1';
 const CLAIM_KEY = 'star-sky-claim-v1';   // 已认领星球（与问答进度分离，独立持久化，刷新/重开不丢失）
@@ -56,7 +56,7 @@ function getDeviceId(){
 // 3D 宇宙背景依赖 three.js（CDN）+ WebGL；若不可用则降级为空操作桩，绝不因此拖垮整站
 const NULL_UNIVERSE = { setStar(){}, showHero(){}, hideHero(){}, setControl(){}, setFocus(){}, setActive(){} };
 let universe = NULL_UNIVERSE;
-import('./universe.js?v=20261048').then(m => {
+import('./universe.js?v=20261049').then(m => {
   try { universe = m.initUniverse(document.getElementById('cosmos')); }
   catch (e) { console.warn('3D 宇宙背景初始化失败，已降级为静态背景', e); }
 }).catch(e => console.warn('3D 宇宙背景模块加载失败（CDN/WebGL），已降级为空操作', e));
@@ -65,7 +65,7 @@ const card = initCertificate();
 // 3D 星球视口依赖 three.js（CDN）；若不可用则降级为空操作桩，绝不拖垮整站
 const NULL_PLANET3D = { setStar(){}, show(){}, hide(){}, resize(){} };
 let planet3d = NULL_PLANET3D;
-import('./planet3d.js?v=20261048').then(m => {
+import('./planet3d.js?v=20261049').then(m => {
   try {
     planet3d = m.initPlanet3D(document.getElementById('planet-canvas'));
     if (currentStar && screens.universe && screens.universe.classList.contains('active')){
@@ -186,10 +186,14 @@ function go(name){
     }
   }catch(e){ console.warn('[nav] 星空页初始化失败', e); }
 
-  // 电影开场：每次回到首页都重放开门序章
+  // 电影开场：首次回首页重放序章；看过之后以静止态展示，不再重放
   if (name === 'home'){
     document.body.classList.add('cinema-mode');
-    try{ playHome(); }catch(e){ console.warn('[nav] 首页序章播放失败', e); }
+    if (localStorage.getItem(INTRO_SEEN_KEY)){
+      try{ showHomeResting(); }catch(e){ console.warn('[nav] 首页序章复位失败', e); }
+    } else {
+      try{ playHome(); }catch(e){ console.warn('[nav] 首页序章播放失败', e); }
+    }
   }
   else {
     document.body.classList.remove('cinema-mode');
@@ -198,6 +202,16 @@ function go(name){
   // 关键：导航到某页时，按“当前语言”重渲染该页动态内容。
   // 否则先中文生成星、切英文后才点进问答/认星页，面板仍是中文（图像里的中文漏翻根因）。
   refreshI18n();
+}
+const INTRO_SEEN_KEY = 'star-sky-intro-seen-v1';
+function markIntroSeen(){ try{ localStorage.setItem(INTRO_SEEN_KEY, '1'); }catch(e){} }
+// 已看过序章：以静止态（门已开、CTA 可见）直接展示首页，不再重放电影开场
+function showHomeResting(){
+  const cinema = document.getElementById('cinema');
+  if (cinema){ cinema.style.transition=''; cinema.style.opacity=''; cinema.classList.remove('opening'); cinema.classList.add('played'); }
+  const cta = document.getElementById('cinema-cta'); if (cta) cta.classList.add('show');
+  document.querySelectorAll('.ct-line').forEach(l => l.classList.add('show'));
+  markIntroSeen();
 }
 function playHome(){
   homeTimers.forEach(clearTimeout); homeTimers = [];
@@ -213,8 +227,11 @@ function playHome(){
   homeTimers.push(setTimeout(() => cinema.classList.add('played'), 100));
   lines.forEach((l, i) => homeTimers.push(setTimeout(() => l.classList.add('show'), 600 + i * 1100)));
   homeTimers.push(setTimeout(() => cta && cta.classList.add('show'), 600 + lines.length * 1100 + 300));
+  // 序章完整播放后标记已看，下次回首页不再重放电影开场
+  homeTimers.push(setTimeout(markIntroSeen, 600 + lines.length * 1100 + 300 + 1200));
 }
 function openDoor(){
+  markIntroSeen();   // 用户通过开门/跳过离开序章，标记已看
   if (hasClaim()){ openMyStar(); return; }   // 已认领：直接打开自己的星（每人限一颗）
   const cinema = document.getElementById('cinema');
   if (!cinema || cinema.classList.contains('opening')) return;
@@ -922,6 +939,7 @@ document.getElementById('btn-sky-teaser')?.addEventListener('click', ()=> go('ex
 // 电影开场：开门
 document.getElementById('btn-open-door')?.addEventListener('click', openDoor);
 document.getElementById('btn-skip-intro')?.addEventListener('click', ()=>{
+  markIntroSeen();
   if (hasClaim()){ openMyStar(); return; }
   go('quiz');
 });

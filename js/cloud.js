@@ -64,9 +64,12 @@ export async function nameTaken(name){
   try {
     const cloud = await getCloud();
     const { data, error } = await cloud.database.from(T_STARS)
-      .select('code').eq('name', n).limit(1);
+      .select('name');
     if (error) throw error;
-    return !!(data && data.length);
+    const low = n.toLowerCase();
+    // 与数据库 lower(name) 唯一索引保持一致：大小写不敏感比对，
+    // 避免 "Orion" / "orion" 被误判为可用、随后插入触发 23505 的体验断层。
+    return !!(data && data.some(r => (r.name || '').toLowerCase() === low));
   } catch(e){ console.warn('[cloud] nameTaken 失败', e); return false; }
 }
 

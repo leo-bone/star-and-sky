@@ -1,9 +1,9 @@
 // 真实星空图：基于真实星表的全天交互星图（赤道坐标等距投影）
 // 能力：真实恒星/星座连线/星座名/银河带/行星/用户星与好友星高亮/按名或注册号搜索定位/
 //       平移缩放/图层开关/真实行星实时位置/点击好友星打开其星页
-import { planetPositions } from './planets.js?v=20261048';
-import { loadCatalog } from './catalog.js?v=20261048';
-import { t, getLang } from './i18n.js?v=20261048';
+import { planetPositions } from './planets.js?v=20261049';
+import { loadCatalog } from './catalog.js?v=20261049';
+import { t, getLang } from './i18n.js?v=20261049';
 
 const CON_NAMES = {
   And:'仙女座',Ant:'唧筒座',Aps:'天燕座',Aql:'天鹰座',Aqr:'宝瓶座',Ara:'天坛座',Ari:'白羊座',
@@ -92,6 +92,8 @@ export function initSkyMap(container, opts = {}){
   let mine=null;            // 指向“我的星”标记
   let selected=null;        // 当前聚焦的标记（脉冲 + 标签）
   let foundActive=false, pulse=0;
+  let running=false, dirty=true;   // 渲染循环自暂停：空闲（无脉冲、无待重绘）时停 rAF，省 CPU/电量/移动端掉帧
+  function wake(){ if (!running){ running = true; requestAnimationFrame(frame); } }
   const cam = { ra:180, dec:0, zoom:1 };
   const layers = { lines:true, names:true, mw:true, planets:true };
   let planets=[];
@@ -238,6 +240,7 @@ export function initSkyMap(container, opts = {}){
       if (p.x<-30||p.x>W+30||p.y<-30||p.y>H+30) continue;
       drawMarker(bctx, p.x, p.y, m);
     }
+    wake();   // 基础图层已重绘：唤醒渲染循环（空闲时自动停，省电不掉帧）
   }
 
   function drawMarker(c, x, y, m){
@@ -266,15 +269,18 @@ export function initSkyMap(container, opts = {}){
   }
 
   function frame(){
-    // 标签页隐藏或无需脉冲动画时跳过重绘，省 CPU/电量（仅在选中星高亮时才持续重绘）
+    running = true;
+    // 标签页隐藏：保持循环存活，恢复后继续（不空转渲染）
     if (document.hidden){ requestAnimationFrame(frame); return; }
+    const animating = !!(selected && foundActive);
+    // 空闲（无选中脉冲 且 无待重绘）：绘制最后一帧后停止循环，避免一直满帧空转掉帧
+    if (!animating && !dirty){ running = false; return; }
     ctx.clearRect(0,0,W,H);
     ctx.drawImage(base,0,0,W,H);
-    if (selected && foundActive){
+    if (animating){
       const p = project(selected.ra, selected.dec);
       if (p.x>-40 && p.x<W+40 && p.y>-40 && p.y<H+40){
         const rr = 14 + Math.sin(pulse)*5;
-        const col = selected.color || (selected.type==='mine' ? '#5fe0ff' : '#ffd27a');
         ctx.strokeStyle = `rgba(95,224,255,${0.5+0.3*Math.sin(pulse)})`; ctx.lineWidth=2;
         ctx.beginPath(); ctx.arc(p.x,p.y,rr,0,7); ctx.stroke();
         // 标签
@@ -290,7 +296,9 @@ export function initSkyMap(container, opts = {}){
       }
     }
     pulse += 0.05;
-    requestAnimationFrame(frame);
+    dirty = false;
+    if (animating) requestAnimationFrame(frame);   // 脉冲持续：保持循环
+    else running = false;                           // 静态帧已绘制：停止循环
   }
 
   // ---- 交互 ----
