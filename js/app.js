@@ -1,15 +1,15 @@
 // 3D 宇宙背景依赖 three.js（CDN）+ WebGL；改为动态 import，
 // 即使 CDN 抽风或 WebGL 不可用，也只是降级为空操作，绝不拖垮整站（开门/问答/证书照常）
-import { initQuiz } from './quiz.js?v=20261058';
-import { generateStar, starParamList } from './starData.js?v=20261058';
-import { initKingdom } from './kingdom.js?v=20261058';
-import { initCertificate } from './certificate.js?v=20261058';
-import { encodeStar, shareLink, copyText, parseCodeFromURL, decodeStar } from './share.js?v=20261058';
-import { starKey, pushStar, updateStar, listStars, addMessage, listMessages, nameTaken, getStarByKey, ownerIdExists, catalogTaken, addContact } from './cloud.js?v=20261058';
-import { initSkyMap } from './skymap.js?v=20261058';
-import { loadCatalog } from './catalog.js?v=20261058';
-import { t, getLang, setLang, applyI18n, initLangToggle } from './i18n.js?v=20261058';
-import { isMinted, getMint, connectWallet, mint, getAddress, mintAddress, explorerTxUrl } from './mint.js?v=20261058';
+import { initQuiz } from './quiz.js?v=20261059';
+import { generateStar, starParamList } from './starData.js?v=20261059';
+import { initKingdom } from './kingdom.js?v=20261059';
+import { initCertificate } from './certificate.js?v=20261059';
+import { encodeStar, shareLink, copyText, parseCodeFromURL, decodeStar } from './share.js?v=20261059';
+import { starKey, pushStar, updateStar, listStars, addMessage, listMessages, nameTaken, getStarByKey, ownerIdExists, catalogTaken, addContact } from './cloud.js?v=20261059';
+import { initSkyMap } from './skymap.js?v=20261059';
+import { loadCatalog } from './catalog.js?v=20261059';
+import { t, getLang, setLang, applyI18n, initLangToggle } from './i18n.js?v=20261059';
+import { isMinted, getMint, connectWallet, mint, getAddress, mintAddress, explorerTxUrl } from './mint.js?v=20261059';
 
 const SESSION_KEY = 'star-sky-session-v1';
 const CLAIM_KEY = 'star-sky-claim-v1';   // 已认领星球（与问答进度分离，独立持久化，刷新/重开不丢失）
@@ -56,7 +56,7 @@ function getDeviceId(){
 // 3D 宇宙背景依赖本地 three.js（相对路径导入）+ WebGL；若不可用则降级为空操作桩，绝不因此拖垮整站
 const NULL_UNIVERSE = { setStar(){}, showHero(){}, hideHero(){}, setControl(){}, setFocus(){}, setActive(){} };
 let universe = NULL_UNIVERSE;
-import('./universe.js?v=20261058').then(m => {
+import('./universe.js?v=20261059').then(m => {
   try { universe = m.initUniverse(document.getElementById('cosmos')); }
   catch (e) { console.warn('3D 宇宙背景初始化失败，已降级为静态背景', e); }
 }).catch(e => console.warn('3D 宇宙背景模块加载失败（CDN/WebGL），已降级为空操作', e));
@@ -76,7 +76,7 @@ function planet3dFallback(reason){
     box.appendChild(n);
   }
 }
-import('./planet3d.js?v=20261058').then(m => {
+import('./planet3d.js?v=20261059').then(m => {
   try {
     planet3d = m.initPlanet3D(document.getElementById('planet-canvas'));
     if (currentStar && screens.universe && screens.universe.classList.contains('active')){
@@ -89,6 +89,7 @@ import('./planet3d.js?v=20261058').then(m => {
 let currentStar = null;
 let currentAnswers = null;
 let currentKingdom = null; // 含 flagSVG
+let _lastGenSalt = 0;       // 本次生成星所用的 salt（用于“继续我的星空”复现同一颗星）
 let isShared = false;      // 是否处于“浏览他人分享星图”的只读模式
 let currentScreen = 'home';
 let lastSkyInfo = null;    // 最近一次星空信息卡数据（语言切换时重绘）
@@ -341,18 +342,20 @@ function populateUniverse(star){
 // 解出一颗“尚未被认领”的星：先按答题结果生成；若其星表编号（catalog_no，星的物理身份）
 // 已被云端占用，则加盐重选，直到找到一颗空闲的真实恒星。最多 80 次，仍耗尽则退化为合成星
 // （宇宙无限，永不撞车）。这样“预览 → 认领 → 证书”始终指向同一颗、且人人不同。
+// 记下来最终选定的 salt，供“继续我的星空”精确复现同一颗星（否则用 salt=0 可能复现出另一颗）。
 async function generateUniqueStar(answers){
   for (let salt = 0; salt < 80; salt++){
     const star = generateStar(answers, salt);
     const cn = star.catalogNo;
-    if (!cn) return star;            // 合成星（无星表编号），直接采用
+    if (!cn){ _lastGenSalt = salt; return star; }   // 合成星（无星表编号），直接采用
     let taken = false;
     try { taken = await catalogTaken(cn); } catch(e){ taken = false; }
-    if (!taken) return star;
+    if (!taken){ _lastGenSalt = salt; return star; }
   }
   // 真实星池（3240+ 颗）实际不会耗尽；此处仅作极端兜底
   const star = generateStar(answers, 99991);
   if (!star.catalogNo) star.catalogNo = star.registry;
+  _lastGenSalt = 99991;
   return star;
 }
 
@@ -665,6 +668,7 @@ function saveSession(progress){
   try {
     const data = {
       answers: currentAnswers,
+      salt: _lastGenSalt,
       kingdom: currentKingdom || (kingdom.getState()),
       progress,
       flagSVG: currentKingdom ? currentKingdom.flagSVG : null,
@@ -1002,10 +1006,13 @@ loadCatalog().catch(()=>{});
 // 继续
 const btnResume = document.getElementById('btn-resume');
 btnResume.addEventListener('click', ()=>{
+  // 已认领：直接打开真实已认领的星（由分享码解码，与证书/云端完全一致），避免用 salt=0 复现出另一颗
+  if (hasClaim()){ openMyStar(); return; }
   const s = loadSession();
   if (!s || !s.answers){ toast(t('还没有进行中的星空')); return; }
   currentAnswers = s.answers;
-  currentStar = generateStar(s.answers);
+  // 用持久化的 salt 精确复现当初生成的那颗星（而非默认 salt=0，否则可能复现出另一颗）
+  currentStar = generateStar(s.answers, s.salt || 0);
   // 还原用户为这颗星命的名：generateStar 生成的是天文名，
   // 而建国时用户把 currentStar.name 改成了自己的名字（并存进 kingdom.name）。
   // 不还原的话，"继续我的星空"后我的星在星图上会变回天文名，

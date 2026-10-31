@@ -61,7 +61,7 @@ html[lang="en"] .opt .sub{display:none}
 
 #stage{position:relative;z-index:10}
 /* 关键修复：分享页含 3 个子元素，必须纵向排列，否则会被 flex 横向排成一行导致文字重叠 */
-.screen{display:none;min-height:100vh;padding:96px clamp(18px,5vw,80px) 60px;
+.screen{display:none;min-height:100vh;min-height:100dvh;padding:96px clamp(18px,5vw,80px) 60px;
   flex-direction:column;align-items:center;justify-content:flex-start}
 .screen.active{display:flex;animation:fade .7s ease}
 /* 单元素页面在列方向下垂直居中（内容超出时 auto 边距自动塌陷，不会裁切顶部） */
@@ -406,8 +406,8 @@ html[lang="en"] .opt .sub{display:none}
 
 
 /* ---------- 真实星空 ---------- */
-#screen-explore{padding:0 !important;min-height:100vh;align-items:stretch;justify-content:flex-start}
-.explore-layout{position:relative;width:100%;height:100vh;overflow:hidden}
+#screen-explore{padding:0 !important;min-height:100vh;min-height:100dvh;align-items:stretch;justify-content:flex-start}
+.explore-layout{position:relative;width:100%;height:100vh;height:100dvh;overflow:hidden}
 .sky-host{position:absolute;inset:0}
 .sky-hud{position:absolute;top:78px;left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:10px;pointer-events:none;z-index:5}
 .sky-search{pointer-events:auto;display:flex;gap:8px;background:rgba(8,12,28,.66);padding:8px;border-radius:14px;
@@ -550,7 +550,7 @@ html[lang="en"] .opt .sub{display:none}
 
 /* ================= 电影开场 · 楚门的世界 · 一扇门 ================= */
 #screen-home{padding:0 !important;align-items:stretch;justify-content:flex-start}
-.cinema{position:relative;width:100%;height:100vh;overflow:hidden;display:flex;
+.cinema{position:relative;width:100%;height:100vh;height:100dvh;overflow:hidden;display:flex;
   align-items:center;justify-content:center;
   background:radial-gradient(120% 90% at 50% 28%, #0a0f26 0%, #06081a 58%, #02030a 100%)}
 

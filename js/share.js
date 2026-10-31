@@ -1,6 +1,6 @@
 // 分享编解码：把一颗星 + 王国信息压成可放进 URL 的短码，免登录即可分享给全世界。
 
-import { starKey } from './cloud.js?v=20261058';   // 短码哈希（纯函数，不会引起云 SDK 网络副作用）
+import { starKey } from './cloud.js?v=20261059';   // 短码哈希（纯函数，不会引起云 SDK 网络副作用）
 
 function slimStar(s){
   // 只保留展示与参数表需要的字段，减小体积（真实星表认领 + 国际命名 + 真实坐标）
