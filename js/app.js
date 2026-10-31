@@ -1,15 +1,15 @@
 // 3D 宇宙背景依赖 three.js（CDN）+ WebGL；改为动态 import，
 // 即使 CDN 抽风或 WebGL 不可用，也只是降级为空操作，绝不拖垮整站（开门/问答/证书照常）
-import { initQuiz } from './quiz.js?v=20261060';
-import { generateStar, starParamList } from './starData.js?v=20261060';
-import { initKingdom } from './kingdom.js?v=20261060';
-import { initCertificate } from './certificate.js?v=20261060';
-import { encodeStar, shareLink, copyText, parseCodeFromURL, decodeStar } from './share.js?v=20261060';
-import { starKey, pushStar, updateStar, listStars, addMessage, listMessages, nameTaken, getStarByKey, ownerIdExists, catalogTaken, addContact } from './cloud.js?v=20261060';
-import { initSkyMap } from './skymap.js?v=20261060';
-import { loadCatalog } from './catalog.js?v=20261060';
-import { t, getLang, setLang, applyI18n, initLangToggle } from './i18n.js?v=20261060';
-import { isMinted, getMint, connectWallet, mint, getAddress, mintAddress, explorerTxUrl } from './mint.js?v=20261060';
+import { initQuiz } from './quiz.js?v=20261061';
+import { generateStar, starParamList } from './starData.js?v=20261061';
+import { initKingdom } from './kingdom.js?v=20261061';
+import { initCertificate } from './certificate.js?v=20261061';
+import { encodeStar, shareLink, copyText, parseCodeFromURL, decodeStar } from './share.js?v=20261061';
+import { starKey, pushStar, updateStar, listStars, addMessage, listMessages, nameTaken, getStarByKey, ownerIdExists, catalogTaken, addContact } from './cloud.js?v=20261061';
+import { initSkyMap } from './skymap.js?v=20261061';
+import { loadCatalog } from './catalog.js?v=20261061';
+import { t, getLang, setLang, applyI18n, initLangToggle } from './i18n.js?v=20261061';
+import { isMinted, getMint, connectWallet, mint, getAddress, mintAddress, explorerTxUrl } from './mint.js?v=20261061';
 
 const SESSION_KEY = 'star-sky-session-v1';
 const CLAIM_KEY = 'star-sky-claim-v1';   // 已认领星球（与问答进度分离，独立持久化，刷新/重开不丢失）
@@ -56,7 +56,7 @@ function getDeviceId(){
 // 3D 宇宙背景依赖本地 three.js（相对路径导入）+ WebGL；若不可用则降级为空操作桩，绝不因此拖垮整站
 const NULL_UNIVERSE = { setStar(){}, showHero(){}, hideHero(){}, setControl(){}, setFocus(){}, setActive(){} };
 let universe = NULL_UNIVERSE;
-import('./universe.js?v=20261060').then(m => {
+import('./universe.js?v=20261061').then(m => {
   try { universe = m.initUniverse(document.getElementById('cosmos')); }
   catch (e) { console.warn('3D 宇宙背景初始化失败，已降级为静态背景', e); }
 }).catch(e => console.warn('3D 宇宙背景模块加载失败（CDN/WebGL），已降级为空操作', e));
@@ -76,7 +76,7 @@ function planet3dFallback(reason){
     box.appendChild(n);
   }
 }
-import('./planet3d.js?v=20261060').then(m => {
+import('./planet3d.js?v=20261061').then(m => {
   try {
     planet3d = m.initPlanet3D(document.getElementById('planet-canvas'));
     if (currentStar && screens.universe && screens.universe.classList.contains('active')){
@@ -717,6 +717,13 @@ function escapeHtml(s){
   return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
+// 把云端调用抛出的错误，转成给用户看的简短提示：区分“网络/SDK 加载失败”（可重试）与“服务端错误”。
+function cloudErrMsg(e){
+  const m = (e && (e.message || (e.error && e.error.message))) || '';
+  if (/Failed to fetch|network|load-failed|sdk|abort|timeout/i.test(m)) return t('网络异常，检查网络后重试');
+  return t('发送失败，请稍后再试');
+}
+
 // ---------- 云端共享星图 ----------
 function openSharedStar(marker){
   if (!marker || !marker.share) return;
@@ -799,7 +806,8 @@ async function postNote(){
     await loadNotes();
     toast(t('星语已留在云端 ✦'));
   } catch(e){
-    toast(t('留言发送失败，稍后再试'));
+    console.warn('[note] 发送失败', e);
+    toast(cloudErrMsg(e));
   } finally { btn.disabled = false; }
 }
 
@@ -1023,7 +1031,7 @@ contactForm?.addEventListener('submit', async e=>{
     toast(t('已发送，感谢你的留言 ✦'));
   } catch(err){
     console.warn('[contact] 发送失败', err);
-    toast(t('发送失败，请稍后再试'));
+    toast(cloudErrMsg(err));
   } finally {
     if (btn){ btn.disabled = false; btn.textContent = t('发送给站长'); }
   }

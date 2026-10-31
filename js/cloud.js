@@ -12,7 +12,7 @@ const PUBLIC_CONFIG = {
 };
 
 // 云端 SDK 自托管到本地（js/vendor/），零外链，国内/国外均稳定加载。
-const SDK_LOCAL = 'js/vendor/workbuddy-cloud-sdk.global.js?v=20261060';
+const SDK_LOCAL = 'js/vendor/workbuddy-cloud-sdk.global.js?v=20261061';
 
 let _cloud = null;
 let _sdkPromise = null;
@@ -194,12 +194,14 @@ export async function listStars(limit = 300){
 
 // 给某颗星留言（无需登录，游客内容）
 export async function addMessage(starCode, nick, text){
-  const cloud = await getCloud();
-  const { data, error } = await cloud.database.from(T_MSGS)
-    .insert({ star_code: starCode, nick: nick || '匿名旅人', text })
-    .select();
-  if (error) throw error;
-  return (data && data[0]) || null;
+  return withRetry(async () => {
+    const cloud = await getCloud();
+    const { data, error } = await cloud.database.from(T_MSGS)
+      .insert({ star_code: starCode, nick: nick || '匿名旅人', text })
+      .select();
+    if (error) throw error;
+    return (data && data[0]) || null;
+  });
 }
 
 // 读取某颗星的留言
@@ -243,20 +245,33 @@ const SITE_CONTACT_CODE = 'SITE_CONTACT';
 
 export async function addContact({ name, contact, message }){
   const cleanName = (name || '').trim() || '匿名访客';
-  const cloud = await getCloud();
-  const { data, error } = await cloud.database.from(T_MSGS)
-    .insert({
-      star_code: SITE_CONTACT_CODE,
-      nick: cleanName,
-      text: JSON.stringify({
-        name: cleanName,
-        contact: (contact || '').trim(),
-        message: (message || '').trim()
+  return withRetry(async () => {
+    const cloud = await getCloud();
+    const { data, error } = await cloud.database.from(T_MSGS)
+      .insert({
+        star_code: SITE_CONTACT_CODE,
+        nick: cleanName,
+        text: JSON.stringify({
+          name: cleanName,
+          contact: (contact || '').trim(),
+          message: (message || '').trim()
+        })
       })
-    })
-    .select();
-  if (error) throw error;
-  return (data && data[0]) || null;
+      .select();
+    if (error) throw error;
+    return (data && data[0]) || null;
+  });
+}
+
+// 网络/SDK 瞬时抖动自愈：最多重试 times 次（默认 2 次），间隔 gap 毫秒。
+// 覆盖“云端 SDK 偶发加载失败 / 请求被网络瞬时中断”这类非逻辑错误，避免一次抖动就硬失败。
+async function withRetry(fn, times = 2, gap = 700){
+  let err;
+  for (let i = 0; i < times; i++){
+    try { return await fn(); }
+    catch(e){ err = e; if (i < times - 1) await new Promise(r => setTimeout(r, gap)); }
+  }
+  throw err;
 }
 
 export async function listContacts(limit = 500){
