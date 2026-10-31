@@ -22,7 +22,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Cormorant+Garamond:wght@400;500;600&display=swap" />
-  <link rel="stylesheet" href="css/style.css?v=20261051" />
+  <link rel="stylesheet" href="css/style.css?v=20261052" />
   <!-- 字体样式表异步加载：先渲染页面，字体就绪后自动生效 -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Cormorant+Garamond:wght@400;500;600&display=swap" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Cormorant+Garamond:wght@400;500;600&display=swap" /></noscript>
@@ -365,25 +365,6 @@
           <div class="wall-empty">还没有星辰被点亮。认领你的第一颗，让世界星图墙亮起来。</div>
         </div>
       </div>
-
-      <!-- 联系站长 · 留言信箱 -->
-      <div class="contact-wrap" id="contact-wrap">
-        <div class="contact-head">
-          <h3 data-i18n="联系站长 · 留言信箱">联系站长 · 留言信箱</h3>
-          <p data-i18n="想对站长说点什么，或留下你的联系方式？写在下面，站长会在后台收到。">想对站长说点什么，或留下你的联系方式？写在下面，站长会在后台收到。</p>
-        </div>
-        <form class="contact-form" id="contact-form" novalidate>
-          <div class="contact-row">
-            <input id="contact-name" class="contact-name" type="text" maxlength="20" data-i18n-ph="昵称（可选）" placeholder="昵称（可选）" />
-            <input id="contact-way" class="contact-way" type="text" maxlength="60" data-i18n-ph="联系方式：邮箱 / 微信 / QQ（可选）" placeholder="联系方式：邮箱 / 微信 / QQ（可选）" />
-          </div>
-          <textarea id="contact-msg" class="contact-msg" maxlength="500" rows="3" data-i18n-ph="写点什么给站长…（必填）" placeholder="写点什么给站长…（必填）"></textarea>
-          <div class="contact-foot">
-            <span class="contact-hint" id="contact-hint" data-i18n="仅站长可见，不会公开展示">仅站长可见，不会公开展示</span>
-            <button class="btn btn-primary btn-sm" type="submit" id="contact-submit" data-i18n="发送给站长">发送给站长</button>
-          </div>
-        </form>
-      </div>
     </section>
 
     <!-- ============ 即将上线 / 高级版（从星图页独立拆出） ============ -->
@@ -408,6 +389,25 @@
             <button class="btn btn-outline btn-sm" id="btn-premium" data-i18n="加入候补名单">加入候补名单</button>
           </div>
           <p class="premium-note" id="premium-note" data-i18n="当前为免费版：完整认领、星图生成与分享均不收费。">当前为免费版：完整认领、星图生成与分享均不收费。</p>
+
+          <!-- 联系站长 · 留言信箱 -->
+          <div class="contact-wrap" id="contact-wrap">
+            <div class="contact-head">
+              <h3 data-i18n="联系站长 · 留言信箱">联系站长 · 留言信箱</h3>
+              <p data-i18n="想对站长说点什么，或留下你的联系方式？写在下面，站长会在后台收到。">想对站长说点什么，或留下你的联系方式？写在下面，站长会在后台收到。</p>
+            </div>
+            <form class="contact-form" id="contact-form" novalidate>
+              <div class="contact-row">
+                <input id="contact-name" class="contact-name" type="text" maxlength="20" data-i18n-ph="昵称（可选）" placeholder="昵称（可选）" />
+                <input id="contact-way" class="contact-way" type="text" maxlength="60" data-i18n-ph="联系方式：邮箱 / 微信 / QQ（可选）" placeholder="联系方式：邮箱 / 微信 / QQ（可选）" />
+              </div>
+              <textarea id="contact-msg" class="contact-msg" maxlength="500" rows="3" data-i18n-ph="写点什么给站长…（必填）" placeholder="写点什么给站长…（必填）"></textarea>
+              <div class="contact-foot">
+                <span class="contact-hint" id="contact-hint" data-i18n="仅站长可见，不会公开展示">仅站长可见，不会公开展示</span>
+                <button class="btn btn-primary btn-sm" type="submit" id="contact-submit" data-i18n="发送给站长">发送给站长</button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
     </section>
@@ -435,6 +435,6 @@
 
   <div id="toast" class="toast"></div>
 
-  <script type="module" src="js/app.js?v=20261051"></script>
+  <script type="module" src="js/app.js?v=20261052"></script>
 </body>
 </html>
