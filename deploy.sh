@@ -24,14 +24,26 @@ set -euo pipefail
 
 DOMAIN="star.uichain.org"
 
-# ---------- 读取 token ----------
-if [ -z "${CF_API_TOKEN:-}" ] && [ -f .cloudflare.env ]; then
+# ---------- 读取 Cloudflare 凭证（两种方式二选一） ----------
+#   方式 1（推荐，细粒度）：Bearer API Token
+#     CF_API_TOKEN=xxxx
+#   方式 2（Global API Key + 邮箱）：
+#     CF_API_KEY=xxxx
+#     CF_EMAIL=you@example.com
+if [ -z "${CF_API_TOKEN:-}${CF_API_KEY:-}" ] && [ -f .cloudflare.env ]; then
   set -a; source .cloudflare.env; set +a
 fi
-if [ -z "${CF_API_TOKEN:-}" ]; then
-  echo "❌ 未找到 CF_API_TOKEN。请二选一：" >&2
-  echo "     a) export CF_API_TOKEN=xxxx" >&2
-  echo "     b) 新建 .cloudflare.env（已被 gitignore）写入 CF_API_TOKEN=xxxx" >&2
+
+AUTH=()
+if [ -n "${CF_API_TOKEN:-}" ]; then
+  AUTH=(-H "Authorization: Bearer ${CF_API_TOKEN}")
+elif [ -n "${CF_API_KEY:-}" ] && [ -n "${CF_EMAIL:-}" ]; then
+  AUTH=(-H "X-Auth-Email: ${CF_EMAIL}" -H "X-Auth-Key: ${CF_API_KEY}")
+else
+  echo "❌ 未找到 Cloudflare 凭证。请二选一：" >&2
+  echo "     a) export CF_API_TOKEN=xxxx        （Bearer API Token）" >&2
+  echo "     b) export CF_API_KEY=xxxx CF_EMAIL=you@example.com  （Global API Key + 邮箱）" >&2
+  echo "    或写入 .cloudflare.env（已被 gitignore，不会提交）" >&2
   exit 1
 fi
 
@@ -78,7 +90,7 @@ fi
 
 # ---------- 解析 Cloudflare Zone ID ----------
 echo "▶ 解析 Cloudflare Zone ID (${DOMAIN}) ..."
-ZONE_ID=$(curl -s --max-time 15 -H "Authorization: Bearer ${CF_API_TOKEN}" \
+ZONE_ID=$(curl -s --max-time 15 "${AUTH[@]}" \
   "https://api.cloudflare.com/client/v4/zones?name=${DOMAIN}" \
   | grep -oE "\"id\":\"[A-Za-z0-9]+\",\"name\":\"${DOMAIN}\"" \
   | grep -oE '"id":"[A-Za-z0-9]+"' | sed 's/"id":"//;s/"//' | head -1)
@@ -90,7 +102,7 @@ fi
 # ---------- 4) 清缓存 ----------
 echo "▶ 清空 Cloudflare 缓存 (zone ${ZONE_ID}) ..."
 RESP=$(curl -s --max-time 20 -X POST \
-  -H "Authorization: Bearer ${CF_API_TOKEN}" \
+  "${AUTH[@]}" \
   -H "Content-Type: application/json" \
   --data '{"purge_everything":true}' \
   "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/purge_cache")
