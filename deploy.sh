@@ -15,14 +15,15 @@
 #
 # 前置：
 #   - 当前在 main 分支、工作树可提交（无未跟踪/未提交的关键改动由脚本检查）
-#   - Cloudflare API Token（仅需 Zone:Cache Purge 权限，绑定 star.uichain.org 这个 zone）
+#   - Cloudflare 凭证（Global API Key + 邮箱，或 Bearer API Token，仅需 Zone:Cache Purge 权限，绑定 uichain.org 这个 zone；star.uichain.org 是其子域名）
 #     提供方式二选一：
 #       a) 环境变量： export CF_API_TOKEN=xxxx
 #       b) 本地文件： 新建 .cloudflare.env（已被 .gitignore 忽略，不会提交）写入 CF_API_TOKEN=xxxx
 #
 set -euo pipefail
 
-DOMAIN="star.uichain.org"
+DOMAIN="star.uichain.org"          # 站点访问域名（用于传播检测：拉 https://${DOMAIN}/js/app.js）
+ZONE_NAME="uichain.org"            # Cloudflare 注册 zone：zone 按主域名注册，子域名 star.uichain.org 在其下；清缓存须对这个 zone 做
 
 # ---------- 读取 Cloudflare 凭证（两种方式二选一） ----------
 #   方式 1（推荐，细粒度）：Bearer API Token
@@ -89,10 +90,10 @@ if [ "$OK" -ne 1 ]; then
 fi
 
 # ---------- 解析 Cloudflare Zone ID ----------
-echo "▶ 解析 Cloudflare Zone ID (${DOMAIN}) ..."
+echo "▶ 解析 Cloudflare Zone ID (${ZONE_NAME}) ..."
 ZONE_ID=$(curl -s --max-time 15 "${AUTH[@]}" \
-  "https://api.cloudflare.com/client/v4/zones?name=${DOMAIN}" \
-  | grep -oE "\"id\":\"[A-Za-z0-9]+\",\"name\":\"${DOMAIN}\"" \
+  "https://api.cloudflare.com/client/v4/zones?name=${ZONE_NAME}" \
+  | grep -oE "\"id\":\"[A-Za-z0-9]+\",\"name\":\"${ZONE_NAME}\"" \
   | grep -oE '"id":"[A-Za-z0-9]+"' | sed 's/"id":"//;s/"//' | head -1)
 if [ -z "${ZONE_ID:-}" ]; then
   echo "❌ 无法解析 Zone ID。请检查：token 是否有该域名的 Cache Purge 权限、域名拼写是否正确" >&2
