@@ -9,7 +9,9 @@
     (function(){
       var C = 'star.uichain.org';
       if (location.hostname !== C) {
-        location.replace('https://' + C + location.pathname + location.search + location.hash);
+        // 跳到主域名根目录（站点在根 /，不在 github.io 的 /star-and-sky/ 子路径）；
+        // 保留 ?search 与 #hash（分享链接的星数据都在 hash 里），避免丢分享参数。
+        location.replace('https://' + C + '/' + location.search + location.hash);
       }
     })();
   </script>
