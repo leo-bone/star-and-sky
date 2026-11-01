@@ -8,10 +8,10 @@ import {
 	Vector2,
 	Vector3,
 	WebGLRenderTarget
-} from '../../../build/three.module.js?v=20261064';
-import { Pass, FullScreenQuad } from './Pass.js?v=20261064';
-import { CopyShader } from '../shaders/CopyShader.js?v=20261064';
-import { LuminosityHighPassShader } from '../shaders/LuminosityHighPassShader.js?v=20261064';
+} from '../../../build/three.module.js?v=20261065';
+import { Pass, FullScreenQuad } from './Pass.js?v=20261065';
+import { CopyShader } from '../shaders/CopyShader.js?v=20261065';
+import { LuminosityHighPassShader } from '../shaders/LuminosityHighPassShader.js?v=20261065';
 
 /**
  * UnrealBloomPass is inspired by the bloom pass of Unreal Engine. It creates a

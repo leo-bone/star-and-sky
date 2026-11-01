@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# 站点地图与 AI 可读内容清单
+Sitemap: https://star.uichain.org/sitemap.xml
+
+# 面向生成式 AI 引擎（ChatGPT / Claude / Perplexity / 文心 / 通义等）的内容索引
+# 详见 https://star.uichain.org/llms.txt

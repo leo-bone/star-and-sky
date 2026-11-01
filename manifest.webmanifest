@@ -1,0 +1,25 @@
+{
+  "name": "星与星空 · STAR & SKY",
+  "short_name": "星与星空",
+  "description": "认领属于你的星，建立星辰王国，生成可分享的纪念星图证书。",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#05060f",
+  "theme_color": "#05060f",
+  "lang": "zh-CN",
+  "icons": [
+    {
+      "src": "assets/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

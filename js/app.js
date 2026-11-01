@@ -1,15 +1,15 @@
 // 3D 宇宙背景依赖 three.js（CDN）+ WebGL；改为动态 import，
 // 即使 CDN 抽风或 WebGL 不可用，也只是降级为空操作，绝不拖垮整站（开门/问答/证书照常）
-import { initQuiz } from './quiz.js?v=20261064';
-import { generateStar, starParamList } from './starData.js?v=20261064';
-import { initKingdom } from './kingdom.js?v=20261064';
-import { initCertificate } from './certificate.js?v=20261064';
-import { encodeStar, shareLink, copyText, parseCodeFromURL, decodeStar } from './share.js?v=20261064';
-import { starKey, pushStar, updateStar, listStars, addMessage, listMessages, nameTaken, getStarByKey, ownerIdExists, catalogTaken, addContact } from './cloud.js?v=20261064';
-import { initSkyMap } from './skymap.js?v=20261064';
-import { loadCatalog } from './catalog.js?v=20261064';
-import { t, getLang, setLang, applyI18n, initLangToggle } from './i18n.js?v=20261064';
-import { isMinted, getMint, connectWallet, mint, getAddress, mintAddress, explorerTxUrl } from './mint.js?v=20261064';
+import { initQuiz } from './quiz.js?v=20261065';
+import { generateStar, starParamList } from './starData.js?v=20261065';
+import { initKingdom } from './kingdom.js?v=20261065';
+import { initCertificate } from './certificate.js?v=20261065';
+import { encodeStar, shareLink, copyText, parseCodeFromURL, decodeStar } from './share.js?v=20261065';
+import { starKey, pushStar, updateStar, listStars, addMessage, listMessages, nameTaken, getStarByKey, ownerIdExists, catalogTaken, addContact } from './cloud.js?v=20261065';
+import { initSkyMap } from './skymap.js?v=20261065';
+import { loadCatalog } from './catalog.js?v=20261065';
+import { t, getLang, setLang, applyI18n, initLangToggle } from './i18n.js?v=20261065';
+import { isMinted, getMint, connectWallet, mint, getAddress, mintAddress, explorerTxUrl } from './mint.js?v=20261065';
 
 const SESSION_KEY = 'star-sky-session-v1';
 const CLAIM_KEY = 'star-sky-claim-v1';   // 已认领星球（与问答进度分离，独立持久化，刷新/重开不丢失）
@@ -56,7 +56,7 @@ function getDeviceId(){
 // 3D 宇宙背景依赖本地 three.js（相对路径导入）+ WebGL；若不可用则降级为空操作桩，绝不因此拖垮整站
 const NULL_UNIVERSE = { setStar(){}, showHero(){}, hideHero(){}, setControl(){}, setFocus(){}, setActive(){} };
 let universe = NULL_UNIVERSE;
-import('./universe.js?v=20261064').then(m => {
+import('./universe.js?v=20261065').then(m => {
   try { universe = m.initUniverse(document.getElementById('cosmos')); }
   catch (e) { console.warn('3D 宇宙背景初始化失败，已降级为静态背景', e); }
 }).catch(e => console.warn('3D 宇宙背景模块加载失败（CDN/WebGL），已降级为空操作', e));
@@ -76,7 +76,7 @@ function planet3dFallback(reason){
     box.appendChild(n);
   }
 }
-import('./planet3d.js?v=20261064').then(m => {
+import('./planet3d.js?v=20261065').then(m => {
   try {
     planet3d = m.initPlanet3D(document.getElementById('planet-canvas'));
     if (currentStar && screens.universe && screens.universe.classList.contains('active')){
@@ -222,6 +222,8 @@ function go(name){
   // 关键：导航到某页时，按“当前语言”重渲染该页动态内容。
   // 否则先中文生成星、切英文后才点进问答/认星页，面板仍是中文（图像里的中文漏翻根因）。
   refreshI18n();
+  // 高级感进场：进入某屏时点亮该屏内的揭示元素（无 JS / 减弱动效时自动跳过）
+  if (window.__revealScreen) try{ window.__revealScreen(name); }catch(e){}
 }
 const INTRO_SEEN_KEY = 'star-sky-intro-seen-v1';
 function markIntroSeen(){ try{ localStorage.setItem(INTRO_SEEN_KEY, '1'); }catch(e){} }
@@ -1126,6 +1128,44 @@ if (!parseShareFromURL()){
 
 // 初始化语言切换按钮（含静态文案首轮翻译，依据 localStorage 记忆）
 initLangToggle();
+
+// ---------- 滚动揭示（高级感进场动画）----------
+// 仅给指定容器加 .reveal（无 JS 时内容照常可见）；进入对应屏幕时由 go() 点亮，
+// 同时用 IntersectionObserver 兜底（已可见元素立即点亮），尊重 prefers-reduced-motion。
+(function initReveal(){
+  try {
+    const targets = [
+      '#screen-quiz .quiz-shell',
+      '#screen-universe .uni-layout',
+      '#screen-claim .mint-gate',
+      '#screen-claim .claim-layout',
+      '#screen-share .share-head',
+      '#screen-share .share-actions',
+      '#screen-share .notes-wrap',
+      '#screen-share .wall-wrap',
+      '#screen-premium .premium-block',
+      '#screen-premium .contact-wrap'
+    ];
+    const els = [];
+    targets.forEach(sel => { const el = document.querySelector(sel); if (el) els.push(el); });
+    if (!els.length) return;
+    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce || !('IntersectionObserver' in window)){
+      els.forEach(el => el.classList.add('in'));
+      return;
+    }
+    els.forEach((el, i) => { el.classList.add('reveal'); if (i % 2) el.classList.add('d1'); });
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(en => { if (en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); } });
+    }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+    els.forEach(el => io.observe(el));
+    // 兜底：屏幕切换时主动点亮当前屏内的揭示元素（避免相交事件因切换时机错过）
+    window.__revealScreen = function(name){
+      const scr = screens[name]; if (!scr) return;
+      scr.querySelectorAll('.reveal').forEach(el => el.classList.add('in'));
+    };
+  } catch(e){ console.warn('[reveal] 初始化失败，内容保持可见', e); }
+})();
 
 function toast(msg){
   const t = document.getElementById('toast');
