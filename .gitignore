@@ -14,6 +14,7 @@ node_modules/
 # env / secrets（含部署私钥，切勿提交）
 .env
 .env.local
+.cloudflare.env
 .bsc-contract-address
 
 # AI 生成中间产物（原始大图，不入库）
